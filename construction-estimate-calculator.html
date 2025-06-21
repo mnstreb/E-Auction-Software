@@ -1,0 +1,2742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Estimate Calculator</title>
+    <!-- Link to Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link to Chart.js for the pie chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Base styles and UI improvements */
+        body {
+            margin: 0;
+            font-family: 'Inter var', system-ui, -apple-system, sans-serif; /* Added Inter var for modern feel */
+            background: linear-gradient(135deg, #e0f2fe 0%, #c1e0fa 100%); /* Lighter, softer blue gradient */
+            min-height: 100vh;
+            color: #374151; /* Default text color */
+            transition: background-color 0.3s, color 0.3s; /* Smooth transition for theme changes */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px; /* Slightly more rounded */
+            box-shadow: 0 6px 25px rgba(0,0,0,0.08); /* Softer, larger shadow */
+            padding: 30px; /* More padding */
+            margin-bottom: 25px;
+            transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transition for theme changes */
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px 14px; /* Larger padding */
+            border: 1px solid #d1d5db; /* Softer border */
+            border-radius: 8px; /* More rounded */
+            font-size: 15px; /* Slightly larger font */
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s; /* Smooth transition for theme changes */
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.04); /* Subtle inner shadow */
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #60a5fa; /* Lighter blue focus */
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3); /* Subtle blue glow */
+        }
+        .btn {
+            padding: 12px 25px; /* More padding */
+            border-radius: 10px; /* More rounded */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out; /* Smoother transition */
+            border: none;
+            font-size: 15px;
+        }
+        .btn-primary {
+            background: #2563eb; /* Deeper blue (Tailwind blue-600) */
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
+        }
+        .btn-primary:hover {
+            background: #1D4ED8; /* Even deeper blue (Tailwind blue-700) */
+            box-shadow: 0 6px 20px rgba(29, 78, 216, 0.3);
+            transform: translateY(-1px); /* Slight lift */
+        }
+        .btn-green {
+            background: #10b981; /* Brighter green (Tailwind emerald-500) */
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+        .btn-green:hover {
+            background: #059669; /* Deeper green (Tailwind emerald-600) */
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
+            transform: translateY(-1px);
+        }
+        .btn-red {
+            background: #ef4444; /* Brighter red (Tailwind red-500) */
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+        }
+        .btn-red:hover {
+            background: #dc2626; /* Deeper red (Tailwind red-600) */
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+            transform: translateY(-1px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate; /* Allows border-radius on cells */
+            border-spacing: 0; /* Remove space between cells */
+        }
+        th, td {
+            padding: 15px; /* More padding */
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            transition: border-color 0.3s; /* Smooth transition for theme changes */
+            /* white-space: nowrap; */ /* Removed from general td/th to allow wrapping if needed, but will control with fixed widths */
+        }
+        th {
+            background: #f3f4f6; /* Softer header background */
+            font-weight: 600;
+            color: #4b5563;
+            position: sticky; /* Sticky header for scrollable tables */
+            top: 0;
+            z-index: 1;
+            transition: background-color 0.3s, color 0.3s; /* Smooth transition for theme changes */
+        }
+        /* Rounded corners for table header */
+        th:first-child { border-top-left-radius: 10px; }
+        th:last-child { border-top-right-radius: 10px; } /* This might apply to the last TH of the whole table. Need to be mindful of multi-colspan headers. */
+
+        tr:nth-child(even) {
+            background: #f8fafc; /* Subtle zebra striping */
+            transition: background-color 0.3s; /* Smooth transition for theme changes */
+        }
+        tr:hover {
+            background: #e0f2fe; /* Light blue on hover */
+            transition: background 0.15s ease-in-out;
+        }
+        .setup-wizard {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6); /* Slightly darker overlay */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px); /* Subtle blur effect */
+        }
+        .wizard-content {
+            background: white;
+            border-radius: 20px; /* More rounded */
+            padding: 45px; /* More padding */
+            max-width: 650px; /* Slightly wider */
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); /* Stronger shadow */
+            transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transition for theme changes */
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 35px; /* More spacing */
+        }
+        .step {
+            width: 45px; /* Larger step circles */
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 12px;
+            font-weight: bold;
+            font-size: 18px; /* Larger number */
+            transition: background 0.3s, color 0.3s;
+        }
+        .step.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+        }
+        .step.inactive {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+        .form-group {
+            margin-bottom: 25px; /* More spacing between form groups */
+        }
+        .label {
+            display: block;
+            margin-bottom: 8px; /* More space below label */
+            font-weight: 600;
+            color: #4b5563; /* Softer label color */
+            font-size: 15px;
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        h1 {
+            font-size: 32px;
+            color: #1f2937;
+            margin-bottom: 15px !important; /* Ensure consistent heading margin */
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        h2 {
+            font-size: 26px;
+            color: #1f2937;
+            margin-bottom: 25px !important;
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        h3 {
+            font-size: 22px;
+            color: #1f2937;
+            margin-bottom: 20px !important;
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        /* Specific styles for the project info header in main app */
+        .header-info-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap; /* Allows wrapping on smaller screens */
+        }
+        /* Reverted header-icon-box to be a rounded rectangle, matching the "most up-to-date" immersive from the user's prompt */
+        .header-icon-box {
+            background: #3b82f6;
+            padding: 15px;
+            border-radius: 12px; /* Rounded rectangle */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px; /* Fixed size */
+            height: 64px;
+            overflow: hidden; /* Hide overflow for images */
+            transition: background-color 0.3s; /* Smooth transition for theme changes */
+        }
+        .header-logo-img { /* Style for the actual logo image */
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Ensure image fits without cropping */
+        }
+        .header-title-container {
+            line-height: 1.3;
+        }
+        .header-title {
+            margin: 0;
+            color: #1f2937;
+            font-size: 28px;
+            font-weight: 700; /* Make title bolder */
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        .header-subtitle {
+            margin: 5px 0 0 0;
+            color: #6b7280;
+            font-size: 16px;
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        /* Small adjustment for the action buttons in the header */
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px; /* Add margin for small screens */
+        }
+
+        /* Top Summary Row Styles (3 columns: Proposal, Hours, Chart) */
+        .top-summary-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Explicitly 3 columns on large screens */
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .summary-overall-metric-card {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); /* Deeper blue gradient for prominence */
+            color: white;
+            text-align: center;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(29, 78, 216, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 150px; /* Ensure some height */
+        }
+        .summary-overall-metric-card .label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.9);
+        }
+        .summary-overall-metric-card .value {
+            font-size: 3rem; /* Larger font for main value */
+            font-weight: 800;
+            line-height: 1;
+        }
+        /* Pie Chart specific styles (now in top row, also a card) */
+        .chart-container.card { /* Make it a card for consistent styling */
+            padding: 20px; /* Adjust padding for visual balance */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 150px; /* Match height of other top cards if possible */
+        }
+        .chart-canvas {
+            max-width: 100%; /* Make chart responsive */
+            max-height: 200px; /* Adjust max height for top row display */
+            height: auto;
+            width: auto; /* Allow chart.js to manage width within limits */
+        }
+        .chart-container.card h4 { /* Style the title of the chart in the new layout */
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 10px;
+            text-align: center;
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+
+
+        /* Executive Summary Grid (now 3 columns) specific styles */
+        .executive-summary-grid-3col { /* Renamed class for clarity */
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Explicitly 3 columns on large screens */
+            gap: 20px;
+        }
+        .executive-summary-grid-3col .card { /* Ensure cards within this grid don't have extra bottom margin */
+            margin-bottom: 0;
+        }
+        .summary-block h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 10px;
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 0.95rem;
+            color: #4b5563;
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        .summary-item strong {
+            color: #1f2937;
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        .summary-item.total {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #0d47a1; /* Darker blue for totals */
+            border-top: 1px dashed #cbd5e1;
+            margin-top: 8px;
+            padding-top: 8px;
+            transition: color 0.3s, border-color 0.3s; /* Smooth transition for theme changes */
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) { /* Adjust grid for medium screens */
+            .top-summary-row {
+                grid-template-columns: repeat(2, 1fr); /* 2 columns on medium screens */
+            }
+            .executive-summary-grid-3col { /* Renamed class */
+                grid-template-columns: repeat(2, 1fr); /* 2 columns on medium screens */
+            }
+            /* Adjust table for smaller screens */
+            table, thead, tbody, th, td, tr {
+                display: block; /* Make table elements stack for smaller screens */
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px; /* Hide table headers visually on small screens */
+                left: -9999px;
+            }
+            tr {
+                border: 1px solid #ccc; /* Add border to rows */
+                margin-bottom: 10px;
+                border-radius: 8px; /* Rounded corners for rows */
+                overflow: hidden; /* Hide overflow for rounded corners */
+                transition: border-color 0.3s; /* Smooth transition for theme changes */
+            }
+            td {
+                border: none; /* Remove individual cell borders */
+                position: relative;
+                padding-left: 50%; /* Make space for pseudo-element labels */
+                text-align: right;
+                font-size: 14px;
+            }
+            td:before {
+                /* Create a label for each cell using data-label attribute */
+                content: attr(data-label);
+                position: absolute;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: #4b5563; /* Default label color */
+                transition: color 0.3s; /* Smooth transition for theme changes */
+            }
+            td:nth-of-type(1):before { content: "Task Name:"; }
+            td:nth-of-type(2):before { content: "Description:"; }
+            td:nth-of-type(3):before { content: "OT/DT Multiplier:"; }
+            td:nth-of-type(4):before { content: "Skill:"; }
+            td:nth-of-type(5):before { content: "$/hr:"; }
+            td:nth-of-type(6):before { content: "# hrs:"; }
+            td:nth-of-type(7):before { content: "Labor Total:"; }
+            td:nth-of-type(8):before { content: "QTY / UNIT:"; }
+            td:nth-of-type(9):before { content: "$ / UNIT:"; }
+            td:nth-of-type(10):before { content: "Materials Total:"; }
+            td:nth-of-type(11):before { content: "Equipment / Rental:"; }
+            td:nth-of-type(12):before { content: "Subcontractor:"; }
+            td:nth-of-type(13):before { content: "Misc.:"; }
+            td:nth-of-type(14):before { content: "Other Total:"; }
+            td:nth-of-type(15):before { content: "TOTAL:"; }
+            td:nth-of-type(16):before { content: "Actions:"; }
+
+        }
+
+        @media (max-width: 768px) {
+            .card, .wizard-content {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            .header-title {
+                font-size: 24px;
+            }
+            .header-subtitle {
+                font-size: 15px;
+            }
+            /* Removed th, td font-size adjust for more consistent mobile labels */
+
+            .summary-overall-metric-card {
+                padding: 20px;
+            }
+            .summary-overall-metric-card .label {
+                font-size: 1.2rem;
+            }
+            .summary-overall-metric-card .value {
+                font-size: 2.5rem;
+            }
+            .top-summary-row, .executive-summary-grid-3col { /* Renamed class */
+                grid-template-columns: 1fr; /* Stack columns on small screens */
+            }
+            .chart-container.card h4 {
+                font-size: 1rem; /* Smaller title for chart on mobile */
+            }
+        }
+
+        /* Specific styles for multi-select dropdown */
+        .multi-select-container {
+            position: relative;
+        }
+        .multi-select-dropdown {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            background-color: white;
+            position: absolute;
+            width: 100%;
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s; /* Smooth transition for theme changes */
+        }
+        .multi-select-dropdown label {
+            display: block;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+        .multi-select-dropdown label:hover {
+            background-color: #f3f4f6;
+            transition: background-color 0.3s; /* Smooth transition for theme changes */
+        }
+        .multi-select-dropdown input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .selected-trades-display {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            min-height: 40px;
+            cursor: pointer;
+            background-color: white;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            transition: background-color 0.3s, border-color 0.3s; /* Smooth transition for theme changes */
+        }
+        .selected-trade-tag {
+            background-color: #e0f2fe; /* Light blue tag */
+            color: #1e40af; /* Dark blue text */
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: background-color 0.3s, color 0.3s; /* Smooth transition for theme changes */
+        }
+        .selected-trade-tag .remove-tag {
+            cursor: pointer;
+            font-weight: bold;
+            color: #94a3b8; /* Gray for X */
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        /* Styles for dynamic labor rate inputs in wizard */
+        .trade-labor-rates-group {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px; /* Space between trade groups */
+            background-color: #fcfcfc;
+            transition: background-color 0.3s, border-color 0.3s; /* Smooth transition for theme changes */
+        }
+        .trade-labor-rates-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.25rem;
+            color: #1f2937;
+            padding-bottom: 10px; /* Space below header */
+            border-bottom: 1px solid #e5e7eb; /* Separator for trade header */
+            transition: color 0.3s, border-color 0.3s; /* Smooth transition for theme changes */
+        }
+
+        .skill-level-row {
+            display: flex;
+            align-items: center; /* Align to the center of the content in the row */
+            margin-bottom: 15px;
+            gap: 15px; /* Increased space between skill name and rate input */
+            padding-bottom: 10px; /* Add some padding below each row */
+            border-bottom: 1px dashed #e5e7eb; /* Subtle separator for skill rows */
+            justify-content: space-between; /* Pushes skill name to left, rate input to right */
+            transition: border-color 0.3s; /* Smooth transition for theme changes */
+        }
+        .skill-level-row:last-child {
+            margin-bottom: 0;
+            border-bottom: none; /* No border for the last one */
+            padding-bottom: 0;
+        }
+
+        .skill-name-display { /* New class for plain text skill name */
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 15px;
+            flex-shrink: 0; /* Prevent shrinking if content is long */
+            width: 150px; /* Give it a fixed width for alignment */
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+
+        /* Adjustments for the rate input to align with the design */
+        .rate-input-group { /* Combined rate label, input, and delete button */
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Space between rate label, input, and delete button */
+            flex-grow: 1; /* Allow to grow and take remaining space */
+            justify-content: flex-end; /* Push rate input to the right within its group */
+        }
+        .rate-label {
+            white-space: nowrap; /* Prevent label from wrapping */
+            font-weight: 600;
+            color: #4b5563;
+            font-size: 15px;
+            margin-right: 0; /* Remove previous margin-right */
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        .rate-input { /* Specific class for the rate input field */
+            width: 100px; /* Fixed width for rate input for consistent alignment */
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        /* Style for editable skill name input */
+        .skill-name-input.editable {
+            width: 150px; /* Match width of skill-name-display */
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s; /* Smooth transition for theme changes */
+            flex-shrink: 0;
+            box-sizing: border-box; /* Include padding and border in the width */
+        }
+        .skill-name-input.editable:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+        }
+
+
+        /* Smaller, aligned remove button */
+        .remove-skill-btn {
+            background-color: #ef4444; /* Red */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px; /* Smaller width */
+            height: 24px; /* Smaller height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px; /* Smaller font for minus/X */
+            line-height: 1;
+            cursor: pointer;
+            flex-shrink: 0; /* Don't shrink the button */
+            transition: background-color 0.2s ease;
+            margin-bottom: 0; /* No bottom margin needed */
+            margin-left: 0; /* No explicit margin-left needed, gap handles it */
+            position: static; /* Remove relative positioning */
+            top: auto; /* Remove top adjustment */
+        }
+        .remove-skill-btn:hover {
+            background-color: #dc2626; /* Darker red */
+        }
+
+        .advanced-link-wrapper {
+            width: 100%;
+            text-align: left; /* Align to the left */
+            margin-top: 20px; /* Space above the button bar */
+        }
+        .advanced-link {
+            color: #2563eb; /* Primary blue color for the link */
+            text-decoration: underline;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .advanced-link:hover {
+            color: #1D4ED8; /* Darker blue on hover */
+        }
+
+        /* Styles for the logo upload area (Step 1 of wizard) - REVERTED TO RECTANGULAR */
+        .logo-upload-area {
+            background: #f8fafc; /* Light gray background */
+            border: 2px dashed #cbd5e1; /* Dashed border */
+            border-radius: 12px; /* Rectangular with rounded corners */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Generous padding */
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            min-height: 120px; /* Ensure some minimum height */
+            gap: 10px; /* Space between crane and text */
+            position: relative; /* For positioning the image */
+            overflow: hidden; /* Hide overflow for image */
+        }
+        .logo-upload-area:hover {
+            background: #e0f2fe; /* Lighter blue on hover */
+            border-color: #60a5fa; /* Blue border on hover */
+        }
+        .logo-upload-area.drag-over {
+            background: #dbeafe; /* Even lighter blue when dragging over */
+            border-color: #3b82f6; /* Solid blue border when dragging over */
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Image preview within the upload area (for wizard) */
+        .logo-upload-area .wizard-logo-img-preview {
+            max-width: 100%;
+            max-height: 100px; /* Limit height of uploaded logo in wizard */
+            object-fit: contain; /* Ensure image fits without cropping */
+            border-radius: 8px; /* Slightly rounded corners for the logo itself */
+        }
+
+        /* Default icon and text when no logo is loaded (always visible in this format) */
+        .logo-upload-area .default-icon {
+            font-size: 32px;
+            color: #3b82f6;
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        .logo-upload-area .upload-text {
+            font-size: 0.9rem;
+            color: #6b7280;
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        /* Removed .logo-upload-overlay and its related styles as per the new requested format */
+
+        /* Hide spinner arrows for number input fields within the table */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+
+        /* Custom styles for Task Name and Description fields to make them wider */
+        /* Increased min-width of the table to ensure horizontal scroll if needed */
+        table.min-w-full {
+            min-width: 1400px; /* Increased minimum width for better spacing */
+            width: 100%; /* Still allows stretching if screen is wider */
+        }
+
+        /* General td padding adjustment for a more compact look */
+        #estimateTableBody td {
+            padding: 8px 10px;
+        }
+
+        /* Styles for Task Name and Description Textareas */
+        #estimateTableBody td:nth-child(1) textarea, /* Task Name */
+        #estimateTableBody td:nth-child(2) textarea { /* Description */
+            white-space: normal; /* Allow text to wrap */
+            height: auto; /* Auto height based on content */
+            min-height: 40px; /* Minimum height for visibility */
+            box-sizing: border-box;
+            resize: vertical; /* Allow vertical resizing */
+            overflow-y: auto; /* Add scrollbar if content exceeds min-height */
+        }
+        /* Ensure these textareas fill their cell width */
+        #estimateTableBody td:nth-child(1) textarea,
+        #estimateTableBody td:nth-child(2) textarea {
+            width: 100%; /* Fill the cell */
+            max-width: none; /* Override any max-width */
+        }
+
+        /* Styles for compact numerical input fields and selects */
+        #estimateTableBody input[type="number"],
+        #estimateTableBody select {
+            width: 70px; /* A fixed, smaller width for numerical inputs */
+            font-size: 0.9em; /* Smaller font for inputs */
+            padding: 6px 8px; /* Reduced padding */
+            box-sizing: border-box; /* Include padding/border in width */
+            text-align: right; /* Align numbers to the right */
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition for theme changes */
+        }
+
+        /* Specific width adjustments for 'Skill' and 'OT/DT' selects */
+        #estimateTableBody td:nth-child(3) select, /* OT/DT Multiplier */
+        #estimateTableBody td:nth-child(4) select { /* Skill */
+            width: 90px; /* Slightly more space for selects */
+            text-align: left; /* Keep text aligned left for selections */
+        }
+
+        /* Keep currency output and total values on one line and bold */
+        /* This applies to $/hr and TOTAL */
+        #estimateTableBody td:nth-child(5), /* $/hr */
+        #estimateTableBody td:nth-child(15) { /* TOTAL */
+            white-space: nowrap;
+            font-weight: bold;
+            color: #1f2937; /* Darker text for totals */
+            text-align: right; /* Align currency/totals to the right */
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+
+        /* Center Labor Total, Materials Total, Other Total Cells in tbody */
+        #estimateTableBody td:nth-child(7), /* Labor Total */
+        #estimateTableBody td:nth-child(10), /* Materials Total */
+        #estimateTableBody td:nth-child(14) { /* Other Total */
+            white-space: nowrap;
+            font-weight: bold;
+            color: #1f2937; /* Darker text for totals */
+            text-align: center; /* ALIGNED TO CENTER FOR COLLAPSED VIEW */
+            transition: color 0.3s; /* Smooth transition for theme changes */
+        }
+        
+        /* Adjust actions column button size */
+        #estimateTableBody td button.btn-red {
+            padding: 6px 10px; /* Smaller padding for action button */
+            font-size: 0.85em; /* Smaller font */
+        }
+
+        /* Styles for collapsible columns */
+        /* Flexbox for centering within the header cell */
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Default: centers content within the header TH's colspan */
+            gap: 8px;
+            cursor: pointer;
+            user-select: none; /* Prevent text selection on click */
+            padding: 0;
+            height: 100%;
+            width: 100%; /* Ensure it fills its parent TH */
+        }
+        .collapsible-header span {
+            display: inline-block; /* Ensure text behaves well with flex */
+        }
+        .collapse-toggle-icon {
+            font-size: 0.8em; /* Smaller icon */
+            transition: transform 0.2s ease-in-out;
+            display: inline-block;
+        }
+        .collapsible-header.collapsed .collapse-toggle-icon {
+            transform: rotate(-90deg); /* Rotate for collapsed state */
+        }
+        /* Class to hide columns */
+        .column-hidden {
+            display: none !important; /* Important to override default table cell display */
+        }
+
+        /* Ensure second-row total headers are centered */
+        th.labor-total-col,
+        th.materials-total-col,
+        th.other-total-col {
+            text-align: center;
+        }
+
+        /* Dark Theme Styles */
+        body.dark-theme {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%); /* Darker gradient */
+            color: #e2e8f0; /* Light text */
+        }
+        .dark-theme .card {
+            background: #2d3748; /* Darker card background */
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4); /* Stronger dark shadow */
+        }
+        .dark-theme .input-field {
+            background-color: #4a5568; /* Darker input field background */
+            border-color: #4a5568; /* Darker border */
+            color: #e2e8f0; /* Light text for inputs */
+        }
+        .dark-theme .input-field:focus {
+            border-color: #63b3ed; /* Lighter blue focus */
+            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
+        }
+        .dark-theme .label,
+        .dark-theme h1,
+        .dark-theme h2,
+        .dark-theme .summary-block h4,
+        .dark-theme .summary-item strong {
+            color: #e2e8f0; /* Light headings and strong text */
+        }
+        /* ADDED: Specific rule for the chart h4 title in dark theme */
+        .dark-theme .chart-container.card h4 {
+            color: #e2e8f0; /* Ensures the "Cost Distribution" title is light in dark mode */
+        }
+        .dark-theme .header-subtitle,
+        .dark-theme .summary-item,
+        .dark-theme .logo-upload-area .upload-text,
+        .dark-theme .multi-select-dropdown p,
+        .dark-theme .multi-select-dropdown label span,
+        .dark-theme .skill-name-display,
+        .dark-theme .rate-label {
+            color: #a0aec0; /* Lighter gray for general text */
+        }
+        /* Fix: Lighter color for table total columns in dark mode */
+        .dark-theme #estimateTableBody td:nth-child(5),
+        .dark-theme #estimateTableBody td:nth-child(7),
+        .dark-theme #estimateTableBody td:nth-child(10),
+        .dark-theme #estimateTableBody td:nth-child(14),
+        .dark-theme #estimateTableBody td:nth-child(15) {
+            color: #e2e8f0; /* Light text for totals */
+        }
+        /* Fix: Lighter color for mobile table labels in dark mode */
+        .dark-theme td:before {
+            color: #a0aec0; /* Lighter gray for mobile labels */
+        }
+
+        .dark-theme .header-icon-box {
+            background: #4299e1; /* Slightly different blue for dark theme icon box */
+        }
+        .dark-theme .summary-overall-metric-card {
+            background: linear-gradient(135deg, #2a4365 0%, #2c5282 100%); /* Darker blue gradient for prominence */
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+        .dark-theme table,
+        .dark-theme th,
+        .dark-theme td {
+            border-color: #4a5568; /* Darker table borders */
+        }
+        .dark-theme th {
+            background: #4a5568; /* Darker table header background */
+            color: #e2e8f0;
+        }
+        .dark-theme tr:nth-child(even) {
+            background: #2d3748; /* Darker zebra striping */
+        }
+        .dark-theme tr:hover {
+            background: #4a5568; /* Darker hover */
+        }
+        .dark-theme .selected-trades-display,
+        .dark-theme .multi-select-dropdown {
+            background-color: #4a5568; /* Darker dropdown/tag background */
+            border-color: #4a5568;
+        }
+        .dark-theme .selected-trade-tag {
+            background-color: #4299e1; /* Darker tag background */
+            color: white;
+        }
+        .dark-theme .selected-trade-tag .remove-tag {
+            color: #a0aec0; /* Lighter gray for X in tags */
+        }
+        .dark-theme .multi-select-dropdown label:hover {
+            background-color: #2d3748;
+        }
+        .dark-theme .trade-labor-rates-group {
+            background-color: #2d3748;
+            border-color: #4a5568;
+        }
+        .dark-theme .trade-labor-rates-group h3 {
+            border-color: #4a5568;
+        }
+        .dark-theme .skill-level-row {
+            border-color: #4a5568;
+        }
+        .dark-theme .advanced-link {
+            color: #63b3ed; /* Lighter blue for links in dark theme */
+        }
+        .dark-theme .advanced-link:hover {
+            color: #90cdf4;
+        }
+        .dark-theme .summary-item.total {
+            color: #90cdf4; /* Lighter blue for totals in dark theme */
+            border-color: #4a5568;
+        }
+        .dark-theme .logo-upload-area {
+            background: #2d3748;
+            border-color: #4a5568;
+        }
+        .dark-theme .logo-upload-area:hover {
+            background: #4a5568;
+            border-color: #63b3ed;
+        }
+        .dark-theme .logo-upload-area.drag-over {
+            background: #4a5568;
+            border-color: #63b3ed;
+            box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.4);
+        }
+        .dark-theme .logo-upload-area .default-icon {
+            color: #63b3ed;
+        }
+        .dark-theme .setup-wizard .wizard-content {
+            background: #2d3748;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+        .dark-theme .step.inactive {
+            background: #4a5568;
+            color: #a0aec0;
+        }
+        .dark-theme .step.active {
+            background: #4299e1;
+            box-shadow: 0 2px 8px rgba(66, 153, 225, 0.4);
+        }
+        /* Styles for loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000; /* Higher than other modals */
+            color: white;
+            font-size: 1.5rem;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Styles for the auto-closing success notification */
+        .success-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10b981; /* Green */
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            z-index: 2002; /* Higher than loading overlay */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        .success-notification.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main Application Interface -->
+    <div id="mainApp" class="container hidden">
+        <div class="card mb-6">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                <div class="header-info-container">
+                    <div class="header-icon-box">
+                        <img id="mainAppLogo" class="header-logo-img" src="" alt="Contractor Logo" onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjjaWNjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIj48L2NpcmNsZT48cGF0aCBkPSJNMTYuMiA3LjhMMjAuMiAxSjguOEwzLjggMTYuMiIvPjxwYXRoIGQ9Ik03LjggNy44TDE1LjgwMTMyMiAzLjE3MjQ1MzM4TDEzLjE0NTgzOTQ5OSA3LjYxNDU4MzYwNyA3LjYxNDU4MzYwNyAxMy4xNDU4Mzk0OTkgMTIuNjIzNTY0NDQgMTYuODEyMTc3MjEgMy4xNzI0NTYzOCAxMi4xOTA5MjgyIDcuOCAxNi4yIi8+PHBhdGggde="MTE2LjIgMTYuMkwxMi4yIDIwLjJMMTguOCAyMC4yTDE2LjIgMTYuMiIvPjwvZ291dmc+'>
+                        <!-- Default SVG if no logo or error -->
+                    </div>
+                    <div class="header-title-container">
+                        <h1 class="header-title">Construction Estimate Calculator</h1>
+                        <p class="header-subtitle" id="projectInfo">Commercial Construction Project</p>
+                    </div>
+                </div>
+                <div class="header-buttons">
+                    <!-- Updated theme toggle button with moon icon -->
+                    <button id="themeToggleBtn" class="btn btn-primary">🌙</button>
+                    <button id="reconfigureBtn" class="btn btn-primary">⚙️ Reconfigure</button>
+                    <!-- Removed Generate Report Button -->
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: Top-level summary boxes with Executive Summary -->
+        <div class="top-summary-row mb-6">
+            <div class="summary-overall-metric-card">
+                <span class="label">Total Proposal</span>
+                <span class="value" id="summaryTotalProposal">$0.00</span>
+            </div>
+            <div class="summary-overall-metric-card">
+                <span class="label">Total Labor Hours</span>
+                <span class="value" id="summaryOverallLaborHours">0</span>
+            </div>
+            <!-- Executive Summary (MOVED HERE) -->
+            <div class="card summary-block">
+                <h4>Executive Summary</h4>
+                <div class="summary-item"><span>Total Project Cost:</span> <strong id="summaryProjectCost">$0.00</strong></div>
+                <div class="summary-item"><span>Total Misc Cost:</span> <strong id="summaryMiscCost">$0.00</strong></div>
+                <div class="summary-item"><span>Total Overhead:</span> <strong id="summaryOverhead">$0.00</strong></div>
+                <!-- Removed Total Markup as per user request -->
+                <div class="summary-item"><span>Material Markup (%):</span> <strong id="summaryMaterialMarkup">0.00%</strong></div>
+                <div class="summary-item"><span>Material Markup Amount:</span> <strong id="summaryMaterialMarkupAmount">$0.00</strong></div> <!-- NEW LINE -->
+                <div class="summary-item pb-2 mb-2 border-b border-dashed border-gray-300"><span>Estimate Subtotal:</span> <strong id="summaryEstimateSubtotal">$0.00</strong></div>
+                <div class="summary-item"><span>Profit Margin (%):</span> <strong id="summaryProfitMargin">0.00%</strong></div>
+                <div class="summary-item"><span>Sales Tax (%):</span> <strong id="summarySalesTax">0.00%</strong></div>
+                <div class="summary-item"><span>Misc. (%):</span> <strong id="summaryMiscPercent">0.00%</strong></div>
+                <div class="summary-item"><span>Additional Considerations:</span> <strong id="summaryAdditionalConsiderations">$0.00</strong></div>
+            </div>
+        </div>
+
+        <!-- Executive Summary Grid (now 3 columns, but without Executive Summary card) -->
+        <div class="executive-summary-section mb-6">
+            <div class="executive-summary-grid-3col">
+                <div class="card summary-block">
+                    <h4>Labor Breakdown (Hours)</h4>
+                    <div class="summary-item"><span>Project Manager:</span> <strong id="laborPMTotal">0.00</strong></div>
+                    <div class="summary-item"><span>Superintendent:</span> <strong id="laborSuperintendentTotal">0.00</strong></div>
+                    <div class="summary-item"><span>General Foreman:</span> <strong id="laborGeneralForemanTotal">0.00</strong></div>
+                    <div class="summary-item"><span>Foreman:</span> <strong id="laborForemanTotal">0.00</strong></div>
+                    <div class="summary-item"><span>Journeyman:</span> <strong id="laborJourneymanTotal">0.00</strong></div>
+                    <div class="summary-item total"><span>Total Labor Hours:</span> <strong id="breakdownLaborHoursTotal">0.00</strong></div>
+                </div>
+
+                <div class="card summary-block">
+                    <h4>Project Cost Breakdown</h4>
+                    <div class="summary-item"><span>Labor Total:</span> <strong id="breakdownLaborTotal">$0.00</strong></div>
+                    <div class="summary-item"><span>Material Total:</span> <strong id="breakdownMaterialTotal">$0.00</strong></div>
+                    <div class="summary-item"><span>Equipment Total:</span> <strong id="breakdownEquipmentTotal">$0.00</strong></div>
+                    <div class="summary-item"><span>Sub-contractor Total:</span> <strong id="breakdownSubcontractorTotal">$0.00</strong></div>
+                    <div class="summary-item"><span>Misc. Total (Line Items):</span> <strong id="breakdownMiscCost">$0.00</strong></div>
+                    <div class="summary-item total"><span>Total Project Cost:</span> <strong id="breakdownProjectTotal">$0.00</strong></div>
+                </div>
+
+                <!-- Pie Chart Container (MOVED HERE) -->
+                <div class="chart-container card">
+                    <h4 style="margin-top:0;">Cost Distribution</h4>
+                    <canvas id="laborMaterialPieChart" class="chart-canvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card overflow-x-auto" id="estimateLineItemsTableContainer">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-semibold text-gray-800">Estimate Line Items</h3>
+                <button id="addItemBtn" class="btn btn-green">➕ Add Item</button>
+            </div>
+            <table class="min-w-full">
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="task-name-col">Task Name</th>
+                        <th rowspan="2" class="description-col">Description</th>
+                        <!-- Initial colspan="5" for LABOR (4 detail + 1 total) -->
+                        <th colspan="5" class="text-center labor-col" id="thLaborHeader">
+                            <div class="collapsible-header" data-group="labor">
+                                <span>LABOR</span>
+                                <span class="collapse-toggle-icon">▼</span>
+                            </div>
+                        </th>
+                        <!-- Initial colspan="3" for MATERIALS (2 detail + 1 total) -->
+                        <th colspan="3" class="text-center materials-col" id="thMaterialsHeader">
+                            <div class="collapsible-header" data-group="materials">
+                                <span>MATERIALS</span>
+                                <span class="collapse-toggle-icon">▼</span>
+                            </div>
+                        </th>
+                        <!-- Initial colspan="4" for OTHER (3 detail + 1 total) - Corrected from 3 to 4 -->
+                        <th colspan="4" class="text-center other-col" id="thOtherHeader">
+                            <div class="collapsible-header" data-group="other">
+                                <span>OTHER</span>
+                                <span class="collapse-toggle-icon">▼</span>
+                            </div>
+                        </th>
+                        <th rowspan="2" class="total-col">TOTAL</th>
+                        <th rowspan="2" class="actions-col">Actions</th>
+                    </tr>
+                    <tr>
+                        <!-- These THs will be hidden/shown by JS and are targeted by data-col-group -->
+                        <th class="border-b" data-col-group="labor-details">OT/DT</th>
+                        <th class="border-b" data-col-group="labor-details">Skill</th>
+                        <th class="border-b" data-col-group="labor-details">$/hr</th>
+                        <th class="border-b" data-col-group="labor-details"># hrs</th>
+                        <th class="border-b labor-total-col">Labor Total</th>
+
+                        <th class="border-b" data-col-group="materials-details">QTY / UNIT</th>
+                        <th class="border-b" data-col-group="materials-details">$ / UNIT</th>
+                        <th class="border-b materials-total-col">Materials Total</th>
+
+                        <th class="border-b" data-col-group="other-details">Equipment / Rental</th>
+                        <th class="border-b" data-col-group="other-details">Subcontractor</th>
+                        <th class="border-b" data-col-group="other-details">Misc.</th>
+                        <th class="border-b other-total-col">Other Total</th> <!-- Added this header -->
+                    </tr>
+                </thead>
+                <tbody id="estimateTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="setupWizard" class="setup-wizard">
+        <div class="wizard-content">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <!-- Logo Upload Area -->
+                <input type="file" id="logoUploadInput" accept="image/*" style="display: none;">
+                <div id="logoUploadArea" class="logo-upload-area">
+                    <img id="wizardLogoPreview" class="uploaded-logo hidden" src="" alt="Contractor Logo">
+                    <span id="defaultLogoIcon" class="default-icon">🏗️</span>
+                    <p style="color: #6b7280;" id="uploadText" class="upload-text">Drag & drop your logo here, or click to upload</p>
+                </div>
+
+                <h1>Project Setup</h1>
+                <p style="color: #6b7280;">Let's configure your estimate for accuracy</p>
+            </div>
+
+            <div class="step-indicator">
+                <div id="step1" class="step active">1</div>
+                <div id="step2" class="step inactive">2</div>
+                <div id="step3" class="step inactive">3</div>
+            </div>
+
+            <div id="wizardStep1">
+                <h2 class="text-xl font-semibold mb-6">Project Information</h2>
+                <div class="form-group">
+                    <label for="projectName" class="label">Project Name:</label>
+                    <input type="text" id="projectName" class="input-field" value="Commercial Construction Project" required>
+                </div>
+                <div class="form-group">
+                    <label for="clientName" class="label">Client Name/Company:</label>
+                    <input type="text" id="clientName" class="input-field" placeholder="e.g., Acme Corp." required>
+                </div>
+                <div class="form-group">
+                    <label for="projectType" class="label">Project Type:</label>
+                    <select id="projectType" class="input-field" required>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Residential">Residential</option>
+                        <option value="Industrial">Industrial</option>
+                        <option value="Renovation">Renovation</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="projectState" class="label">State/Location:</label>
+                    <select id="projectState" class="input-field" required>
+                        <option value="CA">California</option>
+                        <option value="TX">Texas</option>
+                        <option value="NY">New York</option>
+                        <option value="FL">Florida</option>
+                        <option value="WA">Washington</option>
+                        <option value="IL">Illinois</option>
+                        <option value="AL">Alabama</option> <option value="AK">Alaska</option> <option value="AZ">Arizona</option> <option value="AR">Arkansas</option> <option value="CO">Colorado</option> <option value="CT">Connecticut</option> <option value="DE">Delaware</option> <option value="GA">Georgia</option> <option value="HI">Hawaii</option> <option value="ID">Idaho</option> <option value="IN">Indiana</option> <option value="IA">Iowa</option> <option value="KS">Kansas</option> <option value="KY">Kentucky</option> <option value="LA">Louisiana</option> <option value="ME">Maine</option> <option value="MD">Maryland</option> <option value="MA">Massachusetts</option> <option value="MI">Michigan</option> <option value="MN">Minnesota</option> <option value="MS">Mississippi</option> <option value="MO">Missouri</option> <option value="MT">Montana</option> <option value="NE">Nebraska</option> <option value="NV">Nevada</option> <option value="NH">New Hampshire</option> <option value="NJ">New Jersey</option> <option value="NM">New Mexico</option> <option value="NC">North Carolina</option> <option value="ND">North Dakota</option> <option value="OH">Ohio</option> <option value="OK">Oklahoma</option> <option value="OR">Oregon</option> <option value="PA">Pennsylvania</option> <option value="RI">Rhode Island</option> <option value="SC">South Carolina</option> <option value="SD">South Dakota</option> <option value="TN">Tennessee</option> <option value="UT">Utah</spon> <option value="VT">Vermont</option> <option value="VA">Virginia</option> <option value="WA">Washington</option> <option value="WV">West Virginia</option> <option value="WI">Wisconsin</option> <option value="WY">Wyoming</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tradesInvolved" class="label">Trades Involved (Select multiple):</label>
+                    <div class="multi-select-container">
+                        <input type="text" id="tradeSearchInput" class="input-field mb-2" placeholder="Search trades...">
+                        <div id="selectedTradesDisplay" class="selected-trades-display">
+                            Click to select trades...
+                        </div>
+                        <div id="tradesDropdown" class="multi-select-dropdown hidden">
+                            <!-- Checkboxes will be populated here by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Details Section -->
+                <div class="advanced-link-wrapper mt-6">
+                    <a href="#" class="advanced-link" id="showAdvancedDetailsLink">Show Advanced Details</a>
+                </div>
+
+                <div id="advancedDetailsSection" class="hidden mt-4 pt-4 border-t border-gray-200">
+                    <h4 class="font-semibold text-lg mb-3">Additional Project Information</h4>
+                    <div class="form-group">
+                        <label for="projectAddress" class="label">Project Street Address:</label>
+                        <input type="text" id="projectAddress" class="input-field" placeholder="e.g., 123 Main St.">
+                    </div>
+                    <div class="form-group">
+                        <label for="projectCity" class="label">City:</label>
+                        <input type="text" id="projectCity" class="input-field" placeholder="e.g., Anytown">
+                    </div>
+                    <div class="form-group">
+                        <label for="projectZip" class="label">Zip Code:</label>
+                        <input type="text" id="projectZip" class="input-field" placeholder="e.g., 90210">
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate" class="label">Start Date:</label>
+                        <input type="date" id="startDate" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate" class="label">End Date (Optional):</label>
+                        <input type="date" id="endDate" class="input-field">
+                    </div>
+                    <div class="form-group">
+                        <label for="projectID" class="label">Project ID/Number:</label>
+                        <input type="text" id="projectID" class="input-field" placeholder="e.g., PROJ-001">
+                    </div>
+                    <div class="form-group">
+                        <label for="projectDescription" class="label">Project Description/Scope Summary:</label>
+                        <textarea id="projectDescription" class="input-field" rows="4" placeholder="Briefly describe the project scope..."></textarea>
+                    </div>
+                </div>
+
+
+                <div class="flex justify-end gap-3 mt-8">
+                    <button id="nextStep1Btn" class="btn btn-primary">Next</button>
+                </div>
+            </div>
+
+            <div id="wizardStep2" class="hidden">
+                <h2 class="text-xl font-semibold mb-6">Labor Rates Configuration</h2>
+                <p class="text-gray-600 mb-4">Enter the hourly rates for each skill level within the selected trades.</p>
+                
+                <!-- Container for dynamic labor rate inputs (now a simple list) -->
+                <div id="dynamicLaborRateInputs" class="grid gap-4"> 
+                    <!-- Dynamic labor rate items will be injected here -->
+                </div>
+
+                <!-- Advanced link at the bottom-left -->
+                <div class="advanced-link-wrapper">
+                    <a href="#" class="advanced-link" id="advancedLink">Show Advanced Options</a>
+                </div>
+                
+                <!-- Advanced section for adding new skill levels - hidden by default -->
+                <div id="advancedSkillLevelControls" class="hidden mt-6 pt-4 border-t border-gray-200">
+                    <h4 class="font-semibold text-lg mb-3">Add Custom Skill Level</h4>
+                    <div class="form-group">
+                        <label for="newSkillTitle" class="label">New Skill Title:</label>
+                        <input type="text" id="newSkillTitle" class="input-field" placeholder="e.g., Lead Journeyman">
+                    </div>
+                    <div class="form-group">
+                        <label for="newSkillRate" class="label">New Skill Rate ($/hr):</label>
+                        <input type="number" id="newSkillRate" class="input-field" value="0">
+                    </div>
+                    <button id="addSkillLevelBtn" class="btn btn-primary w-full mt-2">Add Skill Level</button>
+                </div>
+
+                <div class="flex justify-between gap-3 mt-8">
+                    <button id="prevStep2Btn" class="btn btn-primary">Previous</button>
+                    <button id="nextStep2Btn" class="btn btn-primary">Next</button>
+                </div>
+            </div>
+
+            <div id="wizardStep3" class="hidden">
+                <h2 class="text-xl font-semibold mb-6">Project Settings</h2>
+
+                <!-- Overhead -->
+                <div class="form-group">
+                    <label for="overhead" class="label">Overhead (%):</label>
+                    <input type="number" id="overhead" class="input-field" value="0" step="0.01">
+                </div>
+
+                <!-- Material Markup (NEW FIELD) -->
+                <div class="form-group">
+                    <label for="materialMarkup" class="label">Material Markup (%):</label>
+                    <input type="number" id="materialMarkup" class="input-field" value="0" step="0.01">
+                </div>
+
+                <!-- Desired Profit -->
+                <div class="form-group">
+                    <label for="profitMargin" class="label">Desired Profit (%):</label>
+                    <input type="number" id="profitMargin" class="input-field" value="0" step="0.01">
+                </div>
+
+                <!-- Sales Tax -->
+                <div class="form-group">
+                    <label for="salesTax" class="label">Sales Tax (%):</label>
+                    <input type="number" id="salesTax" class="input-field" value="0" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="miscellaneous" class="label">Miscellaneous (%):</label>
+                    <input type="number" id="miscellaneous" class="input-field" value="0" step="0.01">
+                </div>
+
+                <!-- Additional Project Considerations with Toggle -->
+                <div class="form-group">
+                    <label class="label">Additional Project Considerations:</label>
+                    <div class="flex items-center gap-3">
+                        <input type="number" id="additionalConsiderationsValue" class="input-field flex-grow" value="0" step="0.01">
+                        <span id="additionalConsiderationsUnit" class="font-semibold text-gray-600 w-10 text-center">%</span>
+                        <button id="toggleAdditionalConsiderationsBtn" type="button" class="btn btn-primary btn-sm">Toggle</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between gap-3 mt-8">
+                    <button id="prevStep3Btn" class="btn btn-primary">Previous</button>
+                    <button id="startEstimatingBtn" class="btn btn-green">Start Estimating</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Removed Loading Overlay for PDF Generation -->
+
+    <!-- Removed Auto-closing Success Notification -->
+
+    <script>
+        // Helper function for currency formatting
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // Helper function for hours formatting (2 decimal places)
+        function formatHours(hours) {
+            return parseFloat(hours).toFixed(2);
+        }
+
+        // Global variables for project settings
+        let projectSettings = {
+            projectName: "Commercial Construction Project",
+            clientName: "",
+            projectAddress: "",
+            projectCity: "",
+            projectZip: "",
+            startDate: "",
+            endDate: "",
+            projectID: "",
+            projectDescription: "",
+            contractorLogo: "",
+            projectType: "Commercial",
+            projectState: "CA", // Default state is California
+            profitMargin: 0,
+            salesTax: 0,
+            miscellaneous: 0,
+            overhead: 0,
+            materialMarkup: 0, // NEW: Material Markup percentage
+            additionalConsiderationsType: '%',
+            additionalConsiderationsValue: 0,
+            // Define labor rates nested by trade
+            allTradeLaborRates: {
+                "General": {
+                    "Project Manager": 120,
+                    "Superintendent": 100,
+                    "General Foreman": 90,
+                    "Foreman": 85,
+                    "Journeyman": 75,
+                    "Apprentice": 50
+                },
+                "Electrical": {
+                    "Project Manager": 135,
+                    "Superintendent": 110,
+                    "General Foreman": 100,
+                    "Foreman": 95,
+                    "Journeyman": 80,
+                    "Apprentice": 55
+                },
+                "Plumbing": {
+                    "Project Manager": 125,
+                    "Superintendent": 105,
+                    "General Foreman": 95,
+                    "Foreman": 90,
+                    "Journeyman": 78,
+                    "Apprentice": 52
+                },
+                "HVAC": {
+                    "Project Manager": 130,
+                    "Superintendent": 108,
+                    "General Foreman": 98,
+                    "Foreman": 92,
+                    "Journeyman": 77,
+                    "Apprentice": 53
+                },
+                "Carpentry": {
+                    "Project Manager": 115,
+                    "Superintendent": 95,
+                    "General Foreman": 85,
+                    "Foreman": 80,
+                    "Journeyman": 70,
+                    "Apprentice": 48
+                },
+                "Concrete": { "Project Manager": 110, "Superintendent": 90, "General Foreman": 80, "Foreman": 75, "Journeyman": 68, "Apprentice": 45 },
+                "Roofing": { "Project Manager": 120, "Superintendent": 98, "General Foreman": 88, "Foreman": 83, "Journeyman": 73, "Apprentice": 47 },
+                "Painting": { "Project Manager": 105, "Superintendent": 88, "General Foreman": 78, "Foreman": 73, "Journeyman": 65, "Apprentice": 42 },
+                "Drywall": { "Project Manager": 112, "Superintendent": 92, "General Foreman": 82, "Foreman": 77, "Journeyman": 69, "Apprentice": 44 },
+                "Masonry": { "Project Manager": 128, "Superintendent": 102, "General Foreman": 93, "Foreman": 88, "Journeyman": 76, "Apprentice": 51 },
+                "Landscaping": { "Project Manager": 100, "Superintendent": 85, "General Foreman": 75, "Foreman": 70, "Journeyman": 60, "Apprentice": 40 }
+            },
+            activeTrades: ["General"], // Default active trade
+            travelCost: 0,
+            equipmentCost: 0,
+            fixedCost: 0,
+            subcontractorCost: 0,
+            allowanceCost: 0
+        };
+
+        // Estimate data structure (starting with only one item)
+        let estimateItems = [
+            {
+                id: Date.now(), // Ensures a unique ID for the first item
+                taskName: 'First Task', // A more generic default name
+                description: 'Detail your first project task here.',
+                trade: 'General', // This will be updated to match activeTrades later if needed
+                rateRole: 'Journeyman', // This will be updated to match activeTrades later if needed
+                hours: 0,
+                otDtMultiplier: 1.0,
+                materialQuantity: 0, // was materialUnits
+                materialUnitCost: 0, // was materialPerUnit
+                equipmentRentalCost: 0,
+                subcontractorCostLineItem: 0,
+                miscLineItem: 0
+            }
+        ];
+
+        // State for collapsed columns (initially collapsed for all)
+        const collapsedState = {
+            labor: true,
+            materials: true,
+            other: true
+        };
+
+        // UI Element references
+        const setupWizard = document.getElementById('setupWizard');
+        const mainApp = document.getElementById('mainApp');
+        const wizardSteps = [
+            document.getElementById('wizardStep1'),
+            document.getElementById('wizardStep2'),
+            document.getElementById('wizardStep3')
+        ];
+        const stepIndicators = [
+            document.getElementById('step1'),
+            document.getElementById('step2'),
+            document.getElementById('step3')
+        ];
+        const estimateTableBody = document.getElementById('estimateTableBody');
+        const dynamicLaborRateInputs = document.getElementById('dynamicLaborRateInputs');
+        const advancedLink = document.getElementById('advancedLink');
+        const advancedSkillLevelControls = document.getElementById('advancedSkillLevelControls');
+
+        const showAdvancedDetailsLink = document.getElementById('showAdvancedDetailsLink');
+        const advancedDetailsSection = document.getElementById('advancedDetailsSection');
+
+        const tradeSearchInput = document.getElementById('tradeSearchInput'); // Restored
+        const tradesDropdown = document.getElementById('tradesDropdown'); // Restored
+        const selectedTradesDisplay = document.getElementById('selectedTradesDisplay');
+
+        const logoUploadInput = document.getElementById('logoUploadInput');
+        const logoUploadArea = document.getElementById('logoUploadArea');
+        const wizardLogoPreview = document.getElementById('wizardLogoPreview');
+        const defaultLogoIcon = document.getElementById('defaultLogoIcon');
+        const uploadText = document.getElementById('uploadText');
+
+        const mainAppLogo = document.getElementById('mainAppLogo');
+
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+
+        // State for advanced mode in Step 2
+        let isAdvancedModeActive = false;
+
+        // State for advanced details in Step 1
+        let isAdvancedDetailsActive = false;
+        
+        // State for theme - will be initialized in DOMContentLoaded
+        let isDarkTheme = false;
+
+        // Top-level summary elements
+        const summaryTotalProposalElem = document.getElementById('summaryTotalProposal');
+        const summaryOverallLaborHoursElem = document.getElementById('summaryOverallLaborHours');
+
+        // Executive Summary elements
+        const summaryProjectCost = document.getElementById('summaryProjectCost');
+        const summaryMiscCost = document.getElementById('summaryMiscCost'); // This refers to the project-level Misc (%)
+        const summaryMaterialMarkup = document.getElementById('summaryMaterialMarkup'); // Reference for Material Markup
+        const summaryMaterialMarkupAmount = document.getElementById('summaryMaterialMarkupAmount'); // NEW: Reference for Material Markup Amount
+        const summaryEstimateSubtotal = document.getElementById('summaryEstimateSubtotal');
+        const summaryProfitMargin = document.getElementById('summaryProfitMargin');
+        const summarySalesTax = document.getElementById('salesTax'); // Changed to direct input reference
+        const summaryMiscPercent = document.getElementById('miscellaneous'); // Changed to direct input reference
+        const summaryOverhead = document.getElementById('overhead'); // Changed to direct input reference
+        const summaryAdditionalConsiderations = document.getElementById('summaryAdditionalConsiderations');
+
+
+        // Note: These now represent *hours* in the Labor Breakdown summary
+        const laborPMTotal = document.getElementById('laborPMTotal');
+        const laborSuperintendentTotal = document.getElementById('laborSuperintendentTotal');
+        const laborGeneralForemanTotal = document.getElementById('laborGeneralForemanTotal');
+        const laborForemanTotal = document.getElementById('laborForemanTotal');
+        const laborJourneymanTotal = document.getElementById('laborJourneymanTotal');
+        const laborApprenticeTotal = document.getElementById('laborApprenticeTotal');
+        const breakdownLaborHoursTotal = document.getElementById('breakdownLaborHoursTotal'); // New element for total labor hours in breakdown
+
+        const breakdownLaborTotal = document.getElementById('breakdownLaborTotal');
+        const breakdownMaterialTotal = document.getElementById('breakdownMaterialTotal');
+        const breakdownEquipmentTotal = document.getElementById('breakdownEquipmentTotal');
+        const breakdownSubcontractorTotal = document.getElementById('breakdownSubcontractorTotal');
+        const breakdownMiscCostLineItems = document.getElementById('breakdownMiscCost'); // Added for line item misc total
+        const breakdownOtherTotal = document.getElementById('breakdownOtherTotal');
+        const breakdownProjectTotal = document.getElementById('breakdownProjectTotal'); // New element for total project cost in breakdown
+
+        const projectInfoElem = document.getElementById('projectInfo');
+        const laborMaterialPieChartCanvas = document.getElementById('laborMaterialPieChart');
+        let laborMaterialPieChart;
+
+
+        // Initial setup - show wizard
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial theme to light by default
+            isDarkTheme = false;
+            document.body.classList.remove('dark-theme'); // Ensure light theme is active
+            themeToggleBtn.innerHTML = '🌙'; // Moon icon for light theme (toggle to dark)
+
+
+
+            // Attach event listeners for static elements
+            document.getElementById('reconfigureBtn').addEventListener('click', showSetup);
+            // Removed event listener for generateReportBtn
+            document.getElementById('logoUploadArea').addEventListener('dragover', (event) => { event.preventDefault(); event.currentTarget.classList.add('drag-over'); });
+            document.getElementById('logoUploadArea').addEventListener('dragleave', (event) => { event.currentTarget.classList.remove('drag-over'); });
+            document.getElementById('logoUploadArea').addEventListener('drop', (event) => { handleLogoDrop(event); event.currentTarget.classList.remove('drag-over'); });
+            document.getElementById('logoUploadArea').addEventListener('click', () => document.getElementById('logoUploadInput').click());
+            document.getElementById('tradeSearchInput').addEventListener('focus', showTradeDropdown);
+            document.getElementById('tradeSearchInput').addEventListener('blur', hideTradeDropdown);
+            document.getElementById('selectedTradesDisplay').addEventListener('click', toggleTradeDropdown);
+            document.getElementById('nextStep1Btn').addEventListener('click', () => nextStep(1));
+            document.getElementById('showAdvancedDetailsLink').addEventListener('click', toggleAdvancedDetails);
+            document.getElementById('prevStep2Btn').addEventListener('click', () => prevStep(2));
+            document.getElementById('nextStep2Btn').addEventListener('click', () => nextStep(2));
+            document.getElementById('addSkillLevelBtn').addEventListener('click', addSkillLevelFromAdvanced);
+            document.getElementById('prevStep3Btn').addEventListener('click', () => prevStep(3));
+            document.getElementById('startEstimatingBtn').addEventListener('click', startEstimating);
+            document.getElementById('toggleAdditionalConsiderationsBtn').addEventListener('click', toggleAdditionalConsiderationsType);
+            document.getElementById('addItemBtn').addEventListener('click', addItem);
+            themeToggleBtn.addEventListener('click', toggleTheme); // Event listener for theme toggle
+
+            // Add event listeners for collapsible headers
+            document.querySelectorAll('.collapsible-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const group = this.dataset.group;
+                    toggleColumnVisibility(group);
+                });
+            });
+
+            showSetup();
+            updateSalesTaxForState(projectSettings.projectState); // Will set based on default CA, overriding the 0
+            populateTradesDropdown();
+            updateSelectedTradesDisplay();
+
+            // Immediately apply initial collapsed state to the main table headers
+            for (const group in collapsedState) {
+                if (collapsedState.hasOwnProperty(group) && collapsedState[group]) {
+                    const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
+                    const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
+                    if (headerElement && mainThElement) {
+                        headerElement.classList.add('collapsed');
+                        mainThElement.colSpan = 1;
+                        document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                            th.classList.add('column-hidden');
+                        });
+                    }
+                }
+            }
+            adjustTableMinWidth(); // Call adjustTableMinWidth initially as well
+        });
+
+        // --- Collapsible Column Logic ---
+        function toggleColumnVisibility(group) {
+            collapsedState[group] = !collapsedState[group];
+            const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
+            const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
+            
+            if (collapsedState[group]) {
+                headerElement.classList.add('collapsed');
+                // When collapsed, the header spans only the "Total" column
+                mainThElement.colSpan = 1; 
+
+                // Hide the detail headers in the second row
+                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                    th.classList.add('column-hidden');
+                });
+                // Also hide the associated cells in the tbody
+                estimateTableBody.querySelectorAll('tr').forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (group === 'labor') {
+                        // Original indices for labor details: 2(OT/DT), 3(Skill), 4($/hr), 5(#hrs)
+                        [2, 3, 4, 5].forEach(index => {
+                            if (cells[index]) cells[index].classList.add('column-hidden');
+                        });
+                    } else if (group === 'materials') {
+                        // Original indices for materials details: 7(QTY/UNIT), 8($/UNIT)
+                        [7, 8].forEach(index => {
+                            if (cells[index]) cells[index].classList.add('column-hidden');
+                        });
+                    } else if (group === 'other') {
+                        // Original indices for other details: 10(Equipment), 11(Subcontractor), 12(Misc.)
+                        [10, 11, 12].forEach(index => {
+                            if (cells[index]) cells[index].classList.add('column-hidden');
+                        });
+                    }
+                });
+            } else {
+                headerElement.classList.remove('collapsed');
+                // Restore original colspan when expanded
+                if (group === 'labor') {
+                    mainThElement.colSpan = 5;
+                } else if (group === 'materials') {
+                    mainThElement.colSpan = 3;
+                } else if (group === 'other') {
+                    mainThElement.colSpan = 4;
+                }
+
+                // Show the detail headers in the second row
+                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                    th.classList.remove('column-hidden');
+                });
+                // Also show the associated cells in the tbody
+                estimateTableBody.querySelectorAll('tr').forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (group === 'labor') {
+                        [2, 3, 4, 5].forEach(index => {
+                            if (cells[index]) cells[index].classList.remove('column-hidden');
+                        });
+                    } else if (group === 'materials') {
+                        [7, 8].forEach(index => {
+                            if (cells[index]) cells[index].classList.remove('column-hidden');
+                        });
+                    } else if (group === 'other') {
+                        [10, 11, 12].forEach(index => {
+                            if (cells[index]) cells[index].classList.remove('column-hidden');
+                        });
+                    }
+                });
+            }
+            adjustTableMinWidth();
+        }
+
+
+        // --- Theme Toggle Logic ---
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            if (isDarkTheme) {
+                document.body.classList.add('dark-theme');
+                themeToggleBtn.innerHTML = '☀️'; // Sun icon for light theme
+            } else {
+                document.body.classList.remove('dark-theme');
+                themeToggleBtn.innerHTML = '🌙'; // Moon icon for dark theme
+            }
+            applyChartTheme(); // Apply theme to chart immediately
+        }
+
+        // Dedicated function to apply theme colors to the chart
+        function applyChartTheme() {
+            if (laborMaterialPieChart) {
+                const textColor = isDarkTheme ? '#e2e8f0' : '#1f2937';
+                const borderColor = isDarkTheme ? 'rgba(200, 200, 200, 0.2)' : 'rgba(255, 255, 255, 1)';
+                const borderWidth = isDarkTheme ? 1 : 2;
+                const backgroundColor = isDarkTheme ? [
+                    'rgba(66, 153, 225, 0.8)', // Lighter Blue for Labor
+                    'rgba(68, 185, 129, 0.8)', // Lighter Green for Material
+                    'rgba(255, 182, 70, 0.8)'  // Lighter Orange for Other Costs
+                ] : [
+                    'rgba(59, 130, 246, 0.8)', // Blue for Labor
+                    'rgba(16, 185, 129, 0.8)', // Green for Material
+                    'rgba(245, 158, 11, 0.8)' // Orange for Other Costs
+                ];
+
+                laborMaterialPieChart.data.datasets[0].backgroundColor = backgroundColor;
+                laborMaterialPieChart.data.datasets[0].borderColor = borderColor;
+                laborMaterialPieChart.data.datasets[0].borderWidth = borderWidth;
+                laborMaterialPieChart.options.plugins.legend.labels.color = textColor;
+                // Note: The main chart title is not display:true, so this 'title.font.color' property won't be visible.
+                // The H4 element outside the canvas is controlled by CSS.
+                laborMaterialPieChart.options.plugins.title.font.color = textColor; 
+                laborMaterialPieChart.update();
+            }
+        }
+
+
+        // --- Logo Upload Logic ---
+        logoUploadInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                handleFile(this.files[0]);
+            }
+        });
+
+        function handleLogoDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('drag-over');
+
+            if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+                handleFile(event.dataTransfer.files[0]);
+            }
+        }
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                renderMessageBox('Please drop an image file (e.g., JPG, PNG, GIF).');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                projectSettings.contractorLogo = e.target.result;
+                displayLogo(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function displayLogo(base64Image) {
+            wizardLogoPreview.src = base64Image;
+            wizardLogoPreview.classList.remove('hidden');
+            defaultLogoIcon.classList.add('hidden');
+            uploadText.classList.add('hidden');
+
+            mainAppLogo.src = base64Image;
+        }
+
+        function loadSavedLogo() {
+            if (projectSettings.contractorLogo) {
+                displayLogo(projectSettings.contractorLogo);
+            } else {
+                wizardLogoPreview.classList.add('hidden');
+                defaultLogoIcon.classList.remove('hidden');
+                uploadText.classList.remove('hidden');
+                mainAppLogo.src = '';
+            }
+        }
+
+
+        // --- Wizard Navigation ---
+        let currentStep = 1;
+
+        function showStep(stepNumber) {
+            wizardSteps.forEach((stepDiv, index) => {
+                if (index + 1 === stepNumber) {
+                    stepDiv.classList.remove('hidden');
+                } else {
+                    stepDiv.classList.add('hidden');
+                }
+            });
+            stepIndicators.forEach((indicator, index) => {
+                if (index + 1 === stepNumber) {
+                    indicator.classList.add('active');
+                    indicator.classList.remove('inactive');
+                } else {
+                    indicator.classList.remove('active');
+                    indicator.classList.add('inactive');
+                }
+            });
+            currentStep = stepNumber;
+
+            if (stepNumber === 1) {
+                isAdvancedDetailsActive = false;
+                showAdvancedDetailsLink.textContent = 'Show Advanced Details';
+                advancedDetailsSection.classList.add('hidden');
+                populateWizardInputs();
+                loadSavedLogo();
+            }
+            if (stepNumber === 2) {
+                isAdvancedModeActive = false;
+                advancedLink.textContent = 'Show Advanced Options';
+                advancedSkillLevelControls.classList.add('hidden');
+                populateWizardStep2LaborRates();
+            }
+            if (stepNumber === 3) {
+                populateWizardStep3Settings();
+            }
+        }
+
+        function nextStep(stepNumber) {
+            if (stepNumber === 1) {
+                const projectName = document.getElementById('projectName').value.trim();
+                const clientName = document.getElementById('clientName').value.trim();
+                const projectType = document.getElementById('projectType').value.trim();
+                const projectState = document.getElementById('projectState').value.trim();
+
+                if (!projectName) { renderMessageBox("Please enter a Project Name."); return; }
+                if (!clientName) { renderMessageBox("Please enter a Client Name/Company."); return; }
+                if (!projectType) { renderMessageBox("Please select a Project Type."); return; }
+                if (!projectState) { renderMessageBox("Please select a State/Location."); return; }
+                if (projectSettings.activeTrades.length === 0) { renderMessageBox("Please select at least one Trade Involved."); return; }
+
+
+                projectSettings.projectName = projectName;
+                projectSettings.clientName = clientName;
+                projectSettings.projectAddress = document.getElementById('projectAddress').value;
+                projectSettings.projectCity = document.getElementById('projectCity').value;
+                projectSettings.projectZip = document.getElementById('projectZip').value;
+                projectSettings.startDate = document.getElementById('startDate').value;
+                projectSettings.endDate = document.getElementById('endDate').value;
+                projectSettings.projectID = document.getElementById('projectID').value;
+                projectSettings.projectDescription = document.getElementById('projectDescription').value;
+                projectSettings.projectType = projectType;
+                projectSettings.projectState = projectState;
+                updateSalesTaxForState(projectSettings.projectState);
+
+            } else if (stepNumber === 2) {
+                for (const trade of projectSettings.activeTrades) {
+                    // Only validate if the trade actually exists in the rates data
+                    if (projectSettings.allTradeLaborRates[trade]) {
+                        for (const role in projectSettings.allTradeLaborRates[trade]) {
+                            const rate = projectSettings.allTradeLaborRates[trade][role];
+                            if (isNaN(rate) || rate < 0) {
+                                renderMessageBox(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+            showStep(stepNumber + 1);
+        }
+
+        function prevStep(stepNumber) {
+            showStep(stepNumber - 1);
+        }
+
+        function showSetup() {
+            setupWizard.classList.remove('hidden');
+            mainApp.classList.add('hidden');
+            showStep(1);
+            populateTradesDropdown();
+            updateSelectedTradesDisplay();
+        }
+
+        function startEstimating() {
+            const projectName = document.getElementById('projectName').value.trim();
+            const clientName = document.getElementById('clientName').value.trim();
+            const projectType = document.getElementById('projectType').value.trim();
+            const projectState = document.getElementById('projectState').value.trim();
+
+            if (!projectName) { renderMessageBox("Please enter a Project Name."); return; }
+            if (!clientName) { renderMessageBox("Please enter a Client Name/Company."); return; }
+            if (!projectType) { renderMessageBox("Please select a Project Type."); return; }
+            if (!projectState) { renderMessageBox("Please select a State/Location."); return; }
+            if (projectSettings.activeTrades.length === 0) {
+                renderMessageBox("Please select at least one trade involved in the project before starting the estimate.");
+                return;
+            }
+
+            for (const trade of projectSettings.activeTrades) {
+                if (!projectSettings.allTradeLaborRates[trade]) {
+                    renderMessageBox(`Labor rates for trade "${trade}" are not defined. Please define them or deselect this trade.`);
+                    return;
+                }
+                for (const role in projectSettings.allTradeLaborRates[trade]) {
+                    const rate = projectSettings.allTradeLaborRates[trade][role];
+                    if (isNaN(rate) || rate < 0) {
+                        renderMessageBox(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
+                        return;
+                    }
+                }
+            }
+
+            projectSettings.projectName = document.getElementById('projectName').value;
+            projectSettings.clientName = document.getElementById('clientName').value;
+            projectSettings.projectAddress = document.getElementById('projectAddress').value;
+            projectSettings.projectCity = document.getElementById('projectCity').value;
+            projectSettings.projectZip = document.getElementById('projectZip').value;
+            projectSettings.startDate = document.getElementById('startDate').value;
+            projectSettings.endDate = document.getElementById('endDate').value;
+            projectSettings.projectID = document.getElementById('projectID').value;
+            projectSettings.projectDescription = document.getElementById('projectDescription').value;
+            projectSettings.projectType = document.getElementById('projectType').value;
+            projectSettings.projectState = document.getElementById('projectState').value;
+            
+            projectSettings.profitMargin = parseFloat(document.getElementById('profitMargin').value) || 0;
+            projectSettings.salesTax = parseFloat(document.getElementById('salesTax').value) || 0;
+            projectSettings.miscellaneous = parseFloat(document.getElementById('miscellaneous').value) || 0;
+            projectSettings.overhead = parseFloat(document.getElementById('overhead').value) || 0;
+            projectSettings.materialMarkup = parseFloat(document.getElementById('materialMarkup').value) || 0; // NEW: Get material markup
+            projectSettings.additionalConsiderationsValue = parseFloat(document.getElementById('additionalConsiderationsValue').value) || 0;
+
+            setupWizard.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+
+            projectInfoElem.textContent = `${projectSettings.projectType} - ${projectSettings.projectName} - ${projectSettings.projectState}`;
+
+            // Ensure default trade/role is set for the single item if it's new or needs update
+            if (estimateItems.length === 1) { // Only update the first item if it's the default one
+                const firstItem = estimateItems[0];
+                const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
+                const defaultRole = projectSettings.allTradeLaborRates[defaultTrade] && Object.keys(projectSettings.allTradeLaborRates[defaultTrade]).length > 0 ? Object.keys(projectSettings.allTradeLaborRates[defaultTrade])[0] : "Journeyman";
+                
+                // Only set if the item still has the initial generic names or trade/role are invalid
+                if (firstItem.taskName === 'First Task' && firstItem.description === 'Detail your first project task here.' ||
+                    !projectSettings.activeTrades.includes(firstItem.trade) ||
+                    !projectSettings.allTradeLaborRates[firstItem.trade]?.[firstItem.rateRole]
+                ) {
+                    firstItem.trade = defaultTrade;
+                    firstItem.rateRole = defaultRole;
+                }
+            }
+            
+            renderItems(); // This will now render based on the (single) item and collapsedState for TDs.
+
+            // Re-apply column visual states (colspans, icons, column-hidden class on second row THs)
+            for (const group in collapsedState) {
+                if (collapsedState.hasOwnProperty(group)) {
+                    const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
+                    const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
+                    if (headerElement && mainThElement) {
+                        if (collapsedState[group]) {
+                            headerElement.classList.add('collapsed');
+                            mainThElement.colSpan = 1;
+                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => th.classList.add('column-hidden'));
+                        } else {
+                            headerElement.classList.remove('collapsed');
+                            if (group === 'labor') mainThElement.colSpan = 5;
+                            else if (group === 'materials') mainThElement.colSpan = 3;
+                            else if (group === 'other') mainThElement.colSpan = 4;
+                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => th.classList.remove('column-hidden'));
+                        }
+                    }
+                }
+            }
+            adjustTableMinWidth();
+        }
+
+        // --- Data Management Functions ---
+
+        function populateWizardInputs() {
+            document.getElementById('projectName').value = projectSettings.projectName;
+            document.getElementById('clientName').value = projectSettings.clientName;
+            document.getElementById('projectType').value = projectSettings.projectType;
+            document.getElementById('projectState').value = projectSettings.projectState;
+
+            document.getElementById('projectAddress').value = projectSettings.projectAddress;
+            document.getElementById('projectCity').value = projectSettings.projectCity;
+            document.getElementById('projectZip').value = projectSettings.projectZip;
+            document.getElementById('startDate').value = projectSettings.startDate;
+            document.getElementById('endDate').value = projectSettings.endDate;
+            document.getElementById('projectID').value = projectSettings.projectID;
+            document.getElementById('projectDescription').value = projectSettings.projectDescription; // Corrected: assign value to textarea
+
+            if (isAdvancedDetailsActive) {
+                advancedDetailsSection.classList.remove('hidden');
+                showAdvancedDetailsLink.textContent = 'Hide Advanced Details';
+            } else {
+                advancedDetailsSection.classList.add('hidden');
+                showAdvancedDetailsLink.textContent = 'Show Advanced Details';
+            }
+            populateWizardStep3Settings();
+        }
+
+        function populateWizardStep3Settings() {
+            document.getElementById('profitMargin').value = projectSettings.profitMargin;
+            document.getElementById('salesTax').value = projectSettings.salesTax;
+            document.getElementById('miscellaneous').value = projectSettings.miscellaneous;
+            document.getElementById('overhead').value = projectSettings.overhead;
+            document.getElementById('materialMarkup').value = projectSettings.materialMarkup; // NEW: Set material markup
+            document.getElementById('additionalConsiderationsValue').value = projectSettings.additionalConsiderationsValue;
+            document.getElementById('additionalConsiderationsUnit').textContent = projectSettings.additionalConsiderationsType;
+        }
+
+
+        const stateSalesTax = {
+            'CA': 8.25, 'TX': 6.25, 'NY': 4.0, 'FL': 6.0, 'WA': 6.5, 'IL': 6.25,
+            'AL': 4.0, 'AK': 0.0, 'AZ': 5.6, 'AR': 6.5, 'CO': 2.9, 'CT': 6.35, 'DE': 0.0,
+            'GA': 4.0, 'HI': 4.0, 'ID': 6.0, 'IN': 7.0, 'IA': 6.0, 'KS': 6.5, 'KY': 6.0,
+            'LA': 4.45, 'ME': 5.5, 'MD': 6.0, 'MA': 6.25, 'MI': 6.0, 'MN': 6.875, 'MS': 7.0,
+            'MO': 4.225, 'MT': 0.0, 'NE': 5.5, 'NV': 6.85, 'NH': 0.0, 'NJ': 6.625, 'NM': 5.125,
+            'NC': 4.75, 'ND': 5.0, 'OH': 5.75, 'OK': 4.5, 'OR': 0.0, 'PA': 6.0, 'RI': 7.0,
+            'SC': 6.0, 'SD': 4.5, 'TN': 7.0, 'UT': 4.85, 'VT': 6.0, 'VA': 5.3, 'WV': 6.0,
+            'WI': 5.0, 'WY': 4.0
+        };
+
+        function updateSalesTaxForState(stateCode) {
+            const taxRate = stateSalesTax[stateCode] || 0;
+            document.getElementById('salesTax').value = taxRate;
+            projectSettings.salesTax = taxRate;
+        }
+
+        // document.getElementById('projectState').addEventListener('change', (event) => {
+        //     updateSalesTaxForState(event.target.value);
+        // });
+        // Event listener for projectState change:
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('projectState').addEventListener('change', (event) => {
+                updateSalesTaxForState(event.target.value);
+            });
+        });
+
+
+        function toggleAdditionalConsiderationsType() {
+            if (projectSettings.additionalConsiderationsType === '%') {
+                projectSettings.additionalConsiderationsType = '$';
+            } else {
+                projectSettings.additionalConsiderationsType = '%';
+            }
+            document.getElementById('additionalConsiderationsUnit').textContent = projectSettings.additionalConsiderationsType;
+        }
+
+
+        function populateWizardStep2LaborRates() {
+            dynamicLaborRateInputs.innerHTML = '';
+
+            if (projectSettings.activeTrades.length === 0) {
+                dynamicLaborRateInputs.innerHTML = `<p class="text-gray-600">Please select trades in Step 1 to configure their labor rates here.</p>`;
+                return;
+            }
+
+            const defaultRoles = ["Project Manager", "Superintendent", "General Foreman", "Foreman", "Journeyman", "Apprentice"];
+
+            projectSettings.activeTrades.forEach(trade => {
+                const tradeGroupDiv = document.createElement('div');
+                tradeGroupDiv.className = 'trade-labor-rates-group';
+                tradeGroupDiv.innerHTML = `<h3>${trade} Labor Rates</h3>`;
+
+                const rolesWithRates = Object.entries(projectSettings.allTradeLaborRates[trade] || {});
+
+                rolesWithRates.sort(([, rateA], [, rateB]) => {
+                    if (rateA !== rateB) {
+                        return rateB - rateA;
+                    }
+                    const roleNameA = arguments[0][0];
+                    const roleNameB = arguments[1][0];
+                    return roleNameA.localeCompare(roleNameB);
+                });
+
+                let skillLevelsHtml = '';
+                rolesWithRates.forEach(([role, rate]) => {
+                    const rateInputId = `rate-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
+                    const skillNameElementId = `skillname-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
+
+                    skillLevelsHtml += `
+                        <div class="skill-level-row">
+                            ${isAdvancedModeActive ? `
+                                <input type="text" id="${skillNameElementId}" class="skill-name-input editable" value="${role}"
+                                    onchange="updateSkillTitle('${trade}', '${role}', this.value)">
+                            ` : `
+                                <span id="${skillNameElementId}" class="skill-name-display">${role}</span>
+                            `}
+                            <div class="rate-input-group">
+                                <label for="${rateInputId}" class="rate-label">Rate ($/hr):</label>
+                                <input type="number" id="${rateInputId}" class="input-field rate-input" value="${rate}"
+                                    onchange="updateLaborRate('${trade}', '${role}', this.value)">
+                                ${isAdvancedModeActive ? `
+                                    <button class="remove-skill-btn" onclick="confirmRemoveSkillLevel('${trade}', '${role}')">
+                                        &minus;
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                tradeGroupDiv.innerHTML += skillLevelsHtml;
+                dynamicLaborRateInputs.appendChild(tradeGroupDiv);
+            });
+        }
+
+        function updateLaborRate(trade, role, value) {
+            const parsedValue = parseFloat(value);
+            if (!isNaN(parsedValue) && parsedValue >= 0) {
+                projectSettings.allTradeLaborRates[trade][role] = parsedValue;
+                populateWizardStep2LaborRates();
+            } else {
+                console.error(`Invalid input for ${trade} ${role} rate: ${value}`);
+                const inputId = `rate-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
+                document.getElementById(inputId).value = projectSettings.allTradeLaborRates[trade][role] || 0;
+            }
+        }
+
+        function updateSkillTitle(trade, oldRole, newRole) {
+            const trimmedNewRole = newRole.trim();
+            console.log(`Attempting to update skill title for trade: ${trade}, oldRole: ${oldRole}, newRole: ${trimmedNewRole}`);
+            if (trimmedNewRole === oldRole) {
+                console.log('New role is same as old role. No update needed.');
+                return;
+            }
+            if (!trimmedNewRole) {
+                renderMessageBox("Skill level title cannot be empty. Reverting to original name.");
+                document.getElementById(`skillname-${trade.replace(/\s/g, '')}-${oldRole.replace(/\s/g, '')}`).value = oldRole;
+                return;
+            }
+            const existingRoles = Object.keys(projectSettings.allTradeLaborRates[trade]).map(r => r.toLowerCase());
+            if (existingRoles.includes(trimmedNewRole.toLowerCase()) && trimmedNewRole.toLowerCase() !== oldRole.toLowerCase()) {
+                renderMessageBox(`Skill level "${trimmedNewRole}" already exists for ${trade}. Please choose a different name.`);
+                document.getElementById(`skillname-${trade.replace(/\s/g, '')}-${oldRole.replace(/\s/g, '')}`).value = oldRole;
+                return;
+            }
+
+            if (projectSettings.allTradeLaborRates[trade] && projectSettings.allTradeLaborRates[trade][oldRole] !== undefined) {
+                const rate = projectSettings.allTradeLaborRates[trade][oldRole];
+                delete projectSettings.allTradeLaborRates[trade][oldRole];
+                projectSettings.allTradeLaborRates[trade][trimmedNewRole] = rate;
+                console.log(`Successfully updated skill title for trade: ${trade}, from ${oldRole} to ${trimmedNewRole}.`);
+
+                estimateItems.forEach(item => {
+                    if (item.trade === trade && item.rateRole === oldRole) {
+                        item.rateRole = trimmedNewRole;
+                    }
+                });
+                populateWizardStep2LaborRates();
+                renderItems();
+            } else {
+                console.warn(`Could not find skill "${role}" in trade "${trade}" for update.`);
+            }
+        }
+
+
+        function toggleAdvancedRates(event) {
+            event.preventDefault();
+            isAdvancedModeActive = !isAdvancedModeActive;
+            if (isAdvancedModeActive) {
+                advancedLink.textContent = 'Hide Advanced Options';
+                advancedSkillLevelControls.classList.remove('hidden');
+            } else {
+                advancedLink.textContent = 'Show Advanced Options';
+                advancedSkillLevelControls.classList.add('hidden');
+            }
+            populateWizardStep2LaborRates();
+        }
+
+        function toggleAdvancedDetails(event) {
+            event.preventDefault();
+            isAdvancedDetailsActive = !isAdvancedDetailsActive;
+            if (isAdvancedDetailsActive) {
+                showAdvancedDetailsLink.textContent = 'Hide Advanced Details';
+                advancedDetailsSection.classList.remove('hidden');
+            } else {
+                advancedDetailsLink.textContent = 'Show Advanced Details';
+                advancedDetailsSection.classList.add('hidden');
+            }
+        }
+
+
+        function addSkillLevelFromAdvanced() {
+            if (projectSettings.activeTrades.length === 0) {
+                renderMessageBox("Please select at least one trade in Step 1 before adding new skill levels.");
+                return;
+            }
+            
+            const newSkillTitleInput = document.getElementById('newSkillTitle');
+            const newSkillRateInput = document.getElementById('newSkillRate');
+
+            const newTitle = newSkillTitleInput.value.trim();
+            const newRate = parseFloat(newSkillRateInput.value);
+            console.log(`Attempting to add new skill: ${newTitle} with rate ${newRate}`);
+
+            if (!newTitle) {
+                renderMessageBox("Please enter a title for the new skill level.");
+                return;
+            }
+            if (isNaN(newRate) || newRate < 0) {
+                renderMessageBox("Please enter a valid non-negative number for the new skill rate.");
+                return;
+            }
+
+            let newSkillAdded = false;
+            let alreadyExistsForSome = false;
+            projectSettings.activeTrades.forEach(trade => {
+                if (!projectSettings.allTradeLaborRates[trade]) {
+                    projectSettings.allTradeLaborRates[trade] = {};
+                }
+                const existingRolesForTrade = Object.keys(projectSettings.allTradeLaborRates[trade]).map(r => r.toLowerCase());
+                if (!existingRolesForTrade.includes(newTitle.toLowerCase())) {
+                    projectSettings.allTradeLaborRates[trade][newTitle] = newRate;
+                    newSkillAdded = true;
+                    console.log(`Added skill "${newTitle}" to trade "${trade}".`);
+                } else {
+                    alreadyExistsForSome = true;
+                    console.warn(`Skill level "${newTitle}" already exists for ${trade}, skipping.`);
+                }
+            });
+
+            if (newSkillAdded) {
+                newSkillTitleInput.value = '';
+                newSkillRateInput.value = '0';
+                populateWizardStep2LaborRates();
+            } else if (alreadyExistsForSome) {
+                renderMessageBox(`Skill level "${newTitle}" already exists for some or all selected trades. It was not added where it already existed.`);
+            } else {
+                renderMessageBox(`Skill level "${newTitle}" already exists for all selected trades or no trades are selected.`);
+            }
+        }
+
+
+        function confirmRemoveSkillLevel(trade, role) {
+            console.log(`Confirming removal of skill: ${role} from trade: ${trade}`);
+            renderMessageBox(`Are you sure you want to remove the skill level "${role}" from ${trade}? This will remove it from all line items using it.`,
+                () => {
+                    removeSkillLevel(trade, role);
+                    closeMessageBox();
+                },
+                true
+            );
+        }
+
+        function removeSkillLevel(trade, role) {
+            console.log(`Attempting to remove skill: ${role} from trade: ${trade}`);
+            const defaultRoles = ["Project Manager", "Superintendent", "General Foreman", "Foreman", "Journeyman", "Apprentice"];
+            if (defaultRoles.includes(role)) {
+                renderMessageBox(`"${role}" is a default skill level and cannot be removed.`);
+                console.log(`Cannot remove default skill: ${role}`);
+                return;
+            }
+
+            if (projectSettings.allTradeLaborRates[trade] && projectSettings.allTradeLaborRates[trade][role] !== undefined) {
+                delete projectSettings.allTradeLaborRates[trade][role];
+                console.log(`Successfully removed skill: ${role} from trade: ${trade}`);
+
+                estimateItems.forEach(item => {
+                    if (item.trade === trade && item.rateRole === role) {
+                        const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
+                        item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+                        console.log(`Updated line item rate role from ${role} to ${item.rateRole}`);
+                    }
+                });
+
+                populateWizardStep2LaborRates();
+                renderItems();
+            } else {
+                console.warn(`Could not find skill "${role}" in trade "${trade}" for update.`);
+            }
+        }
+
+        function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
+            const messageBoxOverlay = document.createElement('div');
+            messageBoxOverlay.id = 'messageBoxOverlay';
+            messageBoxOverlay.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[1001] backdrop-filter backdrop-blur-sm';
+            
+            const messageBox = document.createElement('div');
+            messageBox.className = 'bg-white rounded-xl p-8 shadow-2xl max-w-sm mx-auto text-center';
+            
+            let buttonsHtml = `<button class="btn btn-primary" onclick="closeMessageBox()">OK</button>`;
+            if (isConfirm) {
+                buttonsHtml = `
+                    <button class="btn btn-red mr-3" id="confirmYesBtn">Yes</button>
+                    <button class="btn btn-primary" onclick="closeMessageBox()">No</button>
+                `;
+            }
+
+            messageBox.innerHTML = `
+                <p class="text-lg font-semibold text-gray-800 mb-6">${message}</p>
+                <div class="flex justify-center gap-3">
+                    ${buttonsHtml}
+                </div>
+            `;
+            messageBoxOverlay.appendChild(messageBox);
+            document.body.appendChild(messageBoxOverlay);
+
+            if (isConfirm && onConfirmCallback) {
+                document.getElementById('confirmYesBtn').addEventListener('click', onConfirmCallback);
+            }
+        }
+
+        function closeMessageBox() {
+            const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+            if (messageBoxOverlay) {
+                messageBoxOverlay.remove();
+            }
+        }
+
+        // Removed function for auto-closing success notifications
+
+        function populateTradesDropdown() {
+            tradesDropdown.innerHTML = '';
+            const allTrades = Object.keys(projectSettings.allTradeLaborRates);
+
+            const searchTerm = tradeSearchInput.value.toLowerCase();
+            const filteredTrades = allTrades.filter(trade => 
+                trade.toLowerCase().includes(searchTerm)
+            );
+
+            if (filteredTrades.length === 0 && searchTerm) {
+                tradesDropdown.innerHTML = `<p class="text-gray-600 text-center py-4">No trades found matching "${searchTerm}"</p>`;
+            } else if (filteredTrades.length === 0 && !searchTerm) {
+                tradesDropdown.innerHTML = `<p class="text-gray-600 text-center py-4">No trades available.</p>`;
+            } else {
+                filteredTrades.forEach(trade => {
+                    const checkboxId = `trade-${trade.replace(/\s/g, '-')}`;
+                    const isChecked = projectSettings.activeTrades.includes(trade);
+
+                    const label = document.createElement('label');
+                    label.className = 'flex items-center';
+                    label.innerHTML = `
+                        <input type="checkbox" id="${checkboxId}" value="${trade}" ${isChecked ? 'checked' : ''} onchange="handleTradeSelection(this)">
+                        <span>${trade}</span>
+                    `;
+                    tradesDropdown.appendChild(label);
+                });
+            }
+        }
+
+        function updateSelectedTradesDisplay() {
+            selectedTradesDisplay.innerHTML = '';
+            if (projectSettings.activeTrades.length === 0) {
+                selectedTradesDisplay.textContent = 'Click to select trades...';
+                return;
+            }
+            projectSettings.activeTrades.forEach(trade => {
+                const span = document.createElement('span');
+                span.className = 'selected-trade-tag';
+                span.innerHTML = `${trade} <span class="remove-tag" data-trade="${trade}">&times;</span>`;
+                selectedTradesDisplay.appendChild(span);
+            });
+        }
+
+
+        function handleTradeSelection(checkbox) {
+            const trade = checkbox.value;
+            if (checkbox.checked) {
+                if (!projectSettings.activeTrades.includes(trade)) {
+                    projectSettings.activeTrades.push(trade);
+                    // When a default trade is selected, ensure its labor rates are initialized.
+                    // This is only needed if `allTradeLaborRates` were ever reset.
+                    // Since we reverted, the rates should already exist for default trades.
+                    // No need to add default rates here as they exist in the initial object.
+                }
+            } else {
+                projectSettings.activeTrades = projectSettings.activeTrades.filter(t => t !== trade);
+                // Also remove line items associated with this trade
+                estimateItems = estimateItems.filter(item => item.trade !== trade);
+            }
+            updateSelectedTradesDisplay();
+            renderItems();
+            populateWizardStep2LaborRates();
+        }
+
+        function toggleTradeDropdown() {
+            tradesDropdown.classList.toggle('hidden');
+            if (!tradesDropdown.classList.contains('hidden')) {
+                tradeSearchInput.value = '';
+                populateTradesDropdown();
+            }
+        }
+        
+        function hideTradeDropdown() {
+            setTimeout(() => {
+                // Ensure the dropdown is truly hidden only if mouse is not over it
+                // This is a common pattern to allow clicking on dropdown items without immediately closing it
+                if (!tradesDropdown.contains(document.activeElement) && !selectedTradesDisplay.contains(document.activeElement)) {
+                     tradesDropdown.classList.add('hidden');
+                }
+            }, 100);
+        }
+
+        function showTradeDropdown() {
+            tradesDropdown.classList.remove('hidden');
+        }
+
+
+        selectedTradesDisplay.addEventListener('click', (event) => {
+            if (event.target.classList.contains('remove-tag')) {
+                const tradeToRemove = event.target.dataset.trade;
+                const checkboxId = `trade-${tradeToRemove.replace(/\s/g, '-')}`;
+                const checkbox = document.getElementById(checkboxId);
+                if (checkbox) {
+                    checkbox.checked = false;
+                    handleTradeSelection(checkbox);
+                }
+                event.stopPropagation(); // Prevent the click from toggling the dropdown immediately after removing a tag
+            } else {
+                toggleTradeDropdown();
+            }
+        });
+
+        tradeSearchInput.addEventListener('input', populateTradesDropdown);
+
+
+        // --- Estimate Item Management ---
+
+        function addItem() {
+            const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
+            const defaultRole = projectSettings.allTradeLaborRates[defaultTrade] && Object.keys(projectSettings.allTradeLaborRates[defaultTrade]).length > 0 ? Object.keys(projectSettings.allTradeLaborRates[defaultTrade])[0] : "Journeyman";
+
+            const newItem = {
+                id: Date.now(), // Ensures a unique ID for the first item
+                taskName: 'New Task',
+                description: 'Description for new task',
+                trade: defaultTrade,
+                rateRole: defaultRole,
+                hours: 0,
+                otDtMultiplier: 1.0,
+                materialQuantity: 0, // was materialUnits
+                materialUnitCost: 0, // was materialPerUnit
+                equipmentRentalCost: 0,
+                subcontractorCostLineItem: 0,
+                miscLineItem: 0 // New field
+            };
+            estimateItems.push(newItem);
+            renderItems();
+        }
+
+        function deleteItem(id) {
+            estimateItems = estimateItems.filter(item => item.id !== id);
+            renderItems();
+        }
+
+        function updateItem(id, field, value) {
+            const item = estimateItems.find(item => item.id === id);
+            if (item) {
+                if (['hours', 'materialQuantity', 'materialUnitCost', 'equipmentRentalCost', 'subcontractorCostLineItem', 'miscLineItem', 'otDtMultiplier'].includes(field)) {
+                    item[field] = parseFloat(value) || 0;
+                } else {
+                    item[field] = value;
+                }
+                renderItems();
+            }
+        }
+
+        function renderItems() {
+            estimateTableBody.innerHTML = '';
+            let totalLaborHoursVal = 0;
+
+            estimateItems.forEach(item => {
+                // Ensure trade and role are valid, fallback if needed
+                if (!projectSettings.activeTrades.includes(item.trade)) {
+                    item.trade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
+                }
+                if (!projectSettings.allTradeLaborRates[item.trade] || !projectSettings.allTradeLaborRates[item.trade][item.rateRole]) {
+                    const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
+                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+                }
+
+                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
+                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                const laborTotal = item.hours * effectiveLaborRate;
+                const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
+                
+                const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
+
+                totalLaborHoursVal += item.hours;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td data-label="Task Name"><textarea rows="2" onchange="updateItem(${item.id}, 'taskName', this.value)" class="input-field">${item.taskName}</textarea></td>
+                    <td data-label="Description"><textarea rows="2" onchange="updateItem(${item.id}, 'description', this.value)" class="input-field">${item.description}</textarea></td>
+                    
+                    <td data-label="OT/DT Multiplier" class="${collapsedState.labor ? 'column-hidden' : ''}">
+                        <select onchange="updateItem(${item.id}, 'otDtMultiplier', this.value)" class="input-field">
+                            <option value="1.0" ${item.otDtMultiplier === 1.0 ? 'selected' : ''}>1.0</option>
+                            <option value="1.5" ${item.otDtMultiplier === 1.5 ? 'selected' : ''}>1.5</option>
+                            <option value="2.0" ${item.otDtMultiplier === 2.0 ? 'selected' : ''}>2.0</option>
+                        </select>
+                    </td>
+                    <td data-label="Skill" class="${collapsedState.labor ? 'column-hidden' : ''}">
+                        <select onchange="updateItem(${item.id}, 'rateRole', this.value)" class="input-field">
+                            ${(projectSettings.allTradeLaborRates[item.trade] ? Object.keys(projectSettings.allTradeLaborRates[item.trade]) : []).map(role => {
+                                return `<option value="${role}" ${item.rateRole === role ? 'selected' : ''}>
+                                                ${role}
+                                            </option>`;
+                            }).join('')}
+                            ${!projectSettings.allTradeLaborRates[item.trade] || Object.keys(projectSettings.allTradeLaborRates[item.trade]).length === 0 ? '<option value="" selected>No Skills</option>' : ''}
+                        </select>
+                    </td>
+                    <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(effectiveLaborRate)}</td>
+                    <td data-label="# hrs" class="${collapsedState.labor ? 'column-hidden' : ''}"><input type="number" value="${item.hours}" onchange="updateItem(${item.id}, 'hours', this.value)" class="input-field"></td>
+                    <td data-label="Labor Total">${formatCurrency(laborTotal)}</td>
+                    
+                    <td data-label="Material Qty" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialQuantity}" onchange="updateItem(${item.id}, 'materialQuantity', this.value)" class="input-field"></td>
+                    <td data-label="Material $/Unit" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialUnitCost}" onchange="updateItem(${item.id}, 'materialUnitCost', this.value)" class="input-field"></td>
+                    <td data-label="Materials Total">${formatCurrency(materialsTotal)}</td>
+                    
+                    <td data-label="Equipment/Rental" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.equipmentRentalCost}" onchange="updateItem(${item.id}, 'equipmentRentalCost', this.value)" class="input-field"></td>
+                    <td data-label="Subcontractor" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.subcontractorCostLineItem}" onchange="updateItem(${item.id}, 'subcontractorCostLineItem', this.value)" class="input-field"></td>
+                    <td data-label="Misc. Cost" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.miscLineItem}" onchange="updateItem(${item.id}, 'miscLineItem', this.value)" class="input-field"></td>
+                    <td data-label="Other Total">${formatCurrency(otherCategoryTotal)}</td>
+                    
+                    <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
+                    <td><button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})">🗑️</button></td>
+                `;
+                estimateTableBody.appendChild(row);
+            });
+            summaryOverallLaborHoursElem.textContent = totalLaborHoursVal.toFixed(2);
+            calculateTotals();
+        }
+
+        // Adjusts the min-width of the table based on collapsed/expanded state
+        function adjustTableMinWidth() {
+            const table = document.querySelector('.min-w-full');
+            // Base width for fixed columns (Task Name, Description, TOTAL, Actions)
+            // Approximate widths based on current input/text sizes:
+            // Task Name: ~150px, Description: ~200px, TOTAL: ~100px, Actions: ~80px
+            let currentMinWidth = 150 + 200 + 100 + 80; 
+
+            // Add width for currently visible Labor, Materials, Other Total columns (which are always visible)
+            // Labor Total: ~100px, Materials Total: ~100px, Other Total: ~100px
+            currentMinWidth += (100 + 100 + 100);
+
+            // Add width for currently visible detail columns based on collapsed state
+            if (!collapsedState.labor) {
+                // OT/DT: ~90px, Skill: ~90px, $/hr: ~70px, #hrs: ~70px
+                currentMinWidth += (90 + 90 + 70 + 70); 
+            }
+            if (!collapsedState.materials) {
+                // QTY/UNIT: ~70px, $/UNIT: ~70px
+                currentMinWidth += (70 + 70); 
+            }
+            if (!collapsedState.other) {
+                // Equipment: ~70px, Subcontractor: ~70px, Misc: ~70px
+                currentMinWidth += (70 + 70 + 70); 
+            }
+            
+            // Set the minimum width to allow horizontal scrolling if content overflows
+            table.style.minWidth = `${currentMinWidth}px`;
+        }
+
+
+        // --- Calculations ---
+
+        function calculateTotals() {
+            let totalLaborCost = 0; // Accumulates total labor cost from line items
+            let totalMaterialCostRaw = 0; // Raw material cost from line items (before markup)
+            let totalEquipmentCost = 0; // Accumulates equipment cost from line items
+            let totalSubcontractorCost = 0; // Accumulates subcontractor cost from line items
+            let totalMiscLineItemCosts = 0; // Accumulates misc line item costs
+
+            let laborHoursBreakdown = {}; // This accumulates hours per role for the UI
+
+            // Initialize all possible labor roles to 0 for consistent display
+            const allPossibleRoles = new Set();
+            Object.keys(projectSettings.allTradeLaborRates).forEach(trade => {
+                if (projectSettings.allTradeLaborRates[trade]) {
+                    Object.keys(projectSettings.allTradeLaborRates[trade]).forEach(role => allPossibleRoles.add(role));
+                }
+            });
+            allPossibleRoles.forEach(role => {
+                laborHoursBreakdown[role] = 0;
+            });
+
+
+            estimateItems.forEach(item => {
+                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
+                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                const laborTotal = item.hours * effectiveLaborRate;
+                const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                
+                totalLaborCost += laborTotal;
+                totalMaterialCostRaw += materialsTotal; // Sum raw material costs
+                totalEquipmentCost += item.equipmentRentalCost;
+                totalSubcontractorCost += item.subcontractorCostLineItem;
+                totalMiscLineItemCosts += item.miscLineItem;
+                
+                if (laborHoursBreakdown[item.rateRole] !== undefined) {
+                    laborHoursBreakdown[item.rateRole] += item.hours;
+                }
+            });
+            
+            // --- Core Calculation Logic ---
+
+            // 1. Total Project Cost (Direct Line Item Costs - no material markup included yet)
+            const totalProjectCostDirect = totalLaborCost + totalMaterialCostRaw + totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
+
+            // 2. Material Markup Amount (dollar value)
+            const materialMarkupAmount = totalMaterialCostRaw * (projectSettings.materialMarkup / 100);
+
+            // 3. Base for Overhead, Misc (%), and Profit (includes direct costs + material markup amount)
+            const baseCostForOverheadMiscProfit = totalProjectCostDirect + materialMarkupAmount;
+
+            // 4. Project-level Overhead Cost
+            const totalOverheadCost = baseCostForOverheadMiscProfit * (projectSettings.overhead / 100);
+
+            // 5. Project-level Miscellaneous Cost
+            const totalMiscCostAmount = baseCostForOverheadMiscProfit * (projectSettings.miscellaneous / 100);
+            
+            // 6. Subtotal before Profit Margin and Sales Tax (now includes all base costs + overhead + misc)
+            const subtotalBeforeProfitTax = baseCostForOverheadMiscProfit + totalMiscCostAmount + totalOverheadCost;
+            
+            // 7. Profit Margin Amount
+            const totalProfitMarginAmount = subtotalBeforeProfitTax * (projectSettings.profitMargin / 100);
+            
+            // 8. Estimate Subtotal (includes all costs before Sales Tax and Additional Considerations)
+            // This is still used for displaying the "Estimate Subtotal" summary line.
+            const estimateSubtotalAmount = subtotalBeforeProfitTax + totalProfitMarginAmount;
+
+            // 9. Sales Tax Amount - NOW ONLY APPLIED TO MATERIAL COST + MATERIAL MARKUP
+            const salesTaxApplicableBase = totalMaterialCostRaw + materialMarkupAmount;
+            const salesTaxAmount = salesTaxApplicableBase * (projectSettings.salesTax / 100);
+            
+            // 10. Additional Considerations Amount
+            let additionalConsiderationAmount = 0;
+            if (projectSettings.additionalConsiderationsType === '%') {
+                additionalConsiderationAmount = estimateSubtotalAmount * (projectSettings.additionalConsiderationsValue / 100);
+            } else {
+                additionalConsiderationAmount = projectSettings.additionalConsiderationsValue;
+            }
+
+            // 11. Grand Total (Total Proposal) - Re-adjusted for the new sales tax calculation
+            const grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
+
+
+            // Total labor hours for overall summary
+            const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
+
+            // Sum of all 'Other' category costs for the pie chart (Equipment + Subcontractor + Misc Line Items)
+            const totalOtherCostsForPieChart = totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
+
+
+            // --- Update UI Elements ---
+
+            // Top-level Summary UI
+            summaryTotalProposalElem.textContent = formatCurrency(grandTotal);
+            summaryOverallLaborHoursElem.textContent = overallLaborHoursSum.toFixed(2);
+
+
+            // Executive Summary UI (top row)
+            summaryProjectCost.textContent = formatCurrency(totalProjectCostDirect); // Now reflects direct costs ONLY
+            summaryMiscCost.textContent = formatCurrency(totalMiscCostAmount);
+            summaryOverhead.textContent = formatCurrency(totalOverheadCost);
+            
+            summaryMaterialMarkup.textContent = `${projectSettings.materialMarkup.toFixed(2)}%`; 
+            summaryMaterialMarkupAmount.textContent = formatCurrency(materialMarkupAmount); // NEW: Display material markup amount
+            
+            summaryEstimateSubtotal.textContent = formatCurrency(estimateSubtotalAmount);
+            summaryProfitMargin.textContent = `${projectSettings.profitMargin.toFixed(2)}%`;
+            summarySalesTax.textContent = `${projectSettings.salesTax.toFixed(2)}%`;
+            summaryMiscPercent.textContent = `${projectSettings.miscellaneous.toFixed(2)}%`;
+            summaryAdditionalConsiderations.textContent = formatCurrency(additionalConsiderationAmount);
+
+            // Labor Breakdown (Hours) - middle card in second row
+            const defaultRoles = ["Project Manager", "Superintendent", "General Foreman", "Foreman", "Journeyman", "Apprentice"];
+            const laborBreakdownContainer = document.querySelector('.executive-summary-grid-3col .summary-block:nth-child(1)');
+            let currentHtml = `<h4>Labor Breakdown (Hours)</h4>`;
+                                        
+            // Display default roles first
+            defaultRoles.forEach(role => {
+                currentHtml += `<div class="summary-item"><span>${role}:</span> <strong id="labor${role.replace(/\s/g, '')}Total">${formatHours(laborHoursBreakdown[role] || 0)}</strong></div>`;
+            });
+            // Then display any custom roles
+            Object.keys(laborHoursBreakdown).sort().forEach(role => {
+                if (!defaultRoles.includes(role)) {
+                    currentHtml += `<div class="summary-item"><span>${role}:</span> <strong>${formatHours(laborHoursBreakdown[role] || 0)}</strong></div>`;
+                }
+            });
+            currentHtml += `<div class="summary-item total"><span>Total Labor Hours:</span> <strong id="breakdownLaborHoursTotal">${formatHours(overallLaborHoursSum)}</strong></div>`;
+            laborBreakdownContainer.innerHTML = currentHtml;
+
+
+            // Project Cost Breakdown - right card in second row
+            breakdownLaborTotal.textContent = formatCurrency(totalLaborCost);
+            breakdownMaterialTotal.textContent = formatCurrency(totalMaterialCostRaw); // Shows RAW material cost
+            breakdownEquipmentTotal.textContent = formatCurrency(totalEquipmentCost);
+            breakdownSubcontractorTotal.textContent = formatCurrency(totalSubcontractorCost);
+            breakdownMiscCostLineItems.textContent = formatCurrency(totalMiscLineItemCosts);
+            
+            // Total Project Cost in Breakdown should be the sum of all *direct* components
+            document.getElementById('breakdownProjectTotal').textContent = formatCurrency(totalProjectCostDirect);
+
+
+            // Render Pie Chart - using the specific cost totals for Labor, Material (with markup), and OTHER
+            // The pie chart should reflect the actual cost contributing to the overall proposal, so material costs should include markup here.
+            renderPieChart(totalLaborCost, totalMaterialCostRaw + materialMarkupAmount, totalOtherCostsForPieChart);
+        }
+
+        // --- Pie Chart Rendering ---
+        function renderPieChart(laborTotal, materialTotal, otherTotal) { // Added otherTotal parameter
+            if (laborMaterialPieChart) {
+                laborMaterialPieChart.destroy();
+            }
+
+            const ctx = laborMaterialPieChartCanvas.getContext('2d');
+            laborMaterialPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Labor Cost', 'Material Cost', 'Other Costs'], // Added 'Other Costs' label
+                    datasets: [{
+                        data: [laborTotal, materialTotal, otherTotal], // Added otherTotal to data
+                        // Set initial colors to default light theme, then apply theme using applyChartTheme
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)', // Blue for Labor
+                            'rgba(16, 185, 129, 0.8)', // Green for Material
+                            'rgba(245, 158, 11, 0.8)' // Orange for Other Costs
+                        ],
+                        borderColor: [
+                            'rgba(255, 255, 255, 1)',
+                            'rgba(255, 255, 255, 1)',
+                            'rgba(255, 255, 255, 1)' // Border for Other Costs
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                },
+                                // Set color directly based on isDarkTheme during creation
+                                color: isDarkTheme ? '#e2e8f0' : '#1f2937' 
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += formatCurrency(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        title: {
+                            display: false,
+                            text: 'Cost Distribution',
+                            // Set color directly based on isDarkTheme during creation
+                            color: isDarkTheme ? '#e2e8f0' : '#1f2937'
+                        }
+                    }
+                }
+            });
+            // No need to call applyChartTheme here, as colors are set during Chart creation.
+            // applyChartTheme(); 
+        }
+
+        // --- Report Generation (PDF) ---
+        // Removed generatePDFReport function
+        // Removed refreshProjectSettingsFromUI as it's no longer needed since generatePDFReport is gone
+    </script>
+</body>
+</html>
