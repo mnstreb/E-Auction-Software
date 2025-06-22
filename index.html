@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
     <!-- Link to SummaryOverview specific CSS -->
     <link rel="stylesheet" href="src/sections/SummaryOverview/SummaryOverview.css">
+    <!-- Link to SetupWizard specific CSS -->
+    <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
     <style>
         /* Base styles and UI improvements (General styles remain here) */
         body {
@@ -120,22 +122,7 @@
             background: #e0f2fe;
             transition: background 0.15s ease-in-out;
         }
-        .setup-wizard-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
+        
         .form-group {
             margin-bottom: 25px;
         }
@@ -165,7 +152,7 @@
             margin-bottom: 20px !important;
             transition: color 0.3s;
         }
-        /* AppHeader and SummaryOverview specific styles are now in their respective .css files */
+        /* AppHeader, SummaryOverview, and SetupWizard specific styles are now in their respective .css files */
 
         /* Responsive adjustments */
         @media (max-width: 1024px) {
@@ -237,239 +224,6 @@
             .header-subtitle { /* Kept here as it's a general subheading style now */
                 font-size: 15px;
             }
-        }
-
-        /* Specific styles for multi-select dropdown */
-        .multi-select-container {
-            position: relative;
-        }
-        .multi-select-dropdown {
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 8px;
-            max-height: 150px;
-            overflow-y: auto;
-            background-color: white;
-            position: absolute;
-            width: 100%;
-            z-index: 10;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
-        }
-        .multi-select-dropdown label {
-            display: block;
-            padding: 6px 10px;
-            cursor: pointer;
-        }
-        .multi-select-dropdown label:hover {
-            background-color: #f3f4f6;
-            transition: background-color 0.3s;
-        }
-        .multi-select-dropdown input[type="checkbox"] {
-            margin-right: 8px;
-        }
-        .selected-trades-display {
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            min-height: 40px;
-            cursor: pointer;
-            background-color: white;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-        .selected-trade-tag {
-            background-color: #e0f2fe;
-            color: #1e40af;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .selected-trade-tag .remove-tag {
-            cursor: pointer;
-            font-weight: bold;
-            color: #94a3b8;
-            transition: color 0.3s;
-        }
-        /* Styles for dynamic labor rate inputs in wizard */
-        .trade-labor-rates-group {
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #fcfcfc;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-        .trade-labor-rates-group h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.25rem;
-            color: #1f2937;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e5e7eb;
-            transition: color 0.3s, border-color 0.3s;
-        }
-
-        .skill-level-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            gap: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed #e5e7eb;
-            justify-content: space-between;
-            transition: border-color 0.3s;
-        }
-        .skill-level-row:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .skill-name-display {
-            font-weight: 600;
-            color: #1f2937;
-            font-size: 15px;
-            flex-shrink: 0;
-            width: 150px;
-            transition: color 0.3s;
-        }
-
-        /* Adjustments for the rate input to align with the design */
-        .rate-input-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-grow: 1;
-            justify-content: flex-end;
-        }
-        .rate-label {
-            white-space: nowrap;
-            font-weight: 600;
-            color: #4b5563;
-            font-size: 15px;
-            margin-right: 0;
-            transition: color 0.3s;
-        }
-        .rate-input {
-            width: 100px;
-            flex-shrink: 0;
-        }
-        /* Style for editable skill name input */
-        .skill-name-input.editable {
-            width: 150px;
-            padding: 10px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 15px;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
-            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
-            flex-shrink: 0;
-            box-sizing: border-box;
-        }
-        .skill-name-input.editable:focus {
-            outline: none;
-            border-color: #60a5fa;
-            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
-        }
-
-
-        /* Smaller, aligned remove button */
-        .remove-skill-btn {
-            background-color: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            line-height: 1;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: background-color 0.2s ease;
-            margin-bottom: 0;
-            margin-left: 0;
-            position: static;
-            top: auto;
-        }
-        .remove-skill-btn:hover {
-            background-color: #dc2626;
-        }
-
-        .advanced-link-wrapper {
-            width: 100%;
-            text-align: left;
-            margin-top: 20px;
-        }
-        .advanced-link {
-            color: #2563eb;
-            text-decoration: underline;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-        .advanced-link:hover {
-            color: #1D4ED8;
-        }
-
-        /* Styles for the logo upload area (Step 1 of wizard) */
-        .logo-upload-area {
-            background: #f8fafc;
-            border: 2px dashed #cbd5e1;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            min-height: 120px;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-            width: 100%; /* Ensure it takes full width within the wizard content */
-            box-sizing: border-box; /* Include padding and border in the width */
-        }
-        .logo-upload-area:hover {
-            background: #e0f2fe;
-            border-color: #60a5fa;
-        }
-        .logo-upload-area.drag-over {
-            background: #dbeafe;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
-        }
-
-        /* Image preview within the upload area (for wizard) */
-        .logo-upload-area .wizard-logo-img-preview {
-            max-width: 100%;
-            max-height: 100px;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-
-        /* Default icon and text when no logo is loaded */
-        .logo-upload-area .default-icon {
-            font-size: 32px;
-            color: #3b82f6;
-            transition: color 0.3s;
-        }
-        .logo-upload-area .upload-text {
-            font-size: 0.9rem;
-            color: #6b7280;
-            transition: color 0.3s;
         }
 
         /* Hide spinner arrows for number input fields within the table */
@@ -604,10 +358,9 @@
         .dark-theme .summary-item strong {
             color: #e2e8f0;
         }
-        /* Summary-specific dark theme styles REMOVED from here */
+        
         .dark-theme .header-subtitle, /* Keep this here as a general style for subtitles if not specific to header */
         .dark-theme .summary-item,
-        .dark-theme .logo-upload-area .upload-text,
         .dark-theme .multi-select-dropdown p,
         .dark-theme .multi-select-dropdown label span,
         .dark-theme .skill-name-display,
@@ -625,7 +378,6 @@
             color: #a0aec0;
         }
 
-        /* Summary-specific dark theme styles REMOVED from here */
         .dark-theme table,
         .dark-theme th,
         .dark-theme td {
@@ -676,37 +428,7 @@
             color: #90cdf4;
             border-color: #4a5568;
         }
-        .dark-theme .logo-upload-area {
-            background: #2d3748;
-            border-color: #4a5568;
-        }
-        .dark-theme .logo-upload-area:hover {
-            background: #4a5568;
-            border-color: #63b3ed;
-        }
-        .dark-theme .logo-upload-area.drag-over {
-            background: #4a5568;
-            border-color: #63b3ed;
-            box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.4);
-        }
-        .dark-theme .logo-upload-area .default-icon {
-            color: #63b3ed;
-        }
-        .dark-theme .setup-wizard-container {
-            background: rgba(0,0,0,0.7);
-        }
-        .dark-theme .wizard-content {
-            background: #2d3748;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-        }
-        .dark-theme .step.inactive {
-            background: #4a5568;
-            color: #a0aec0;
-        }
-        .dark-theme .step.active {
-            background: #4299e1;
-            box-shadow: 0 2px 8px rgba(66, 153, 225, 0.4);
-        }
+        
         /* Styles for loading overlay */
         .loading-overlay {
             position: fixed;
@@ -760,171 +482,6 @@
         .success-notification.show {
             opacity: 1;
             visibility: visible;
-        }
-
-        /* Wizard specific styles - REVISED FOR WIDER LAYOUT */
-        .wizard-content {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            /* Adjusted max-width for a wider feel */
-            max-width: 800px; /* Increased from 600px */
-            width: 100%;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* Centers the entire wizard content block */
-            transition: background-color 0.3s, box-shadow 0.3s;
-            max-height: calc(100vh - 40px);
-            overflow-y: auto;
-        }
-
-        .step-indicator {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 40px;
-            width: 100%;
-            position: relative;
-        }
-
-        .step {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #e5e7eb;
-            color: #6b7280;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            flex-shrink: 0;
-            z-index: 1;
-            position: relative;
-            margin: 0 10px;
-        }
-
-        .step.active {
-            background: #2563eb;
-            color: white;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-            transform: scale(1.1);
-        }
-
-        .step:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: calc(100% + 5px);
-            width: 20px;
-            height: 2px;
-            background: #d1d5db;
-            transform: translateY(-50%);
-            z-index: 0;
-        }
-
-        .step:not(:first-child)::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            right: calc(100% + 5px);
-            width: 20px;
-            height: 2px;
-            background: #d1d5db;
-            transform: translateY(-50%);
-            z-index: 0;
-        }
-
-        #wizardStep1, #wizardStep2, #wizardStep3 {
-            width: 100%;
-        }
-
-        .wizard-content .form-group {
-            width: 100%;
-            text-align: left;
-            margin-bottom: 25px;
-        }
-        .wizard-content .label {
-            text-align: left;
-            width: 100%;
-            display: block;
-        }
-        .wizard-content h2 {
-            margin-bottom: 25px;
-            width: 100%;
-            text-align: left;
-        }
-        .wizard-content h1 {
-            text-align: center;
-        }
-        .wizard-content p {
-            width: 100%;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .logo-upload-area {
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .wizard-logo-img-preview {
-            max-width: 100%;
-            height: auto;
-            max-height: 120px;
-            object-fit: contain;
-        }
-
-        /* Default icon and text when no logo is loaded */
-        .logo-upload-area .default-icon {
-            font-size: 32px;
-            color: #3b82f6;
-            transition: color 0.3s;
-        }
-        .logo-upload-area .upload-text {
-            font-size: 0.9rem;
-            color: #6b7280;
-            transition: color 0.3s;
-        }
-
-        /* Dark Theme Specifics for Wizard Elements (re-verified for consistency) */
-        .dark-theme .wizard-content {
-            background: #2d3748;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-        }
-        .dark-theme .step {
-            background: #4a5568;
-            color: #a0aec0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .dark-theme .step.active {
-            background: #4299e1;
-            box-shadow: 0 2px 8px rgba(66, 153, 225, 0.4);
-        }
-        .dark-theme .step:not(:last-child)::after,
-        .dark-theme .step:not(:first-child)::before {
-            background: #4a5568;
-        }
-        .dark-theme .wizard-content h1,
-        .dark-theme .wizard-content h2,
-        .dark-theme .wizard-content h4,
-        .dark-theme .wizard-content .label {
-            color: #e2e8f0;
-        }
-        .dark-theme .wizard-content p {
-            color: #a0aec0;
-        }
-        .dark-theme .wizard-content .input-field {
-            background-color: #4a5568;
-            border-color: #4a5568;
-            color: #e2e8f0;
-        }
-        .dark-theme .wizard-content .input-field:focus {
-            border-color: #63b3ed;
-            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
         }
     </style>
 </head>
