@@ -247,10 +247,10 @@
     display: flex;
     align-items: center;
     margin-bottom: 15px;
-    gap: 15px;
+    gap: 15px; /* Maintain gap between elements */
     padding-bottom: 10px;
     border-bottom: 1px dashed #e5e7eb;
-    justify-content: space-between;
+    justify-content: space-between; /* Keep space-between */
     transition: border-color 0.3s;
 }
 .skill-level-row:last-child {
@@ -263,8 +263,13 @@
     font-weight: 600;
     color: #1f2937;
     font-size: 15px;
-    flex-shrink: 0;
-    width: 150px;
+    flex-basis: 160px; /* Give it a base width */
+    flex-grow: 1;      /* Allow it to grow */
+    flex-shrink: 1;    /* Allow it to shrink */
+    min-width: 0;      /* Crucial for shrinking flex items */
+    white-space: nowrap; /* Keep on one line */
+    overflow: hidden;    /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for hidden text */
     transition: color 0.3s;
 }
 
@@ -272,8 +277,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-grow: 1;
+    flex-grow: 1; /* Allows the group to take available space */
     justify-content: flex-end;
+    min-width: 0; /* Ensures the group can shrink */
 }
 .rate-label {
     white-space: nowrap;
@@ -281,6 +287,8 @@
     color: #4b5563;
     font-size: 15px;
     margin-right: 0;
+    flex-shrink: 0; /* Prevent label from shrinking */
+    min-width: fit-content; /* Make sure label takes its necessary width */
     transition: color 0.3s;
 }
 .rate-input {
