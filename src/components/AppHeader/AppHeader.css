@@ -1,57 +1,152 @@
-/* Styles specific to the AppHeader component */
+/* src/components/AppHeader/AppHeader.css */
+
+/* Base header layout */
 .header-info-container {
     display: flex;
     align-items: center;
     gap: 15px;
-    flex-wrap: wrap;
 }
+
 .header-icon-box {
-    background: #3b82f6;
-    padding: 15px;
-    border-radius: 12px;
+    width: 50px;
+    height: 50px;
+    min-width: 50px; /* Ensure it doesn't shrink */
+    border-radius: 50%;
+    background-color: #e0f2fe; /* Light blue background */
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 64px;
-    height: 64px;
-    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: background-color 0.3s;
 }
+
 .header-logo-img {
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
-}
-.header-title-container {
-    line-height: 1.3;
-}
-.header-title {
-    margin: 0;
-    color: #1f2937;
-    font-size: 28px;
-    font-weight: 700;
-    transition: color 0.3s;
-}
-.header-subtitle {
-    margin: 5px 0 0 0;
-    color: #6b7280;
-    font-size: 16px;
-    transition: color 0.3s;
-}
-.header-buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 10px;
+    border-radius: 50%; /* Keep it circular */
 }
 
-/* Dark Theme AppHeader specifics */
-body.dark-theme .header-icon-box {
-    background: #4299e1;
+.default-icon {
+    font-size: 2em;
+    line-height: 1; /* Center vertically */
 }
+
+.header-title-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden; /* Hide overflow for long titles */
+}
+
+.header-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 2px !important; /* Adjust spacing */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s;
+}
+
+.header-subtitle {
+    font-size: 0.95rem;
+    color: #4b5563;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s;
+}
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Spacing between buttons */
+}
+
+/* Dark Theme specific header styles */
+body.dark-theme .header-icon-box {
+    background-color: #2d3748; /* Darker blue for dark theme */
+}
+
+body.dark-theme .default-icon {
+    color: #4299e1; /* Lighter icon in dark mode */
+}
+
 body.dark-theme .header-title {
+    color: #e2e8f0; /* Light text for dark theme */
+}
+
+body.dark-theme .header-subtitle {
+    color: #a0aec0; /* Lighter grey for dark theme subtitle */
+}
+
+/* New Dropdown Styles */
+.dropdown-container {
+    position: relative; /* Essential for positioning the dropdown menu */
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px); /* Position below the button with some space */
+    right: 0; /* Align to the right of the button */
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    min-width: 220px; /* Ensure enough width for text */
+    z-index: 50; /* Ensure it appears above other content */
+    padding: 8px 0;
+    list-style: none; /* If using ul/li */
+    margin: 0;
+
+    /* Initial state: hidden by default using display: none */
+    display: none; 
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease-out, visibility 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.dropdown-menu.show {
+    /* Show state: overridden by JS when 'show' class is added */
+    display: block; /* Make sure it overrides Tailwind's hidden if present */
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex; /* Use flex for icon and text alignment */
+    align-items: center;
+    width: 100%;
+    padding: 12px 20px; /* Padding for click area */
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: #374151;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    /* Removed gap as there are no emojis here to gap */
+}
+
+.dropdown-item:hover {
+    background-color: #e0f2fe; /* Light blue on hover */
+    color: #2563eb;
+}
+
+/* Dark Theme Dropdown Styles */
+body.dark-theme .dropdown-menu {
+    background-color: #2d3748;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+body.dark-theme .dropdown-item {
     color: #e2e8f0;
 }
-body.dark-theme .header-subtitle {
-    color: #a0aec0;
+
+body.dark-theme .dropdown-item:hover {
+    background-color: #4a5568; /* Darker blue on hover */
+    color: #63b3ed;
 }
