@@ -118,7 +118,7 @@
             background: #e0f2fe; /* Light blue on hover */
             transition: background 0.15s ease-in-out;
         }
-        .setup-wizard {
+        .setup-wizard-container { /* Renamed to avoid conflict with old wizard styles */
             position: fixed;
             top: 0;
             left: 0;
@@ -131,43 +131,8 @@
             z-index: 1000;
             backdrop-filter: blur(5px); /* Subtle blur effect */
         }
-        .wizard-content {
-            background: white;
-            border-radius: 20px; /* More rounded */
-            padding: 45px; /* More padding */
-            max-width: 650px; /* Slightly wider */
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2); /* Stronger shadow */
-            transition: background-color 0.3s, box-shadow 0.3s; /* Smooth transition for theme changes */
-        }
-        .step-indicator {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 35px; /* More spacing */
-        }
-        .step {
-            width: 45px; /* Larger step circles */
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 12px;
-            font-weight: bold;
-            font-size: 18px; /* Larger number */
-            transition: background 0.3s, color 0.3s;
-        }
-        .step.active {
-            background: #3b82f6;
-            color: white;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-        }
-        .step.inactive {
-            background: #e5e7eb;
-            color: #6b7280;
-        }
+        /* Styles for wizard-content now in SetupWizard.html/js */
+
         .form-group {
             margin-bottom: 25px; /* More spacing between form groups */
         }
@@ -389,7 +354,7 @@
             td:nth-of-type(2):before { content: "Description:"; }
             td:nth-of-type(3):before { content: "OT/DT Multiplier:"; }
             td:nth-of-type(4):before { content: "Skill:"; }
-            td:nth-of-type(5):before { content: "$/hr:"; }
+            td:nth-of-type(5):before { content: "Rate:"; } /* Changed from $/hr */
             td:nth-of-type(6):before { content: "# hrs:"; }
             td:nth-of-type(7):before { content: "Labor Total:"; }
             td:nth-of-type(8):before { content: "QTY / UNIT:"; }
@@ -915,7 +880,10 @@
         .dark-theme .logo-upload-area .default-icon {
             color: #63b3ed;
         }
-        .dark-theme .setup-wizard .wizard-content {
+        .dark-theme .setup-wizard-container { /* Renamed class */
+            background: rgba(0,0,0,0.7);
+        }
+        .dark-theme .wizard-content { /* Existing wizard-content should be affected */
             background: #2d3748;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
@@ -1050,202 +1018,8 @@
         </div>
     </div>
 
-    <div id="setupWizard" class="setup-wizard">
-        <div class="wizard-content">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <!-- Logo Upload Area -->
-                <input type="file" id="logoUploadInput" accept="image/*" style="display: none;">
-                <div id="logoUploadArea" class="logo-upload-area">
-                    <img id="wizardLogoPreview" class="uploaded-logo hidden" src="" alt="Contractor Logo">
-                    <span id="defaultLogoIcon" class="default-icon">🏗️</span>
-                    <p style="color: #6b7280;" id="uploadText" class="upload-text">Drag & drop your logo here, or click to upload</p>
-                </div>
-
-                <h1>Project Setup</h1>
-                <p style="color: #6b7280;">Let's configure your estimate for accuracy</p>
-            </div>
-
-            <div class="step-indicator">
-                <div id="step1" class="step active">1</div>
-                <div id="step2" class="step inactive">2</div>
-                <div id="step3" class="step inactive">3</div>
-            </div>
-
-            <div id="wizardStep1">
-                <h2 class="text-xl font-semibold mb-6">Project Information</h2>
-                <div class="form-group">
-                    <label for="projectName" class="label">Project Name:</label>
-                    <input type="text" id="projectName" class="input-field" value="Commercial Construction Project" required>
-                </div>
-                <div class="form-group">
-                    <label for="clientName" class="label">Client Name/Company:</label>
-                    <input type="text" id="clientName" class="input-field" placeholder="e.g., Acme Corp." required>
-                </div>
-                <div class="form-group">
-                    <label for="projectType" class="label">Project Type:</label>
-                    <select id="projectType" class="input-field" required>
-                        <option value="Commercial">Commercial</option>
-                        <option value="Residential">Residential</option>
-                        <option value="Industrial">Industrial</option>
-                        <option value="Renovation">Renovation</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="projectState" class="label">State/Location:</label>
-                    <select id="projectState" class="input-field" required>
-                        <option value="CA">California</option>
-                        <option value="TX">Texas</option>
-                        <option value="NY">New York</option>
-                        <option value="FL">Florida</option>
-                        <option value="WA">Washington</option>
-                        <option value="IL">Illinois</option>
-                        <option value="AL">Alabama</option> <option value="AK">Alaska</option> <option value="AZ">Arizona</option> <option value="AR">Arkansas</option> <option value="CO">Colorado</option> <option value="CT">Connecticut</option> <option value="DE">Delaware</option> <option value="GA">Georgia</option> <option value="HI">Hawaii</option> <option value="ID">Idaho</option> <option value="IN">Indiana</option> <option value="IA">Iowa</option> <option value="KS">Kansas</option> <option value="KY">Kentucky</option> <option value="LA">Louisiana</option> <option value="ME">Maine</option> <option value="MD">Maryland</option> <option value="MA">Massachusetts</option> <option value="MI">Michigan</option> <option value="MN">Minnesota</option> <option value="MS">Mississippi</option> <option value="MO">Missouri</option> <option value="MT">Montana</option> <option value="NE">Nebraska</option> <option value="NV">Nevada</option> <option value="NH">New Hampshire</option> <option value="NJ">New Jersey</option> <option value="NM">New Mexico</option> <option value="NC">North Carolina</option> <option value="ND">North Dakota</option> <option value="OH">Ohio</option> <option value="OK">Oklahoma</option> <option value="OR">Oregon</option> <option value="PA">Pennsylvania</option> <option value="RI">Rhode Island</option> <option value="SC">South Carolina</option> <option value="SD">South Dakota</option> <option value="TN">Tennessee</option> <option value="UT">Utah</spon> <option value="VT">Vermont</option> <option value="VA">Virginia</option> <option value="WA">Washington</option> <option value="WV">West Virginia</option> <option value="WI">Wisconsin</option> <option value="WY">Wyoming</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="tradesInvolved" class="label">Trades Involved (Select multiple):</label>
-                    <div class="multi-select-container">
-                        <input type="text" id="tradeSearchInput" class="input-field mb-2" placeholder="Search trades...">
-                        <div id="selectedTradesDisplay" class="selected-trades-display">
-                            Click to select trades...
-                        </div>
-                        <div id="tradesDropdown" class="multi-select-dropdown hidden">
-                            <!-- Checkboxes will be populated here by JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Advanced Details Section -->
-                <div class="advanced-link-wrapper mt-6">
-                    <a href="#" class="advanced-link" id="showAdvancedDetailsLink">Show Advanced Details</a>
-                </div>
-
-                <div id="advancedDetailsSection" class="hidden mt-4 pt-4 border-t border-gray-200">
-                    <h4 class="font-semibold text-lg mb-3">Additional Project Information</h4>
-                    <div class="form-group">
-                        <label for="projectAddress" class="label">Project Street Address:</label>
-                        <input type="text" id="projectAddress" class="input-field" placeholder="e.g., 123 Main St.">
-                    </div>
-                    <div class="form-group">
-                        <label for="projectCity" class="label">City:</label>
-                        <input type="text" id="projectCity" class="input-field" placeholder="e.g., Anytown">
-                    </div>
-                    <div class="form-group">
-                        <label for="projectZip" class="label">Zip Code:</label>
-                        <input type="text" id="projectZip" class="input-field" placeholder="e.g., 90210">
-                    </div>
-                    <div class="form-group">
-                        <label for="startDate" class="label">Start Date:</label>
-                        <input type="date" id="startDate" class="input-field">
-                    </div>
-                    <div class="form-group">
-                        <label for="endDate" class="label">End Date (Optional):</label>
-                        <input type="date" id="endDate" class="input-field">
-                    </div>
-                    <div class="form-group">
-                        <label for="projectID" class="label">Project ID/Number:</label>
-                        <input type="text" id="projectID" class="input-field" placeholder="e.g., PROJ-001">
-                    </div>
-                    <div class="form-group">
-                        <label for="projectDescription" class="label">Project Description/Scope Summary:</label>
-                        <textarea id="projectDescription" class="input-field" rows="4" placeholder="Briefly describe the project scope..."></textarea>
-                    </div>
-                </div>
-
-
-                <div class="flex justify-end gap-3 mt-8">
-                    <button id="nextStep1Btn" class="btn btn-primary">Next</button>
-                </div>
-            </div>
-
-            <div id="wizardStep2" class="hidden">
-                <h2 class="text-xl font-semibold mb-6">Labor Rates Configuration</h2>
-                <p class="text-gray-600 mb-4">Enter the hourly rates for each skill level within the selected trades.</p>
-                
-                <!-- Container for dynamic labor rate inputs (now a simple list) -->
-                <div id="dynamicLaborRateInputs" class="grid gap-4"> 
-                    <!-- Dynamic labor rate items will be injected here -->
-                </div>
-
-                <!-- Advanced link at the bottom-left -->
-                <div class="advanced-link-wrapper">
-                    <a href="#" class="advanced-link" id="advancedLink">Show Advanced Options</a>
-                </div>
-                
-                <!-- Advanced section for adding new skill levels - hidden by default -->
-                <div id="advancedSkillLevelControls" class="hidden mt-6 pt-4 border-t border-gray-200">
-                    <h4 class="font-semibold text-lg mb-3">Add Custom Skill Level</h4>
-                    <div class="form-group">
-                        <label for="newSkillTitle" class="label">New Skill Title:</label>
-                        <input type="text" id="newSkillTitle" class="input-field" placeholder="e.g., Lead Journeyman">
-                    </div>
-                    <div class="form-group">
-                        <label for="newSkillRate" class="label">New Skill Rate ($/hr):</label>
-                        <input type="number" id="newSkillRate" class="input-field" value="0">
-                    </div>
-                    <button id="addSkillLevelBtn" class="btn btn-primary w-full mt-2">Add Skill Level</button>
-                </div>
-
-                <div class="flex justify-between gap-3 mt-8">
-                    <button id="prevStep2Btn" class="btn btn-primary">Previous</button>
-                    <button id="nextStep2Btn" class="btn btn-primary">Next</button>
-                </div>
-            </div>
-
-            <div id="wizardStep3" class="hidden">
-                <h2 class="text-xl font-semibold mb-6">Project Settings</h2>
-
-                <!-- Overhead -->
-                <div class="form-group">
-                    <label for="overhead" class="label">Overhead (%):</label>
-                    <input type="number" id="overhead" class="input-field" value="0" step="0.01">
-                </div>
-
-                <!-- Material Markup (NEW FIELD) -->
-                <div class="form-group">
-                    <label for="materialMarkup" class="label">Material Markup (%):</label>
-                    <input type="number" id="materialMarkup" class="input-field" value="0" step="0.01">
-                </div>
-
-                <!-- Desired Profit -->
-                <div class="form-group">
-                    <label for="profitMargin" class="label">Desired Profit (%):</label>
-                    <input type="number" id="profitMargin" class="input-field" value="0" step="0.01">
-                </div>
-
-                <!-- Sales Tax -->
-                <div class="form-group">
-                    <label for="salesTax" class="label">Sales Tax (%):</label>
-                    <input type="number" id="salesTax" class="input-field" value="0" step="0.01">
-                </div>
-                
-                <div class="form-group">
-                    <label for="miscellaneous" class="label">Miscellaneous (%):</label>
-                    <input type="number" id="miscellaneous" class="input-field" value="0" step="0.01">
-                </div>
-
-                <!-- Additional Project Considerations with Toggle -->
-                <div class="form-group">
-                    <label class="label">Additional Project Considerations:</label>
-                    <div class="flex items-center gap-3">
-                        <input type="number" id="additionalConsiderationsValue" class="input-field flex-grow" value="0" step="0.01">
-                        <span id="additionalConsiderationsUnit" class="font-semibold text-gray-600 w-10 text-center">%</span>
-                        <button id="toggleAdditionalConsiderationsBtn" type="button" class="btn btn-primary btn-sm">Toggle</button>
-                    </div>
-                </div>
-
-                <div class="flex justify-between gap-3 mt-8">
-                    <button id="prevStep3Btn" class="btn btn-primary">Previous</button>
-                    <button id="startEstimatingBtn" class="btn btn-green">Start Estimating</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Removed Loading Overlay for PDF Generation -->
-
-    <!-- Removed Auto-closing Success Notification -->
+    <!-- Placeholder for SetupWizard component -->
+    <div id="setupWizardPlaceholder"></div>
 
     <script>
         // Helper function for currency formatting
@@ -1367,84 +1141,11 @@
         };
 
         // UI Element references
-        const setupWizard = document.getElementById('setupWizard');
         const mainApp = document.getElementById('mainApp');
-        const wizardSteps = [
-            document.getElementById('wizardStep1'),
-            document.getElementById('wizardStep2'),
-            document.getElementById('wizardStep3')
-        ];
-        const stepIndicators = [
-            document.getElementById('step1'),
-            document.getElementById('step2'),
-            document.getElementById('step3')
-        ];
         const estimateTableBody = document.getElementById('estimateTableBody');
-        const dynamicLaborRateInputs = document.getElementById('dynamicLaborRateInputs');
-        const advancedLink = document.getElementById('advancedLink');
-        const advancedSkillLevelControls = document.getElementById('advancedSkillLevelControls');
 
-        const showAdvancedDetailsLink = document.getElementById('showAdvancedDetailsLink');
-        const advancedDetailsSection = document.getElementById('advancedDetailsSection');
-
-        const tradeSearchInput = document.getElementById('tradeSearchInput'); 
-        const tradesDropdown = document.getElementById('tradesDropdown'); 
-        const selectedTradesDisplay = document.getElementById('selectedTradesDisplay');
-
-        const logoUploadInput = document.getElementById('logoUploadInput');
-        const logoUploadArea = document.getElementById('logoUploadArea');
-        const wizardLogoPreview = document.getElementById('wizardLogoPreview');
-        const defaultLogoIcon = document.getElementById('defaultLogoIcon');
-        const uploadText = document.getElementById('uploadText');
-
-        // References to main AppHeader elements now that they'll be dynamically loaded
-        // and initialized via their module. These are used only in the main script now.
-        let mainAppLogoElemInAppHeader; 
-        let themeToggleBtnElemInAppHeader; 
-        let reconfigureBtnElemInAppHeader; 
-
-
-        // State for advanced mode in Step 2
-        let isAdvancedModeActive = false;
-
-        // State for advanced details in Step 1
-        let isAdvancedDetailsActive = false;
-        
         // State for theme - will be initialized in DOMContentLoaded
         let isDarkTheme = false;
-
-        // References to SummaryOverview elements now that they'll be dynamically loaded
-        // and initialized via their module. These are used only in the main script now.
-        let summaryTotalProposalElemInSummaryOverview;
-        let summaryOverallLaborHoursElemInSummaryOverview;
-        let summaryProjectCostInSummaryOverview;
-        let summaryMiscCostInSummaryOverview;
-        let summaryMaterialMarkupInSummaryOverview;
-        let summaryMaterialMarkupAmountInSummaryOverview;
-        let summaryEstimateSubtotalInSummaryOverview;
-        let summaryProfitMarginInSummaryOverview;
-        let summarySalesTaxInSummaryOverview;
-        let summaryMiscPercentInSummaryOverview;
-        let summaryOverheadInSummaryOverview;
-        let summaryAdditionalConsiderationsInSummaryOverview;
-        let laborPMTotalInSummaryOverview;
-        let laborSuperintendentTotalInSummaryOverview;
-        let laborGeneralForemanTotalInSummaryOverview;
-        let laborForemanTotalInSummaryOverview;
-        let laborJourneymanTotalInSummaryOverview;
-        let laborApprenticeTotalInSummaryOverview;
-        let breakdownLaborHoursTotalInSummaryOverview;
-        let breakdownLaborTotalInSummaryOverview;
-        let breakdownMaterialTotalInSummaryOverview;
-        let breakdownEquipmentTotalInSummaryOverview;
-        let breakdownSubcontractorTotalInSummaryOverview;
-        let breakdownMiscCostLineItemsInSummaryOverview;
-        let breakdownProjectTotalInSummaryOverview;
-        let laborMaterialPieChartCanvasInSummaryOverview;
-
-
-        // This element is directly in index.html (not part of a loaded component)
-        const projectInfoElem = document.getElementById('projectInfo');
 
 
         // --- Collapsible Column Logic ---
@@ -1542,214 +1243,22 @@
             }
         }
 
-        // --- Logo Upload Logic ---
-        logoUploadInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                handleFile(this.files[0]);
-            }
-        });
-
-        function handleLogoDrop(event) {
-            event.preventDefault();
-            event.currentTarget.classList.remove('drag-over');
-
-            if (event.dataTransfer.files && event.dataTransfer.files[0]) {
-                handleFile(event.dataTransfer.files[0]);
-            }
-        }
-
-        function handleFile(file) {
-            if (!file.type.startsWith('image/')) {
-                renderMessageBox('Please drop an image file (e.g., JPG, PNG, GIF).');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                projectSettings.contractorLogo = e.target.result;
-                loadSavedLogo(); 
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function loadSavedLogo() {
-            if (projectSettings.contractorLogo) {
-                // Update wizard preview
-                wizardLogoPreview.src = projectSettings.contractorLogo;
-                wizardLogoPreview.classList.remove('hidden');
-                defaultLogoIcon.classList.add('hidden');
-                uploadText.classList.add('hidden');
-
-                // Update main app header logo via the AppHeader module
-                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                    window.AppHeader.updateLogo(projectSettings.contractorLogo);
-                }
-            } else {
-                // Clear wizard preview elements
-                wizardLogoPreview.classList.add('hidden');
-                defaultLogoIcon.classList.remove('hidden');
-                uploadText.classList.remove('hidden');
-                // Clear main app header logo via the AppHeader module
-                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                    window.AppHeader.updateLogo('');
-                }
-            }
-        }
-
-
-        // --- Wizard Navigation ---
-        let currentStep = 1;
-
-        function showStep(stepNumber) {
-            wizardSteps.forEach((stepDiv, index) => {
-                if (index + 1 === stepNumber) {
-                    stepDiv.classList.remove('hidden');
-                } else {
-                    stepDiv.classList.add('hidden');
-                }
-            });
-            stepIndicators.forEach((indicator, index) => {
-                if (index + 1 === stepNumber) {
-                    indicator.classList.add('active');
-                    indicator.classList.remove('inactive');
-                } else {
-                    indicator.classList.remove('active');
-                    indicator.classList.add('inactive');
-                }
-            });
-            currentStep = stepNumber;
-
-            if (stepNumber === 1) {
-                isAdvancedDetailsActive = false;
-                showAdvancedDetailsLink.textContent = 'Show Advanced Details';
-                advancedDetailsSection.classList.add('hidden');
-                populateWizardInputs();
-                loadSavedLogo();
-            }
-            if (stepNumber === 2) {
-                isAdvancedModeActive = false;
-                advancedLink.textContent = 'Show Advanced Options';
-                advancedSkillLevelControls.classList.add('hidden');
-                populateWizardStep2LaborRates();
-            }
-            if (stepNumber === 3) {
-                populateWizardStep3Settings();
-            }
-        }
-
-        function nextStep(stepNumber) {
-            if (stepNumber === 1) {
-                const projectName = document.getElementById('projectName').value.trim();
-                const clientName = document.getElementById('clientName').value.trim();
-                const projectType = document.getElementById('projectType').value.trim();
-                const projectState = document.getElementById('projectState').value.trim();
-
-                if (!projectName) { renderMessageBox("Please enter a Project Name."); return; }
-                if (!clientName) { renderMessageBox("Please enter a Client Name/Company."); return; }
-                if (!projectType) { renderMessageBox("Please select a Project Type."); return; }
-                if (!projectState) { renderMessageBox("Please select a State/Location."); return; }
-                if (projectSettings.activeTrades.length === 0) { renderMessageBox("Please select at least one Trade Involved."); return; }
-
-
-                projectSettings.projectName = projectName;
-                projectSettings.clientName = clientName;
-                projectSettings.projectAddress = document.getElementById('projectAddress').value;
-                projectSettings.projectCity = document.getElementById('projectCity').value;
-                projectSettings.projectZip = document.getElementById('projectZip').value;
-                projectSettings.startDate = document.getElementById('startDate').value;
-                projectSettings.endDate = document.getElementById('endDate').value;
-                projectSettings.projectID = document.getElementById('projectID').value;
-                projectSettings.projectDescription = document.getElementById('projectDescription').value;
-                projectSettings.projectType = document.getElementById('projectType').value;
-                projectSettings.projectState = projectState;
-                updateSalesTaxForState(projectSettings.projectState);
-
-            } else if (stepNumber === 2) {
-                for (const trade of projectSettings.activeTrades) {
-                    // Only validate if the trade actually exists in the rates data
-                    if (projectSettings.allTradeLaborRates[trade]) {
-                        for (const role in projectSettings.allTradeLaborRates[trade]) {
-                            const rate = projectSettings.allTradeLaborRates[trade][role];
-                            if (isNaN(rate) || rate < 0) {
-                                renderMessageBox(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-            showStep(stepNumber + 1);
-        }
-
-        function prevStep(stepNumber) {
-            showStep(stepNumber - 1);
-        }
-
-        function showSetup() {
-            setupWizard.classList.remove('hidden');
-            mainApp.classList.add('hidden');
-            showStep(1);
-            populateTradesDropdown();
-            updateSelectedTradesDisplay();
-        }
-
-        function startEstimating() {
-            const projectName = document.getElementById('projectName').value.trim();
-            const clientName = document.getElementById('clientName').value.trim();
-            const projectType = document.getElementById('projectType').value.trim();
-            const projectState = document.getElementById('projectState').value.trim();
-
-            if (!projectName) { renderMessageBox("Please enter a Project Name."); return; }
-            if (!clientName) { renderMessageBox("Please enter a Client Name/Company."); return; }
-            if (!projectType) { renderMessageBox("Please select a Project Type."); return; }
-            if (!projectState) { renderMessageBox("Please select a State/Location."); return; }
-            if (projectSettings.activeTrades.length === 0) {
-                renderMessageBox("Please select at least one trade involved in the project before starting the estimate.");
-                return;
-            }
-
-            for (const trade of projectSettings.activeTrades) {
-                if (!projectSettings.allTradeLaborRates[trade]) {
-                    renderMessageBox(`Labor rates for trade "${trade}" are not defined. Please define them or deselect this trade.`);
-                    return;
-                }
-                for (const role in projectSettings.allTradeLaborRates[trade]) {
-                    const rate = projectSettings.allTradeLaborRates[trade][role];
-                    if (isNaN(rate) || rate < 0) {
-                        renderMessageBox(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
-                        return;
-                    }
-                }
-            }
-
-            projectSettings.projectName = document.getElementById('projectName').value;
-            projectSettings.clientName = document.getElementById('clientName').value;
-            projectSettings.projectAddress = document.getElementById('projectAddress').value;
-            projectSettings.projectCity = document.getElementById('projectCity').value;
-            projectSettings.projectZip = document.getElementById('projectZip').value;
-            projectSettings.startDate = document.getElementById('startDate').value;
-            projectSettings.endDate = document.getElementById('endDate').value;
-            projectSettings.projectID = document.getElementById('projectID').value;
-            projectSettings.projectDescription = document.getElementById('projectDescription').value;
-            projectSettings.projectType = document.getElementById('projectType').value;
-            projectSettings.projectState = document.getElementById('projectState').value;
+        // --- Wizard Communication (from index.html to SetupWizard) ---
+        // This function is called by the SetupWizard module when it successfully completes.
+        function handleWizardCompletion(updatedSettings) {
+            projectSettings = { ...updatedSettings }; // Update global settings with wizard data
             
-            projectSettings.profitMargin = parseFloat(document.getElementById('profitMargin').value) || 0;
-            projectSettings.salesTax = parseFloat(document.getElementById('salesTax').value) || 0;
-            projectSettings.miscellaneous = parseFloat(document.getElementById('miscellaneous').value) || 0;
-            projectSettings.overhead = parseFloat(document.getElementById('overhead').value) || 0;
-            projectSettings.materialMarkup = parseFloat(document.getElementById('materialMarkup').value) || 0; // NEW: Get material markup
-            projectSettings.additionalConsiderationsValue = parseFloat(document.getElementById('additionalConsiderationsValue').value) || 0;
-
-            setupWizard.classList.add('hidden');
+            // Hide wizard, show main app
+            const setupWizardPlaceholder = document.getElementById('setupWizardPlaceholder');
+            if (setupWizardPlaceholder) {
+                setupWizardPlaceholder.classList.add('hidden'); // Hide the entire wizard container
+                setupWizardPlaceholder.innerHTML = ''; // Clear its content
+            }
             mainApp.classList.remove('hidden');
 
             // Update AppHeader's project info via its exposed function
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
                 window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.projectState);
-            } else {
-                // Fallback if AppHeader not yet loaded (shouldn't happen in normal flow after init)
-                document.getElementById('projectInfo').textContent = `${projectSettings.projectType} - ${projectSettings.projectName} - ${projectSettings.projectState}`;
             }
 
             // Ensure default trade/role is set for the single item if it's new or needs update
@@ -1771,7 +1280,6 @@
             renderItems(); // This will now render based on the (single) item and collapsedState for TDs.
             
             // Trigger SummaryOverview to update after data changes
-            // Check if SummaryOverview is loaded before calling its method
             if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
             }
@@ -1803,42 +1311,14 @@
             adjustTableMinWidth();
         }
 
+        // This function is called by the AppHeader when the 'Reconfigure' button is clicked
+        function showSetupWizard() {
+            // Re-render the wizard by reloading its components
+            loadSetupWizard();
+        }
+
+
         // --- Data Management Functions ---
-
-        function populateWizardInputs() {
-            document.getElementById('projectName').value = projectSettings.projectName;
-            document.getElementById('clientName').value = projectSettings.clientName;
-            document.getElementById('projectType').value = projectSettings.projectType;
-            document.getElementById('projectState').value = projectSettings.projectState;
-
-            document.getElementById('projectAddress').value = projectSettings.projectAddress;
-            document.getElementById('projectCity').value = projectSettings.projectCity;
-            document.getElementById('projectZip').value = projectSettings.projectZip;
-            document.getElementById('startDate').value = projectSettings.startDate;
-            document.getElementById('endDate').value = projectSettings.endDate;
-            document.getElementById('projectID').value = projectSettings.projectID;
-            document.getElementById('projectDescription').value = projectSettings.projectDescription;
-
-            if (isAdvancedDetailsActive) {
-                advancedDetailsSection.classList.remove('hidden');
-                showAdvancedDetailsLink.textContent = 'Hide Advanced Details';
-            } else {
-                advancedDetailsSection.classList.add('hidden');
-                showAdvancedDetailsLink.textContent = 'Show Advanced Details';
-            }
-            populateWizardStep3Settings();
-        }
-
-        function populateWizardStep3Settings() {
-            document.getElementById('profitMargin').value = projectSettings.profitMargin;
-            document.getElementById('salesTax').value = projectSettings.salesTax;
-            document.getElementById('miscellaneous').value = projectSettings.miscellaneous;
-            document.getElementById('overhead').value = projectSettings.overhead;
-            document.getElementById('materialMarkup').value = projectSettings.materialMarkup; 
-            document.getElementById('additionalConsiderationsValue').value = projectSettings.additionalConsiderationsValue;
-            document.getElementById('additionalConsiderationsUnit').textContent = projectSettings.additionalConsiderationsType;
-        }
-
 
         const stateSalesTax = {
             'CA': 8.25, 'TX': 6.25, 'NY': 4.0, 'FL': 6.0, 'WA': 6.5, 'IL': 6.25,
@@ -1850,397 +1330,6 @@
             'SC': 6.0, 'SD': 4.5, 'TN': 7.0, 'UT': 4.85, 'VT': 6.0, 'VA': 5.3, 'WV': 6.0,
             'WI': 5.0, 'WY': 4.0
         };
-
-        function updateSalesTaxForState(stateCode) {
-            const taxRate = stateSalesTax[stateCode] || 0;
-            document.getElementById('salesTax').value = taxRate;
-            projectSettings.salesTax = taxRate;
-        }
-
-        // Event listener for projectState change:
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('projectState').addEventListener('change', (event) => {
-                updateSalesTaxForState(event.target.value);
-            });
-        });
-
-
-        function toggleAdditionalConsiderationsType() {
-            if (projectSettings.additionalConsiderationsType === '%') {
-                projectSettings.additionalConsiderationsType = '$';
-            } else {
-                projectSettings.additionalConsiderationsType = '%';
-            }
-            document.getElementById('additionalConsiderationsUnit').textContent = projectSettings.additionalConsiderationsType;
-        }
-
-
-        function populateWizardStep2LaborRates() {
-            dynamicLaborRateInputs.innerHTML = '';
-
-            if (projectSettings.activeTrades.length === 0) {
-                dynamicLaborRateInputs.innerHTML = `<p class="text-gray-600">Please select trades in Step 1 to configure their labor rates here.</p>`;
-                return;
-            }
-
-            const defaultRoles = ["Project Manager", "Superintendent", "General Foreman", "Foreman", "Journeyman", "Apprentice"];
-
-            projectSettings.activeTrades.forEach(trade => {
-                const tradeGroupDiv = document.createElement('div');
-                tradeGroupDiv.className = 'trade-labor-rates-group';
-                tradeGroupDiv.innerHTML = `<h3>${trade} Labor Rates</h3>`;
-
-                const rolesWithRates = Object.entries(projectSettings.allTradeLaborRates[trade] || {});
-
-                rolesWithRates.sort(([, rateA], [, rateB]) => {
-                    if (rateA !== rateB) {
-                        return rateB - rateA;
-                    }
-                    const roleNameA = arguments[0][0];
-                    const roleNameB = arguments[1][0];
-                    return roleNameA.localeCompare(roleNameB);
-                });
-
-                let skillLevelsHtml = '';
-                rolesWithRates.forEach(([role, rate]) => {
-                    const rateInputId = `rate-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
-                    const skillNameElementId = `skillname-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
-
-                    skillLevelsHtml += `
-                        <div class="skill-level-row">
-                            ${isAdvancedModeActive ? `
-                                <input type="text" id="${skillNameElementId}" class="skill-name-input editable" value="${role}"
-                                    onchange="updateSkillTitle('${trade}', '${role}', this.value)">
-                            ` : `
-                                <span id="${skillNameElementId}" class="skill-name-display">${role}</span>
-                            `}
-                            <div class="rate-input-group">
-                                <label for="${rateInputId}" class="rate-label">Rate ($/hr):</label>
-                                <input type="number" id="${rateInputId}" class="input-field rate-input" value="${rate}"
-                                    onchange="updateLaborRate('${trade}', '${role}', this.value)">
-                                ${isAdvancedModeActive ? `
-                                    <button class="remove-skill-btn" onclick="confirmRemoveSkillLevel('${trade}', '${role}')">
-                                        &minus;
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-                tradeGroupDiv.innerHTML += skillLevelsHtml;
-                dynamicLaborRateInputs.appendChild(tradeGroupDiv);
-            });
-        }
-
-        function updateLaborRate(trade, role, value) {
-            const parsedValue = parseFloat(value);
-            if (!isNaN(parsedValue) && parsedValue >= 0) {
-                projectSettings.allTradeLaborRates[trade][role] = parsedValue;
-                populateWizardStep2LaborRates();
-            } else {
-                console.error(`Invalid input for ${trade} ${role} rate: ${value}`);
-                const inputId = `rate-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
-                document.getElementById(inputId).value = projectSettings.allTradeLaborRates[trade][role] || 0;
-            }
-        }
-
-        function updateSkillTitle(trade, oldRole, newRole) {
-            const trimmedNewRole = newRole.trim();
-            console.log(`Attempting to update skill title for trade: ${trade}, oldRole: ${oldRole}, newRole: ${trimmedNewRole}`);
-            if (trimmedNewRole === oldRole) {
-                console.log('New role is same as old role. No update needed.');
-                return;
-            }
-            if (!trimmedNewRole) {
-                renderMessageBox("Skill level title cannot be empty. Reverting to original name.");
-                document.getElementById(`skillname-${trade.replace(/\s/g, '')}-${oldRole.replace(/\s/g, '')}`).value = oldRole;
-                return;
-            }
-            const existingRoles = Object.keys(projectSettings.allTradeLaborRates[trade]).map(r => r.toLowerCase());
-            if (existingRoles.includes(trimmedNewRole.toLowerCase()) && trimmedNewRole.toLowerCase() !== oldRole.toLowerCase()) {
-                renderMessageBox(`Skill level "${trimmedNewRole}" already exists for ${trade}. Please choose a different name.`);
-                document.getElementById(`skillname-${trade.replace(/\s/g, '')}-${oldRole.replace(/\s/g, '')}`).value = oldRole;
-                return;
-            }
-
-            if (projectSettings.allTradeLaborRates[trade] && projectSettings.allTradeLaborRates[trade][oldRole] !== undefined) {
-                const rate = projectSettings.allTradeLaborRates[trade][oldRole];
-                delete projectSettings.allTradeLaborRates[trade][oldRole];
-                projectSettings.allTradeLaborRates[trade][trimmedNewRole] = rate;
-                console.log(`Successfully updated skill title for trade: ${trade}, from ${oldRole} to ${trimmedNewRole}.`);
-
-                estimateItems.forEach(item => {
-                    if (item.trade === trade && item.rateRole === oldRole) {
-                        item.rateRole = trimmedNewRole;
-                    }
-                });
-                populateWizardStep2LaborRates();
-                renderItems();
-            } else {
-                console.warn(`Could not find skill "${role}" in trade "${trade}" for update.`);
-            }
-        }
-
-
-        function toggleAdvancedRates(event) {
-            event.preventDefault();
-            isAdvancedModeActive = !isAdvancedModeActive;
-            if (isAdvancedModeActive) {
-                advancedLink.textContent = 'Hide Advanced Options';
-                advancedSkillLevelControls.classList.remove('hidden');
-            } else {
-                advancedLink.textContent = 'Show Advanced Options';
-                advancedSkillLevelControls.classList.add('hidden');
-            }
-            populateWizardStep2LaborRates();
-        }
-
-        function toggleAdvancedDetails(event) {
-            event.preventDefault();
-            isAdvancedDetailsActive = !isAdvancedDetailsActive;
-            if (isAdvancedDetailsActive) {
-                showAdvancedDetailsLink.textContent = 'Hide Advanced Details';
-                advancedDetailsSection.classList.remove('hidden');
-            } else {
-                advancedDetailsLink.textContent = 'Show Advanced Details';
-                advancedDetailsSection.classList.add('hidden');
-            }
-        }
-
-
-        function addSkillLevelFromAdvanced() {
-            if (projectSettings.activeTrades.length === 0) {
-                renderMessageBox("Please select at least one trade in Step 1 before adding new skill levels.");
-                return;
-            }
-            
-            const newSkillTitleInput = document.getElementById('newSkillTitle');
-            const newSkillRateInput = document.getElementById('newSkillRate');
-
-            const newTitle = newSkillTitleInput.value.trim();
-            const newRate = parseFloat(newSkillRateInput.value);
-            console.log(`Attempting to add new skill: ${newTitle} with rate ${newRate}`);
-
-            if (!newTitle) {
-                renderMessageBox("Please enter a title for the new skill level.");
-                return;
-            }
-            if (isNaN(newRate) || newRate < 0) {
-                renderMessageBox("Please enter a valid non-negative number for the new skill rate.");
-                return;
-            }
-
-            let newSkillAdded = false;
-            let alreadyExistsForSome = false;
-            projectSettings.activeTrades.forEach(trade => {
-                if (!projectSettings.allTradeLaborRates[trade]) {
-                    projectSettings.allTradeLaborRates[trade] = {};
-                }
-                const existingRolesForTrade = Object.keys(projectSettings.allTradeLaborRates[trade]).map(r => r.toLowerCase());
-                if (!existingRolesForTrade.includes(newTitle.toLowerCase())) {
-                    projectSettings.allTradeLaborRates[trade][newTitle] = newRate;
-                    newSkillAdded = true;
-                    console.log(`Added skill "${newTitle}" to trade "${trade}".`);
-                } else {
-                    alreadyExistsForSome = true;
-                    console.warn(`Skill level "${newTitle}" already exists for ${trade}, skipping.`);
-                }
-            });
-
-            if (newSkillAdded) {
-                newSkillTitleInput.value = '';
-                newSkillRateInput.value = '0';
-                populateWizardStep2LaborRates();
-            } else if (alreadyExistsForSome) {
-                renderMessageBox(`Skill level "${newTitle}" already exists for some or all selected trades. It was not added where it already existed.`);
-            } else {
-                renderMessageBox(`Skill level "${newTitle}" already exists for all selected trades or no trades are selected.`);
-            }
-        }
-
-
-        function confirmRemoveSkillLevel(trade, role) {
-            console.log(`Confirming removal of skill: ${role} from trade: ${trade}`);
-            renderMessageBox(`Are you sure you want to remove the skill level "${role}" from ${trade}? This will remove it from all line items using it.`,
-                () => {
-                    removeSkillLevel(trade, role);
-                    closeMessageBox();
-                },
-                true
-            );
-        }
-
-        function removeSkillLevel(trade, role) {
-            console.log(`Attempting to remove skill: ${role} from trade: ${trade}`);
-            const defaultRoles = ["Project Manager", "Superintendent", "General Foreman", "Foreman", "Journeyman", "Apprentice"];
-            if (defaultRoles.includes(role)) {
-                renderMessageBox(`"${role}" is a default skill level and cannot be removed.`);
-                console.log(`Cannot remove default skill: ${role}`);
-                return;
-            }
-
-            if (projectSettings.allTradeLaborRates[trade] && projectSettings.allTradeLaborRates[trade][role] !== undefined) {
-                delete projectSettings.allTradeLaborRates[trade][role];
-                console.log(`Successfully removed skill: ${role} from trade: ${trade}`);
-
-                estimateItems.forEach(item => {
-                    if (item.trade === trade && item.rateRole === role) {
-                        const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
-                        item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
-                        console.log(`Updated line item rate role from ${role} to ${item.rateRole}`);
-                    }
-                });
-
-                populateWizardStep2LaborRates();
-                renderItems();
-            } else {
-                console.warn(`Could not find skill "${role}" in trade "${trade}" for update.`);
-            }
-        }
-
-        function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
-            const messageBoxOverlay = document.createElement('div');
-            messageBoxOverlay.id = 'messageBoxOverlay';
-            messageBoxOverlay.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[1001] backdrop-filter backdrop-blur-sm';
-            
-            const messageBox = document.createElement('div');
-            messageBox.className = 'bg-white rounded-xl p-8 shadow-2xl max-w-sm mx-auto text-center';
-            
-            let buttonsHtml = `<button class="btn btn-primary" onclick="closeMessageBox()">OK</button>`;
-            if (isConfirm) {
-                buttonsHtml = `
-                    <button class="btn btn-red mr-3" id="confirmYesBtn">Yes</button>
-                    <button class="btn btn-primary" onclick="closeMessageBox()">No</button>
-                `;
-            }
-
-            messageBox.innerHTML = `
-                <p class="text-lg font-semibold text-gray-800 mb-6">${message}</p>
-                <div class="flex justify-center gap-3">
-                    ${buttonsHtml}
-                </div>
-            `;
-            messageBoxOverlay.appendChild(messageBox);
-            document.body.appendChild(messageBoxOverlay);
-
-            if (isConfirm && onConfirmCallback) {
-                document.getElementById('confirmYesBtn').addEventListener('click', onConfirmCallback);
-            }
-        }
-
-        function closeMessageBox() {
-            const messageBoxOverlay = document.getElementById('messageBoxOverlay');
-            if (messageBoxOverlay) {
-                messageBoxOverlay.remove();
-            }
-        }
-
-        // Removed function for auto-closing success notifications
-
-        function populateTradesDropdown() {
-            tradesDropdown.innerHTML = '';
-            const allTrades = Object.keys(projectSettings.allTradeLaborRates);
-
-            const searchTerm = tradeSearchInput.value.toLowerCase();
-            const filteredTrades = allTrades.filter(trade => 
-                trade.toLowerCase().includes(searchTerm)
-            );
-
-            if (filteredTrades.length === 0 && searchTerm) {
-                tradesDropdown.innerHTML = `<p class="text-gray-600 text-center py-4">No trades found matching "${searchTerm}"</p>`;
-            } else if (filteredTrades.length === 0 && !searchTerm) {
-                tradesDropdown.innerHTML = `<p class="text-gray-600 text-center py-4">No trades available.</p>`;
-            } else {
-                filteredTrades.forEach(trade => {
-                    const checkboxId = `trade-${trade.replace(/\s/g, '-')}`;
-                    const isChecked = projectSettings.activeTrades.includes(trade);
-
-                    const label = document.createElement('label');
-                    label.className = 'flex items-center';
-                    label.innerHTML = `
-                        <input type="checkbox" id="${checkboxId}" value="${trade}" ${isChecked ? 'checked' : ''} onchange="handleTradeSelection(this)">
-                        <span>${trade}</span>
-                    `;
-                    tradesDropdown.appendChild(label);
-                });
-            }
-        }
-
-        function updateSelectedTradesDisplay() {
-            selectedTradesDisplay.innerHTML = '';
-            if (projectSettings.activeTrades.length === 0) {
-                selectedTradesDisplay.textContent = 'Click to select trades...';
-                return;
-            }
-            projectSettings.activeTrades.forEach(trade => {
-                const span = document.createElement('span');
-                span.className = 'selected-trade-tag';
-                span.innerHTML = `${trade} <span class="remove-tag" data-trade="${trade}">&times;</span>`;
-                selectedTradesDisplay.appendChild(span);
-            });
-        }
-
-
-        function handleTradeSelection(checkbox) {
-            const trade = checkbox.value;
-            if (checkbox.checked) {
-                if (!projectSettings.activeTrades.includes(trade)) {
-                    projectSettings.activeTrades.push(trade);
-                    // When a default trade is selected, ensure its labor rates are initialized.
-                    // This is only needed if `allTradeLaborRates` were ever reset.
-                    // Since we reverted, the rates should already exist for default trades.
-                    // No need to add default rates here as they retain existing structure.
-                }
-            } else {
-                projectSettings.activeTrades = projectSettings.activeTrades.filter(t => t !== trade);
-                // Also remove line items associated with this trade
-                estimateItems = estimateItems.filter(item => item.trade !== trade);
-            }
-            updateSelectedTradesDisplay();
-            renderItems();
-            populateWizardStep2LaborRates();
-        }
-
-        function toggleTradeDropdown() {
-            tradesDropdown.classList.toggle('hidden');
-            if (!tradesDropdown.classList.contains('hidden')) {
-                tradeSearchInput.value = '';
-                populateTradesDropdown();
-            }
-        }
-        
-        function hideTradeDropdown() {
-            setTimeout(() => {
-                // Ensure the dropdown is truly hidden only if mouse is not over it
-                // This is a common pattern to allow clicking on dropdown items without immediately closing it
-                if (!tradesDropdown.contains(document.activeElement) && !selectedTradesDisplay.contains(document.activeElement)) {
-                     tradesDropdown.classList.add('hidden');
-                }
-            }, 100);
-        }
-
-        function showTradeDropdown() {
-            tradesDropdown.classList.remove('hidden');
-        }
-
-
-        selectedTradesDisplay.addEventListener('click', (event) => {
-            if (event.target.classList.contains('remove-tag')) {
-                const tradeToRemove = event.target.dataset.trade;
-                const checkboxId = `trade-${tradeToRemove.replace(/\s/g, '-')}`;
-                const checkbox = document.getElementById(checkboxId);
-                if (checkbox) {
-                    checkbox.checked = false;
-                    handleTradeSelection(checkbox);
-                }
-                event.stopPropagation(); // Prevent the click from toggling the dropdown immediately after removing a tag
-            } else {
-                toggleTradeDropdown();
-            }
-        });
-
-        tradeSearchInput.addEventListener('input', populateTradesDropdown);
-
 
         // --- Estimate Item Management ---
 
@@ -2518,7 +1607,7 @@
                             themeToggleBtnId: 'themeToggleBtn',
                             reconfigureBtnId: 'reconfigureBtn',
                             onThemeToggle: toggleTheme, // Pass the main app's toggleTheme function
-                            onReconfigure: showSetup // Pass the main app's showSetup function
+                            onReconfigure: showSetupWizard // Pass the main app's showSetupWizard function
                         });
                         // Ensure theme button reflects initial state
                         if (isDarkTheme) {
@@ -2564,28 +1653,8 @@
                     } else {
                         console.error('SummaryOverview module not available after loading.');
                     }
-                    // Now that all components are loaded, perform initial rendering and setup
-                    setupInitialEventListeners();
-                    showSetup(); // Show the wizard first
-                    updateSalesTaxForState(projectSettings.projectState); // Will set based on default CA, overriding the 0
-                    populateTradesDropdown();
-                    updateSelectedTradesDisplay();
-
-                    // Immediately apply initial collapsed state to the main table headers
-                    for (const group in collapsedState) {
-                        if (collapsedState.hasOwnProperty(group) && collapsedState[group]) {
-                            const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
-                            const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
-                            if (headerElement && mainThElement) {
-                                headerElement.classList.add('collapsed');
-                                mainThElement.colSpan = 1;
-                                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                    th.classList.add('column-hidden');
-                                });
-                            }
-                        }
-                    }
-                    adjustTableMinWidth(); // Call adjustTableMinWidth initially as well
+                    // Continue to load SetupWizard after AppHeader and SummaryOverview are ready
+                    loadSetupWizard();
                 };
                 script.onerror = (e) => console.error("Failed to load SummaryOverview.js", e);
                 document.body.appendChild(script);
@@ -2595,31 +1664,53 @@
             }
         }
 
+        // NEW: This will fetch SetupWizard.html and SetupWizard.js and inject them.
+        async function loadSetupWizard() {
+            try {
+                const htmlResponse = await fetch('src/sections/SetupWizard/SetupWizard.html');
+                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SetupWizard.html`);
+                const html = await htmlResponse.text();
+                document.getElementById('setupWizardPlaceholder').innerHTML = html;
+                document.getElementById('setupWizardPlaceholder').classList.remove('hidden'); // Show the wizard container
+                mainApp.classList.add('hidden'); // Hide the main app
+
+                // Load the JS after HTML is in DOM
+                const script = document.createElement('script');
+                script.src = 'src/sections/SetupWizard/SetupWizard.js';
+                script.onload = () => {
+                    if (window.SetupWizard) {
+                        window.SetupWizard.init({
+                            projectSettings: projectSettings,
+                            estimateItems: estimateItems,
+                            stateSalesTax: stateSalesTax, // Pass the stateSalesTax map
+                            onCompletion: handleWizardCompletion, // Callback for when wizard is done
+                            renderMessageBox: renderMessageBox, // Pass message box function
+                            closeMessageBox: closeMessageBox // Pass close message box function
+                        });
+                        // After init, ensure wizard starts at step 1 and its initial content is populated
+                        window.SetupWizard.showStep(1);
+                        window.SetupWizard.populateTradesDropdown();
+                        window.SetupWizard.updateSelectedTradesDisplay();
+                        window.SetupWizard.updateSalesTaxForState(projectSettings.projectState); // Set initial sales tax
+                        window.SetupWizard.loadSavedLogo();
+                    } else {
+                        console.error('SetupWizard module not available after loading.');
+                    }
+                };
+                script.onerror = (e) => console.error("Failed to load SetupWizard.js", e);
+                document.body.appendChild(script);
+
+            } catch (error) {
+                console.error("Error loading SetupWizard component:", error);
+            }
+        }
+
+
         // Consolidated event listener setup function
         function setupInitialEventListeners() {
-            // Event listeners previously defined in DOMContentLoaded that are NOT part of AppHeader or SummaryOverview
-            document.getElementById('projectState').addEventListener('change', (event) => {
-                updateSalesTaxForState(event.target.value);
-            });
-            document.getElementById('logoUploadArea').addEventListener('dragover', (event) => { event.preventDefault(); event.currentTarget.classList.add('drag-over'); });
-            document.getElementById('logoUploadArea').addEventListener('dragleave', (event) => { event.currentTarget.classList.remove('drag-over'); });
-            document.getElementById('logoUploadArea').addEventListener('drop', (event) => { handleLogoDrop(event); event.currentTarget.classList.remove('drag-over'); });
-            document.getElementById('logoUploadArea').addEventListener('click', () => document.getElementById('logoUploadInput').click());
-            document.getElementById('tradeSearchInput').addEventListener('focus', showTradeDropdown);
-            document.getElementById('tradeSearchInput').addEventListener('blur', hideTradeDropdown);
-            document.getElementById('selectedTradesDisplay').addEventListener('click', toggleTradeDropdown);
-            document.getElementById('nextStep1Btn').addEventListener('click', () => nextStep(1));
-            document.getElementById('showAdvancedDetailsLink').addEventListener('click', toggleAdvancedDetails);
-            document.getElementById('prevStep2Btn').addEventListener('click', () => prevStep(2));
-            document.getElementById('nextStep2Btn').addEventListener('click', () => nextStep(2));
-            document.getElementById('addSkillLevelBtn').addEventListener('click', addSkillLevelFromAdvanced);
-            document.getElementById('prevStep3Btn').addEventListener('click', () => prevStep(3));
-            document.getElementById('startEstimatingBtn').addEventListener('click', startEstimating);
-            document.getElementById('toggleAdditionalConsiderationsBtn').addEventListener('click', toggleAdditionalConsiderationsType);
+            // Event listeners previously defined in DOMContentLoaded that are NOT part of AppHeader or SummaryOverview or SetupWizard
             document.getElementById('addItemBtn').addEventListener('click', addItem);
-            // themeToggleBtn event listener is now attached by AppHeader.js init
-            // document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme); 
-
+            
             // Add event listeners for collapsible headers
             document.querySelectorAll('.collapsible-header').forEach(header => {
                 header.addEventListener('click', function() {
@@ -2627,16 +1718,68 @@
                     toggleColumnVisibility(group);
                 });
             });
-
-            // Advanced link in Step 2 for labor rates
-            document.getElementById('advancedLink').addEventListener('click', toggleAdvancedRates);
         }
 
 
         // Entry point for the application, after the DOM is fully loaded.
         // This now initiates the dynamic loading of components.
-        document.addEventListener('DOMContentLoaded', loadAppHeader);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAppHeader(); // Start the loading chain
+            setupInitialEventListeners(); // Set up main app specific listeners
+            // Immediately apply initial collapsed state to the main table headers
+            for (const group in collapsedState) {
+                if (collapsedState.hasOwnProperty(group) && collapsedState[group]) {
+                    const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
+                    const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
+                    if (headerElement && mainThElement) {
+                        headerElement.classList.add('collapsed');
+                        mainThElement.colSpan = 1;
+                        document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                            th.classList.add('column-hidden');
+                        });
+                    }
+                }
+            }
+            adjustTableMinWidth(); // Call adjustTableMinWidth initially as well
+        });
 
+        // Global functions for message box, needed by SetupWizard
+        function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
+            const messageBoxOverlay = document.createElement('div');
+            messageBoxOverlay.id = 'messageBoxOverlay';
+            messageBoxOverlay.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[1001] backdrop-filter backdrop-blur-sm';
+            
+            const messageBox = document.createElement('div');
+            messageBox.className = 'bg-white rounded-xl p-8 shadow-2xl max-w-sm mx-auto text-center';
+            
+            let buttonsHtml = `<button class="btn btn-primary" onclick="closeMessageBox()">OK</button>`;
+            if (isConfirm) {
+                buttonsHtml = `
+                    <button class="btn btn-red mr-3" id="confirmYesBtn">Yes</button>
+                    <button class="btn btn-primary" onclick="closeMessageBox()">No</button>
+                `;
+            }
+
+            messageBox.innerHTML = `
+                <p class="text-lg font-semibold text-gray-800 mb-6">${message}</p>
+                <div class="flex justify-center gap-3">
+                    ${buttonsHtml}
+                </div>
+            `;
+            messageBoxOverlay.appendChild(messageBox);
+            document.body.appendChild(messageBoxOverlay);
+
+            if (isConfirm && onConfirmCallback) {
+                document.getElementById('confirmYesBtn').addEventListener('click', onConfirmCallback);
+            }
+        }
+
+        function closeMessageBox() {
+            const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+            if (messageBoxOverlay) {
+                messageBoxOverlay.remove();
+            }
+        }
     </script>
 </body>
 </html>
