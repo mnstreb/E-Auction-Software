@@ -1,57 +1,170 @@
 // src/components/AppHeader/AppHeader.js
 
-// This IIFE (Immediately Invoked Function Expression) creates a scope for the header module
-// and exposes an 'AppHeader' object to the global window scope for external interaction.
-(function() {
+window.AppHeader = (function() {
+    let mainAppLogoElem;
+    let mainAppDefaultIcon;
+    let projectTypeDisplayElem;
+    let projectNameDisplayElem;
+    let themeToggleBtnElem;
+    let reconfigureBtnElem;
+    
+    // Dropdown specific elements
+    let generateReportBtnElem;
+    let reportDropdownMenuElem;
+    let exportPdfBtnElem;
+    let exportCsvBtnElem;
+    let emailClientBtnElem;
+
+    let onThemeToggleCallback;
+    let onReconfigureCallback;
+    // New callbacks for dropdown items
+    let onExportPdfCallback;
+    let onExportCsvCallback;
+    let onEmailClientCallback;
+
     /**
-     * Initializes the App Header component's event listeners.
-     * This function should be called from the main application script once the header HTML is loaded.
-     *
-     * @param {object} params - Parameters object containing IDs of elements and callback functions.
-     * @param {string} params.mainAppLogoId - ID of the main application logo image element.
-     * @param {string} params.themeToggleBtnId - ID of the theme toggle button.
-     * @param {string} params.reconfigureBtnId - ID of the reconfigure button.
-     * @param {function} params.onThemeToggle - Callback function to execute when theme toggle button is clicked.
-     * @param {function} params.onReconfigure - Callback function to execute when reconfigure button is clicked.
+     * Initializes the AppHeader component by getting element references and
+     * setting up event listeners.
+     * @param {object} config - Configuration object.
+     * @param {string} config.mainAppLogoId - ID for the main application logo image.
+     * @param {string} config.themeToggleBtnId - ID for the theme toggle button.
+     * @param {string} config.reconfigureBtnId - ID for the reconfigure button.
+     * @param {string} config.generateReportBtnId - ID for the main Generate Report button (which opens dropdown).
+     * @param {string} config.reportDropdownMenuId - ID for the dropdown menu container.
+     * @param {string} config.exportPdfBtnId - ID for the Export as PDF button inside dropdown.
+     * @param {string} config.exportCsvBtnId - ID for the Export as CSV/XLX button inside dropdown.
+     * @param {string} config.emailClientBtnId - ID for the Email Directly To Client button inside dropdown.
+     * @param {function} config.onThemeToggle - Callback function for theme toggle.
+     * @param {function} config.onReconfigure - Callback function for reconfigure button.
+     * @param {function} config.onExportPdf - Callback for Export as PDF action.
+     * @param {function} config.onExportCsv - Callback for Export as CSV/XLX action.
+     * @param {function} config.onEmailClient - Callback for Email Directly To Client action.
      */
-    function init(params) {
-        const mainAppLogo = document.getElementById(params.mainAppLogoId);
-        const themeToggleBtn = document.getElementById(params.themeToggleBtnId);
-        const reconfigureBtn = document.getElementById(params.reconfigureBtnId);
+    function init(config) {
+        mainAppLogoElem = document.getElementById(config.mainAppLogoId);
+        mainAppDefaultIcon = document.getElementById('mainAppDefaultIcon'); // Static ID
+        projectTypeDisplayElem = document.getElementById('projectTypeDisplay');
+        projectNameDisplayElem = document.getElementById('projectNameDisplay');
+        themeToggleBtnElem = document.getElementById(config.themeToggleBtnId);
+        reconfigureBtnElem = document.getElementById(config.reconfigureBtnId);
+        
+        // Dropdown element references
+        generateReportBtnElem = document.getElementById(config.generateReportBtnId);
+        reportDropdownMenuElem = document.getElementById(config.reportDropdownMenuId);
+        exportPdfBtnElem = document.getElementById(config.exportPdfBtnId);
+        exportCsvBtnElem = document.getElementById(config.exportCsvBtnId);
+        emailClientBtnElem = document.getElementById(config.emailClientBtnId);
 
-        // Attach event listeners if elements are found
-        if (themeToggleBtn) {
-            themeToggleBtn.addEventListener('click', params.onThemeToggle);
-        } else {
-            console.error('Theme toggle button not found for AppHeader initialization.');
+        onThemeToggleCallback = config.onThemeToggle;
+        onReconfigureCallback = config.onReconfigure;
+        // Assign new callbacks for dropdown items
+        onExportPdfCallback = config.onExportPdf;
+        onExportCsvCallback = config.onExportCsv;
+        onEmailClientCallback = config.onEmailClient;
+
+        // Set up event listeners
+        if (themeToggleBtnElem) {
+            themeToggleBtnElem.addEventListener('click', onThemeToggleCallback);
+        }
+        if (reconfigureBtnElem) {
+            reconfigureBtnElem.addEventListener('click', onReconfigureCallback);
+        }
+        
+        // Dropdown button listener
+        if (generateReportBtnElem) {
+            generateReportBtnElem.addEventListener('click', toggleReportDropdown);
         }
 
-        if (reconfigureBtn) {
-            reconfigureBtn.addEventListener('click', params.onReconfigure);
-        } else {
-            console.error('Reconfigure button not found for AppHeader initialization.');
+        // Dropdown menu item listeners
+        if (exportPdfBtnElem) {
+            exportPdfBtnElem.addEventListener('click', (event) => {
+                onExportPdfCallback();
+                hideReportDropdown(); // Hide dropdown after click
+            });
+        }
+        if (exportCsvBtnElem) {
+            exportCsvBtnElem.addEventListener('click', (event) => {
+                onExportCsvCallback();
+                hideReportDropdown(); // Hide dropdown after click
+            });
+        }
+        if (emailClientBtnElem) {
+            emailClientBtnElem.addEventListener('click', (event) => {
+                onEmailClientCallback();
+                hideReportDropdown(); // Hide dropdown after click
+            });
         }
 
-        // Define a function on the exposed AppHeader object to update the logo
-        // This allows the main app (e.g., the wizard) to tell the header to change its logo.
-        AppHeader.updateLogo = function(base64Image) {
-            if (mainAppLogo) {
-                mainAppLogo.src = base64Image;
+        // Event listener to close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (reportDropdownMenuElem && !generateReportBtnElem.contains(event.target) && !reportDropdownMenuElem.contains(event.target)) {
+                hideReportDropdown();
             }
-        };
-
-        // Define a function on the exposed AppHeader object to update the theme button icon
-        AppHeader.updateThemeButton = function(icon) {
-            if (themeToggleBtn) {
-                themeToggleBtn.innerHTML = icon;
-            }
-        };
+        });
     }
 
-    // Expose the init function globally via 'window.AppHeader'
-    // This makes it accessible from your main script.
-    window.AppHeader = {
+    // Function to toggle dropdown visibility
+    function toggleReportDropdown() {
+        if (reportDropdownMenuElem) {
+            reportDropdownMenuElem.classList.toggle('show');
+        }
+    }
+
+    // Function to hide dropdown
+    function hideReportDropdown() {
+        if (reportDropdownMenuElem) {
+            reportDropdownMenuElem.classList.remove('show');
+        }
+    }
+
+    /**
+     * Updates the project information displayed in the header.
+     * @param {string} projectType - The type of project (e.g., Commercial).
+     * @param {string} projectName - The name of the project.
+     * @param {string} projectState - The state/location of the project.
+     */
+    function updateProjectInfo(projectType, projectName, projectState) {
+        if (projectTypeDisplayElem) {
+            projectTypeDisplayElem.textContent = projectType;
+        }
+        if (projectNameDisplayElem) {
+            projectNameDisplayElem.textContent = `${projectName} - ${projectState}`;
+        }
+    }
+
+    /**
+     * Updates the logo displayed in the header.
+     * @param {string} logoSrc - Data URL or path for the logo image.
+     */
+    function updateLogo(logoSrc) {
+        if (mainAppLogoElem) {
+            if (logoSrc) {
+                mainAppLogoElem.src = logoSrc;
+                mainAppLogoElem.classList.remove('hidden');
+                mainAppDefaultIcon.classList.add('hidden');
+            } else {
+                mainAppLogoElem.src = '';
+                mainAppLogoElem.classList.add('hidden');
+                mainAppDefaultIcon.classList.remove('hidden');
+            }
+        }
+    }
+
+    /**
+     * Updates the text/icon of the theme toggle button.
+     * @param {string} icon - The icon/text to display (e.g., '☀️' or '🌙').
+     */
+    function updateThemeButton(icon) {
+        if (themeToggleBtnElem) {
+            themeToggleBtnElem.textContent = icon;
+        }
+    }
+
+    // Expose public methods
+    return {
         init: init,
-        // updateLogo and updateThemeButton will be added to this object during init() call
+        updateProjectInfo: updateProjectInfo,
+        updateLogo: updateLogo,
+        updateThemeButton: updateThemeButton
     };
 })();
