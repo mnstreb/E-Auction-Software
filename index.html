@@ -2503,6 +2503,7 @@
         async function loadAppHeader() {
             try {
                 const htmlResponse = await fetch('src/components/AppHeader/AppHeader.html');
+                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for AppHeader.html`);
                 const html = await htmlResponse.text();
                 document.getElementById('appHeaderPlaceholder').innerHTML = html;
 
@@ -2531,7 +2532,7 @@
                     // Continue to load SummaryOverview after AppHeader is ready
                     loadSummaryOverview(); 
                 };
-                script.onerror = () => console.error("Failed to load AppHeader.js");
+                script.onerror = (e) => console.error("Failed to load AppHeader.js", e);
                 document.body.appendChild(script);
 
             } catch (error) {
@@ -2543,6 +2544,7 @@
         async function loadSummaryOverview() {
             try {
                 const htmlResponse = await fetch('src/sections/SummaryOverview/SummaryOverview.html');
+                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SummaryOverview.html`);
                 const html = await htmlResponse.text();
                 document.getElementById('summaryOverviewPlaceholder').innerHTML = html;
 
@@ -2585,7 +2587,7 @@
                     }
                     adjustTableMinWidth(); // Call adjustTableMinWidth initially as well
                 };
-                script.onerror = () => console.error("Failed to load SummaryOverview.js");
+                script.onerror = (e) => console.error("Failed to load SummaryOverview.js", e);
                 document.body.appendChild(script);
 
             } catch (error) {
