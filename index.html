@@ -128,6 +128,10 @@
             justify-content: center;
             z-index: 1000;
             backdrop-filter: blur(5px);
+            /* Ensure fitting and responsiveness */
+            overflow-y: auto; /* Allow scrolling if content exceeds viewport height */
+            padding: 20px; /* Add some padding so wizard doesn't touch screen edges on small devices */
+            box-sizing: border-box; /* Include padding in dimensions */
         }
 
         .form-group {
@@ -1863,4 +1867,3 @@
     </script>
 </body>
 </html>
-
