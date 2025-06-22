@@ -921,7 +921,7 @@
             visibility: visible;
         }
 
-        /* Wizard specific styles - CRITICAL FOR WIZARD VISUALS (Further Refined for Layout) */
+        /* Wizard specific styles - RE-VERIFIED AGAINST LAST SUCCESSFUL STATE */
         .wizard-content {
             background: white;
             padding: 40px;
@@ -930,22 +930,21 @@
             max-width: 600px;
             width: 100%;
             box-sizing: border-box;
-            transition: background-color 0.3s, box-shadow 0.3s;
             display: flex;
             flex-direction: column;
-            align-items: center; /* This centers the overall block of content */
+            align-items: center; /* Center content horizontally within the wizard card */
+            transition: background-color 0.3s, box-shadow 0.3s;
         }
 
-        /* Step Indicator Styles */
         .step-indicator {
             display: flex;
-            justify-content: center; /* Centers the step circles and lines */
-            align-items: center;
+            justify-content: center; /* Center the step numbers horizontally */
+            align-items: center; /* Vertically align step numbers and lines */
             margin-bottom: 40px;
-            width: 100%; /* Ensures the step indicator group takes full width within the wizard-content */
-            position: relative; /* Context for children */
+            width: 100%;
+            position: relative; /* Establish positioning context for children */
         }
-        /* Individual step circle */
+
         .step {
             width: 40px;
             height: 40px;
@@ -961,33 +960,36 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             flex-shrink: 0;
             z-index: 1; /* Ensure circles are on top of lines */
-            position: relative; /* Context for pseudo-elements */
-            margin: 0 10px; /* Space between steps for the line */
+            position: relative; /* Crucial for positioning pseudo-elements */
+            margin: 0 10px; /* Space on either side of the circle for the connecting line */
         }
+
         .step.active {
             background: #2563eb;
             color: white;
             box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
             transform: scale(1.1);
         }
-        /* Line connecting steps AFTER a step */
+
+        /* Line connecting steps AFTER a step (for steps 1 and 2) */
         .step:not(:last-child)::after {
             content: '';
             position: absolute;
             top: 50%;
-            left: calc(100% + 5px); /* Start just after the circle, accounting for margin */
+            left: calc(100% + 5px); /* Position immediately after the circle, plus a small gap */
             width: 20px; /* Length of the connecting line */
             height: 2px;
             background: #d1d5db;
             transform: translateY(-50%);
             z-index: 0;
         }
+
         /* Line connecting steps BEFORE a step (for steps 2 and 3) */
         .step:not(:first-child)::before {
             content: '';
             position: absolute;
             top: 50%;
-            right: calc(100% + 5px); /* Start just before the circle, accounting for margin */
+            right: calc(100% + 5px); /* Position immediately before the circle, plus a small gap */
             width: 20px; /* Length of the connecting line */
             height: 2px;
             background: #d1d5db;
@@ -995,40 +997,42 @@
             z-index: 0;
         }
 
-        /* Styles for each wizard step section (Step 1, Step 2, Step 3) */
+        /* Ensure each wizard step section fills the width of its parent */
         #wizardStep1, #wizardStep2, #wizardStep3 {
-            width: 100%; /* Ensure steps fill the full width of the wizard-content for consistent form layout */
+            width: 100%;
         }
 
-        /* Form Group Alignment within Wizard Steps */
+        /* Form Group & Label Alignment within Wizard Steps - Crucial for proper text/input alignment */
         .wizard-content .form-group {
-            width: 100%; /* Ensures form groups stretch across the wizard content */
-            text-align: left; /* Aligns contents (labels, inputs) to the left */
+            width: 100%; /* Force form groups to take full width */
+            text-align: left; /* Align children (label, input) to the left */
             margin-bottom: 25px;
         }
-        /* Labels within wizard form groups */
         .wizard-content .label {
             text-align: left; /* Explicitly align label text to the left */
-            width: 100%; /* Ensure labels take full width above inputs */
-            display: block; /* Make sure it's a block element */
+            width: 100%; /* Ensure labels take full available width */
+            display: block; /* Make sure it behaves as a block element */
         }
-        /* Headings within wizard steps */
         .wizard-content h2 {
             margin-bottom: 25px;
             width: 100%;
-            text-align: left; /* Align to the left as seen in previous designs */
+            text-align: left; /* Align sub-headings to the left */
         }
-        /* Main wizard titles */
+        /* Main wizard titles and introductory paragraphs (often centered) */
         .wizard-content h1 {
-            text-align: center; /* Keep main title centered */
+            text-align: center;
         }
         .wizard-content p {
             width: 100%;
-            text-align: center; /* For the introductory paragraph */
-            margin-bottom: 20px; /* Add some space below this paragraph */
+            text-align: center;
+            margin-bottom: 20px;
         }
 
-        /* Ensure wizard logo preview fits correctly */
+        /* Logo upload area specific styles within wizard */
+        .logo-upload-area {
+            width: 100%; /* Ensure it spans full width of wizard content */
+            box-sizing: border-box; /* Include padding and border in its width */
+        }
         .wizard-logo-img-preview {
             max-width: 100%;
             height: auto;
@@ -1036,7 +1040,7 @@
             object-fit: contain;
         }
 
-        /* Dark Theme Specifics for Wizard Elements */
+        /* Dark Theme Specifics for Wizard Elements (re-verified) */
         .dark-theme .wizard-content {
             background: #2d3748;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
@@ -1166,6 +1170,12 @@
             clientName: "",
             projectAddress: "",
             projectCity: "",
+            ownerName: "", /* ADDED: Owner Name */
+            ownerAddress: "", /* ADDED: Owner Address */
+            ownerCity: "", /* ADDED: Owner City */
+            ownerZip: "", /* ADDED: Owner Zip */
+            ownerEmail: "", /* ADDED: Owner Email */
+            ownerPhone: "", /* ADDED: Owner Phone */
             projectZip: "",
             startDate: "",
             endDate: "",
