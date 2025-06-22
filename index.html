@@ -921,7 +921,7 @@
             visibility: visible;
         }
 
-        /* Wizard specific styles - RE-VERIFIED AGAINST LAST SUCCESSFUL STATE */
+        /* Wizard specific styles - REPLICATED FROM LAST SUCCESSFUL MONOLITHIC CODE */
         .wizard-content {
             background: white;
             padding: 40px;
@@ -932,17 +932,17 @@
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center content horizontally within the wizard card */
+            align-items: center; /* Centers the entire wizard content block */
             transition: background-color 0.3s, box-shadow 0.3s;
         }
 
         .step-indicator {
             display: flex;
-            justify-content: center; /* Center the step numbers horizontally */
-            align-items: center; /* Vertically align step numbers and lines */
+            justify-content: center; /* Centers the step circles horizontally */
+            align-items: center; /* Vertically aligns circles and connecting lines */
             margin-bottom: 40px;
             width: 100%;
-            position: relative; /* Establish positioning context for children */
+            position: relative;
         }
 
         .step {
@@ -958,10 +958,10 @@
             font-size: 1.1rem;
             transition: all 0.3s ease-in-out;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            flex-shrink: 0;
-            z-index: 1; /* Ensure circles are on top of lines */
-            position: relative; /* Crucial for positioning pseudo-elements */
-            margin: 0 10px; /* Space on either side of the circle for the connecting line */
+            flex-shrink: 0; /* Prevents shrinking on small screens */
+            z-index: 1; /* Ensures circles are above lines */
+            position: relative; /* Essential for positioning pseudo-elements */
+            margin: 0 10px; /* Provides space for connecting lines on both sides */
         }
 
         .step.active {
@@ -971,12 +971,12 @@
             transform: scale(1.1);
         }
 
-        /* Line connecting steps AFTER a step (for steps 1 and 2) */
+        /* Line connecting AFTER a step (for steps 1 and 2) */
         .step:not(:last-child)::after {
             content: '';
             position: absolute;
             top: 50%;
-            left: calc(100% + 5px); /* Position immediately after the circle, plus a small gap */
+            left: calc(100% + 5px); /* Starts after the circle, with a small gap */
             width: 20px; /* Length of the connecting line */
             height: 2px;
             background: #d1d5db;
@@ -984,12 +984,12 @@
             z-index: 0;
         }
 
-        /* Line connecting steps BEFORE a step (for steps 2 and 3) */
+        /* Line connecting BEFORE a step (for steps 2 and 3) */
         .step:not(:first-child)::before {
             content: '';
             position: absolute;
             top: 50%;
-            right: calc(100% + 5px); /* Position immediately before the circle, plus a small gap */
+            right: calc(100% + 5px); /* Starts before the circle, with a small gap */
             width: 20px; /* Length of the connecting line */
             height: 2px;
             background: #d1d5db;
@@ -997,22 +997,23 @@
             z-index: 0;
         }
 
-        /* Ensure each wizard step section fills the width of its parent */
+        /* Ensure each wizard step section (Step 1, Step 2, Step 3 content) fills the width */
         #wizardStep1, #wizardStep2, #wizardStep3 {
             width: 100%;
         }
 
-        /* Form Group & Label Alignment within Wizard Steps - Crucial for proper text/input alignment */
+        /* Form Group & Label Alignment within Wizard Steps - This is crucial for proper layout */
         .wizard-content .form-group {
-            width: 100%; /* Force form groups to take full width */
+            width: 100%; /* Force form groups to take full width of wizard content */
             text-align: left; /* Align children (label, input) to the left */
             margin-bottom: 25px;
         }
         .wizard-content .label {
             text-align: left; /* Explicitly align label text to the left */
-            width: 100%; /* Ensure labels take full available width */
-            display: block; /* Make sure it behaves as a block element */
+            width: 100%; /* Ensure labels take full available width above inputs */
+            display: block; /* Make sure it behaves as a block element for proper stacking */
         }
+        /* Headings within wizard steps */
         .wizard-content h2 {
             margin-bottom: 25px;
             width: 100%;
@@ -1028,7 +1029,7 @@
             margin-bottom: 20px;
         }
 
-        /* Logo upload area specific styles within wizard */
+        /* Logo upload area within wizard */
         .logo-upload-area {
             width: 100%; /* Ensure it spans full width of wizard content */
             box-sizing: border-box; /* Include padding and border in its width */
@@ -1040,7 +1041,7 @@
             object-fit: contain;
         }
 
-        /* Dark Theme Specifics for Wizard Elements (re-verified) */
+        /* Dark Theme Specifics for Wizard Elements (re-verified for consistency) */
         .dark-theme .wizard-content {
             background: #2d3748;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
@@ -1862,3 +1863,4 @@
     </script>
 </body>
 </html>
+
