@@ -833,7 +833,7 @@
         .dark-theme #estimateTableBody td:nth-child(5),
         .dark-theme #estimateTableBody td:nth-child(7),
         .dark-theme #estimateTableBody td:nth-child(10),
-        .dark-theme #estimateTableBody td:nth-child(14),
+        .dark-theme .dark-theme #estimateTableBody td:nth-child(14), /* Corrected duplicate here */
         .dark-theme #estimateTableBody td:nth-child(15) {
             color: #e2e8f0; /* Light text for totals */
         }
@@ -1398,10 +1398,10 @@
         const uploadText = document.getElementById('uploadText');
 
         // References to main AppHeader elements now that they'll be dynamically loaded
-        // and initialized via their module.
-        let mainAppLogo; 
-        let themeToggleBtn; 
-        let reconfigureBtn; 
+        // and initialized via their module. These are used only in the main script now.
+        let mainAppLogoElemInAppHeader; 
+        let themeToggleBtnElemInAppHeader; 
+        let reconfigureBtnElemInAppHeader; 
 
 
         // State for advanced mode in Step 2
@@ -1414,36 +1414,36 @@
         let isDarkTheme = false;
 
         // References to SummaryOverview elements now that they'll be dynamically loaded
-        // and initialized via their module.
-        let summaryTotalProposalElem;
-        let summaryOverallLaborHoursElem;
-        let summaryProjectCost;
-        let summaryMiscCost;
-        let summaryMaterialMarkup;
-        let summaryMaterialMarkupAmount;
-        let summaryEstimateSubtotal;
-        let summaryProfitMargin;
-        let summarySalesTax;
-        let summaryMiscPercent;
-        let summaryOverhead;
-        let summaryAdditionalConsiderations;
-        let laborPMTotal;
-        let laborSuperintendentTotal;
-        let laborGeneralForemanTotal;
-        let laborForemanTotal;
-        let laborJourneymanTotal;
-        let laborApprenticeTotal;
-        let breakdownLaborHoursTotal;
-        let breakdownLaborTotal;
-        let breakdownMaterialTotal;
-        let breakdownEquipmentTotal;
-        let breakdownSubcontractorTotal;
-        let breakdownMiscCostLineItems;
-        let breakdownProjectTotal;
-        let laborMaterialPieChartCanvas;
-        let laborMaterialPieChart;
+        // and initialized via their module. These are used only in the main script now.
+        let summaryTotalProposalElemInSummaryOverview;
+        let summaryOverallLaborHoursElemInSummaryOverview;
+        let summaryProjectCostInSummaryOverview;
+        let summaryMiscCostInSummaryOverview;
+        let summaryMaterialMarkupInSummaryOverview;
+        let summaryMaterialMarkupAmountInSummaryOverview;
+        let summaryEstimateSubtotalInSummaryOverview;
+        let summaryProfitMarginInSummaryOverview;
+        let summarySalesTaxInSummaryOverview;
+        let summaryMiscPercentInSummaryOverview;
+        let summaryOverheadInSummaryOverview;
+        let summaryAdditionalConsiderationsInSummaryOverview;
+        let laborPMTotalInSummaryOverview;
+        let laborSuperintendentTotalInSummaryOverview;
+        let laborGeneralForemanTotalInSummaryOverview;
+        let laborForemanTotalInSummaryOverview;
+        let laborJourneymanTotalInSummaryOverview;
+        let laborApprenticeTotalInSummaryOverview;
+        let breakdownLaborHoursTotalInSummaryOverview;
+        let breakdownLaborTotalInSummaryOverview;
+        let breakdownMaterialTotalInSummaryOverview;
+        let breakdownEquipmentTotalInSummaryOverview;
+        let breakdownSubcontractorTotalInSummaryOverview;
+        let breakdownMiscCostLineItemsInSummaryOverview;
+        let breakdownProjectTotalInSummaryOverview;
+        let laborMaterialPieChartCanvasInSummaryOverview;
 
 
+        // This element is directly in index.html (not part of a loaded component)
         const projectInfoElem = document.getElementById('projectInfo');
 
 
@@ -1524,25 +1524,20 @@
             isDarkTheme = !isDarkTheme;
             if (isDarkTheme) {
                 document.body.classList.add('dark-theme');
-                // Use AppHeader's exposed update function for the button text
+                // Call AppHeader's exposed function to update its button
                 if (window.AppHeader && typeof window.AppHeader.updateThemeButton === 'function') {
                     window.AppHeader.updateThemeButton('☀️'); // Sun icon for light theme
-                } else {
-                    // Fallback if AppHeader not yet loaded (shouldn't happen in final flow)
-                    themeToggleBtn.innerHTML = '☀️'; 
                 }
             } else {
                 document.body.classList.remove('dark-theme');
-                // Use AppHeader's exposed update function for the button text
+                // Call AppHeader's exposed function to update its button
                 if (window.AppHeader && typeof window.AppHeader.updateThemeButton === 'function') {
                     window.AppHeader.updateThemeButton('🌙'); // Moon icon for dark theme
-                } else {
-                    // Fallback
-                    themeToggleBtn.innerHTML = '🌙'; 
                 }
             }
             // Trigger SummaryOverview to update its chart based on new theme
             if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                // Pass current projectSettings and estimateItems for full re-calculation if needed
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
             }
         }
@@ -1572,12 +1567,11 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 projectSettings.contractorLogo = e.target.result;
-                loadSavedLogo(); // This will now call AppHeader.updateLogo
+                loadSavedLogo(); 
             };
             reader.readAsDataURL(file);
         }
 
-        // Modified: This function now updates only wizard preview and calls AppHeader.updateLogo
         function loadSavedLogo() {
             if (projectSettings.contractorLogo) {
                 // Update wizard preview
@@ -1666,7 +1660,7 @@
                 projectSettings.endDate = document.getElementById('endDate').value;
                 projectSettings.projectID = document.getElementById('projectID').value;
                 projectSettings.projectDescription = document.getElementById('projectDescription').value;
-                projectSettings.projectType = projectType;
+                projectSettings.projectType = document.getElementById('projectType').value;
                 projectSettings.projectState = projectState;
                 updateSalesTaxForState(projectSettings.projectState);
 
@@ -1750,7 +1744,13 @@
             setupWizard.classList.add('hidden');
             mainApp.classList.remove('hidden');
 
-            projectInfoElem.textContent = `${projectSettings.projectType} - ${projectSettings.projectName} - ${projectSettings.projectState}`;
+            // Update AppHeader's project info via its exposed function
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.projectState);
+            } else {
+                // Fallback if AppHeader not yet loaded (shouldn't happen in normal flow after init)
+                document.getElementById('projectInfo').textContent = `${projectSettings.projectType} - ${projectSettings.projectName} - ${projectSettings.projectState}`;
+            }
 
             // Ensure default trade/role is set for the single item if it's new or needs update
             if (estimateItems.length === 1) { // Only update the first item if it's the default one
@@ -1817,7 +1817,7 @@
             document.getElementById('startDate').value = projectSettings.startDate;
             document.getElementById('endDate').value = projectSettings.endDate;
             document.getElementById('projectID').value = projectSettings.projectID;
-            document.getElementById('projectDescription').value = projectSettings.projectDescription; 
+            document.getElementById('projectDescription').value = projectSettings.projectDescription;
 
             if (isAdvancedDetailsActive) {
                 advancedDetailsSection.classList.remove('hidden');
@@ -2135,6 +2135,8 @@
             }
         }
 
+        // Removed function for auto-closing success notifications
+
         function populateTradesDropdown() {
             tradesDropdown.innerHTML = '';
             const allTrades = Object.keys(projectSettings.allTradeLaborRates);
@@ -2184,6 +2186,10 @@
             if (checkbox.checked) {
                 if (!projectSettings.activeTrades.includes(trade)) {
                     projectSettings.activeTrades.push(trade);
+                    // When a default trade is selected, ensure its labor rates are initialized.
+                    // This is only needed if `allTradeLaborRates` were ever reset.
+                    // Since we reverted, the rates should already exist for default trades.
+                    // No need to add default rates here as they retain existing structure.
                 }
             } else {
                 projectSettings.activeTrades = projectSettings.activeTrades.filter(t => t !== trade);
@@ -2279,7 +2285,9 @@
 
         function renderItems() {
             estimateTableBody.innerHTML = '';
-            let totalLaborHoursVal = 0;
+            // totalLaborHoursVal is not explicitly used here anymore for UI update, as SummaryOverview handles it.
+            // But it's needed for calculations.
+            let totalLaborHoursVal = 0; 
 
             estimateItems.forEach(item => {
                 // Ensure trade and role are valid, fallback if needed
@@ -2376,6 +2384,7 @@
 
 
         // --- Calculations ---
+        // This function will now only update data and then call SummaryOverview.updateSummaries
         function calculateTotals() {
             let totalLaborCost = 0; // Accumulates total labor cost from line items
             let totalMaterialCostRaw = 0; // Raw material cost from line items (before markup)
@@ -2503,10 +2512,6 @@
                 script.onload = () => {
                     // Initialize AppHeader after its JS is loaded
                     if (window.AppHeader) {
-                        mainAppLogo = document.getElementById('mainAppLogo'); // Re-assign global variable reference
-                        themeToggleBtn = document.getElementById('themeToggleBtn'); // Re-assign global variable reference
-                        reconfigureBtn = document.getElementById('reconfigureBtn'); // Re-assign global variable reference
-                        
                         window.AppHeader.init({
                             mainAppLogoId: 'mainAppLogo',
                             themeToggleBtnId: 'themeToggleBtn',
@@ -2547,35 +2552,6 @@
                 script.onload = () => {
                     // Initialize SummaryOverview after its JS is loaded
                     if (window.SummaryOverview) {
-                        // Re-assign global variable references for Summary Overview elements
-                        summaryTotalProposalElem = document.getElementById('summaryTotalProposal');
-                        summaryOverallLaborHoursElem = document.getElementById('summaryOverallLaborHours');
-                        summaryProjectCost = document.getElementById('summaryProjectCost');
-                        summaryMiscCost = document.getElementById('summaryMiscCost');
-                        summaryMaterialMarkup = document.getElementById('summaryMaterialMarkup');
-                        summaryMaterialMarkupAmount = document.getElementById('summaryMaterialMarkupAmount');
-                        summaryEstimateSubtotal = document.getElementById('summaryEstimateSubtotal');
-                        summaryProfitMargin = document.getElementById('summaryProfitMargin');
-                        salesTax = document.getElementById('salesTax'); // This might be an input, ensure correct reference if needed
-                        miscellaneous = document.getElementById('miscellaneous'); // This might be an input
-                        summaryOverhead = document.getElementById('summaryOverhead');
-                        summaryAdditionalConsiderations = document.getElementById('summaryAdditionalConsiderations');
-                        laborPMTotal = document.getElementById('laborPMTotal');
-                        laborSuperintendentTotal = document.getElementById('laborSuperintendentTotal');
-                        laborGeneralForemanTotal = document.getElementById('laborGeneralForemanTotal');
-                        laborForemanTotal = document.getElementById('laborForemanTotal');
-                        laborJourneymanTotal = document.getElementById('laborJourneymanTotal');
-                        laborApprenticeTotal = document.getElementById('laborApprenticeTotal');
-                        breakdownLaborHoursTotal = document.getElementById('breakdownLaborHoursTotal');
-                        breakdownLaborTotal = document.getElementById('breakdownLaborTotal');
-                        breakdownMaterialTotal = document.getElementById('breakdownMaterialTotal');
-                        breakdownEquipmentTotal = document.getElementById('breakdownEquipmentTotal');
-                        breakdownSubcontractorTotal = document.getElementById('breakdownSubcontractorTotal');
-                        breakdownMiscCostLineItems = document.getElementById('breakdownMiscCost');
-                        breakdownProjectTotal = document.getElementById('breakdownProjectTotal');
-                        laborMaterialPieChartCanvas = document.getElementById('laborMaterialPieChart');
-                        // No need to re-declare laborMaterialPieChart, it's managed internally by SummaryOverview now.
-
                         window.SummaryOverview.init({
                             projectSettings: projectSettings,
                             estimateItems: estimateItems,
