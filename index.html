@@ -1461,8 +1461,8 @@
         const showAdvancedDetailsLink = document.getElementById('showAdvancedDetailsLink');
         const advancedDetailsSection = document.getElementById('advancedDetailsSection');
 
-        const tradeSearchInput = document.getElementById('tradeSearchInput'); 
-        const tradesDropdown = document.getElementById('tradesDropdown'); 
+        const tradeSearchInput = document.getElementById('tradeSearchInput'); // Restored
+        const tradesDropdown = document.getElementById('tradesDropdown'); // Restored
         const selectedTradesDisplay = document.getElementById('selectedTradesDisplay');
 
         const logoUploadInput = document.getElementById('logoUploadInput');
@@ -1471,9 +1471,9 @@
         const defaultLogoIcon = document.getElementById('defaultLogoIcon');
         const uploadText = document.getElementById('uploadText');
 
-        const mainAppLogo = document.getElementById('mainAppLogo');
-        const themeToggleBtn = document.getElementById('themeToggleBtn');
-        const reconfigureBtn = document.getElementById('reconfigureBtn');
+        // Removed direct UI element references for AppHeader (now managed by AppHeader.js)
+        // const mainAppLogo = document.getElementById('mainAppLogo'); // No longer needed directly here
+        // const themeToggleBtn = document.getElementById('themeToggleBtn'); // No longer needed directly here
 
 
         // State for advanced mode in Step 2
@@ -1485,37 +1485,37 @@
         // State for theme - will be initialized in DOMContentLoaded
         let isDarkTheme = false;
 
-        // UI element references for Summary Overview
-        const summaryTotalProposalElem = document.getElementById('summaryTotalProposal');
-        const summaryOverallLaborHoursElem = document.getElementById('summaryOverallLaborHours');
-        const summaryProjectCost = document.getElementById('summaryProjectCost');
-        const summaryMiscCost = document.getElementById('summaryMiscCost');
-        const summaryMaterialMarkup = document.getElementById('summaryMaterialMarkup');
-        const summaryMaterialMarkupAmount = document.getElementById('summaryMaterialMarkupAmount');
-        const summaryEstimateSubtotal = document.getElementById('summaryEstimateSubtotal');
-        const summaryProfitMargin = document.getElementById('summaryProfitMargin');
-        const summarySalesTax = document.getElementById('summarySalesTax'); // Reference to the display strong tag, not the input
-        const summaryMiscPercent = document.getElementById('summaryMiscPercent'); // Reference to the display strong tag, not the input
-        const summaryOverhead = document.getElementById('summaryOverhead');
-        const summaryAdditionalConsiderations = document.getElementById('summaryAdditionalConsiderations');
-        const laborPMTotal = document.getElementById('laborPMTotal');
-        const laborSuperintendentTotal = document.getElementById('laborSuperintendentTotal');
-        const laborGeneralForemanTotal = document.getElementById('laborGeneralForemanTotal');
-        const laborForemanTotal = document.getElementById('laborForemanTotal');
-        const laborJourneymanTotal = document.getElementById('laborJourneymanTotal');
-        const breakdownLaborHoursTotal = document.getElementById('breakdownLaborHoursTotal');
-        const breakdownLaborTotal = document.getElementById('breakdownLaborTotal');
-        const breakdownMaterialTotal = document.getElementById('breakdownMaterialTotal');
-        const breakdownEquipmentTotal = document.getElementById('breakdownEquipmentTotal');
-        const breakdownSubcontractorTotal = document.getElementById('breakdownSubcontractorTotal');
-        const breakdownMiscCostLineItems = document.getElementById('breakdownMiscCost');
-        const breakdownProjectTotal = document.getElementById('breakdownProjectTotal');
-        const laborMaterialPieChartCanvas = document.getElementById('laborMaterialPieChart');
-        let laborMaterialPieChart;
+        // Removed UI element references for Summary Overview (now managed by SummaryOverview.js)
+        // const summaryTotalProposalElem = document.getElementById('summaryTotalProposal');
+        // const summaryOverallLaborHoursElem = document.getElementById('summaryOverallLaborHours');
+        // const summaryProjectCost = document.getElementById('summaryProjectCost');
+        // const summaryMiscCost = document.getElementById('summaryMiscCost');
+        // const summaryMaterialMarkup = document.getElementById('summaryMaterialMarkup');
+        // const summaryMaterialMarkupAmount = document.getElementById('summaryMaterialMarkupAmount');
+        // const summaryEstimateSubtotal = document.getElementById('summaryEstimateSubtotal');
+        // const summaryProfitMargin = document.getElementById('summaryProfitMargin');
+        // const summarySalesTax = document.getElementById('salesTax');
+        // const summaryMiscPercent = document.getElementById('miscellaneous');
+        // const summaryOverhead = document.getElementById('overhead');
+        // const summaryAdditionalConsiderations = document.getElementById('additionalConsiderations');
+        // const laborPMTotal = document.getElementById('laborPMTotal');
+        // const laborSuperintendentTotal = document.getElementById('laborSuperintendentTotal');
+        // const laborGeneralForemanTotal = document.getElementById('laborGeneralForemanTotal');
+        // const laborForemanTotal = document.getElementById('laborForemanTotal');
+        // const laborJourneymanTotal = document.getElementById('laborJourneymanTotal');
+        // const laborApprenticeTotal = document.getElementById('laborApprenticeTotal');
+        // const breakdownLaborHoursTotal = document.getElementById('breakdownLaborHoursTotal');
+        // const breakdownLaborTotal = document.getElementById('breakdownLaborTotal');
+        // const breakdownMaterialTotal = document.getElementById('breakdownMaterialTotal');
+        // const breakdownEquipmentTotal = document.getElementById('breakdownEquipmentTotal');
+        // const breakdownSubcontractorTotal = document.getElementById('breakdownSubcontractorTotal');
+        // const breakdownMiscCostLineItems = document.getElementById('breakdownMiscCost');
+        // const breakdownProjectTotal = document.getElementById('breakdownProjectTotal');
+        // const laborMaterialPieChartCanvas = document.getElementById('laborMaterialPieChart');
+        // let laborMaterialPieChart;
 
 
-        const projectInfoElem = document.getElementById('projectInfo'); // This is now always present
-
+        const projectInfoElem = document.getElementById('projectInfo');
 
         // --- Collapsible Column Logic ---
         function toggleColumnVisibility(group) {
@@ -1590,18 +1590,33 @@
 
 
         // --- Theme Toggle Logic ---
+        // This function will now call AppHeader.init or similar for the button and SummaryOverview.updateSummaries for the chart.
         function toggleTheme() {
             isDarkTheme = !isDarkTheme;
             if (isDarkTheme) {
                 document.body.classList.add('dark-theme');
-                themeToggleBtn.innerHTML = '☀️'; // Sun icon for light theme
+                // Use AppHeader's exposed update function for the button text
+                if (window.AppHeader && typeof window.AppHeader.updateThemeButton === 'function') {
+                    window.AppHeader.updateThemeButton('☀️'); // Sun icon for light theme
+                } else {
+                    // This fallback should ideally not be hit if AppHeader loads correctly
+                    // For the purpose of immediate feedback during development, it's okay.
+                    document.getElementById('themeToggleBtn').innerHTML = '☀️'; 
+                }
             } else {
                 document.body.classList.remove('dark-theme');
-                themeToggleBtn.innerHTML = '🌙'; // Moon icon for dark theme
+                // Use AppHeader's exposed update function for the button text
+                if (window.AppHeader && typeof window.AppHeader.updateThemeButton === 'function') {
+                    window.AppHeader.updateThemeButton('🌙'); // Moon icon for dark theme
+                } else {
+                    // Fallback
+                    document.getElementById('themeToggleBtn').innerHTML = '🌙'; 
+                }
             }
-            // Update the chart theme immediately on toggle
-            if (laborMaterialPieChart) {
-                renderPieChart();
+            // Trigger SummaryOverview to update its chart based on new theme
+            // Check if SummaryOverview is loaded before calling its method
+            if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
             }
         }
 
@@ -1630,11 +1645,12 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 projectSettings.contractorLogo = e.target.result;
-                loadSavedLogo(); 
+                loadSavedLogo(); // This will now call AppHeader.updateLogo
             };
             reader.readAsDataURL(file);
         }
 
+        // Modified: This function now updates only wizard preview and calls AppHeader.updateLogo
         function loadSavedLogo() {
             if (projectSettings.contractorLogo) {
                 // Update wizard preview
@@ -1643,15 +1659,19 @@
                 defaultLogoIcon.classList.add('hidden');
                 uploadText.classList.add('hidden');
 
-                // Update main app header logo
-                mainAppLogo.src = projectSettings.contractorLogo;
+                // Update main app header logo via the AppHeader module
+                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                    window.AppHeader.updateLogo(projectSettings.contractorLogo);
+                }
             } else {
                 // Clear wizard preview elements
                 wizardLogoPreview.classList.add('hidden');
                 defaultLogoIcon.classList.remove('hidden');
                 uploadText.classList.remove('hidden');
-                // Clear main app header logo (reset to default SVG)
-                mainAppLogo.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjjaWNjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIj48L2NpcmNsZT48cGF0aCBkPSJNMTYuMiA3LjhMMjAuMiAxSjguOEwzLjggMTYuMiIvPjxwYXRoIGQ9Ik03LjggNy44TDE1LjgwMTMyMiAzLjE3MjQ1MzM4TDEzLjE0NTgzOTQ5OSA3LjYxNDU4MzYwNyA3LjYxNDU4MzYwNyAxMy4xNDU4Mzk0OTkgMTIuNjIzNTY0NDQgMTYuODEyMTc3MjEgMy4xNzI0NTYzOCAxMi4xOTA5MjgyIDcuOCAxNi4yIi8+PHBhdGggde="MTE2LjIgMTYuMkwxMi4yIDIwLjJMMTguOCAyMC4yTDE2LjIgMTYuMiIvPjwvZ292cT4=';
+                // Clear main app header logo via the AppHeader module
+                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                    window.AppHeader.updateLogo('');
+                }
             }
         }
 
@@ -1823,7 +1843,11 @@
             
             renderItems(); // This will now render based on the (single) item and collapsedState for TDs.
             
-            calculateTotals(); // Call calculate totals to update summary and chart
+            // Trigger SummaryOverview to update after data changes
+            // Check if SummaryOverview is loaded before calling its method
+            if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
+            }
 
             // Re-apply column visual states (colspans, icons, column-hidden class on second row THs)
             for (const group in collapsedState) {
@@ -1866,7 +1890,7 @@
             document.getElementById('startDate').value = projectSettings.startDate;
             document.getElementById('endDate').value = projectSettings.endDate;
             document.getElementById('projectID').value = projectSettings.projectID;
-            document.getElementById('projectDescription').value = projectSettings.projectDescription; 
+            document.getElementById('projectDescription').value = projectSettings.projectDescription; // Corrected: assign value to textarea
 
             if (isAdvancedDetailsActive) {
                 advancedDetailsSection.classList.remove('hidden');
@@ -1883,7 +1907,7 @@
             document.getElementById('salesTax').value = projectSettings.salesTax;
             document.getElementById('miscellaneous').value = projectSettings.miscellaneous;
             document.getElementById('overhead').value = projectSettings.overhead;
-            document.getElementById('materialMarkup').value = projectSettings.materialMarkup;
+            document.getElementById('materialMarkup').value = projectSettings.materialMarkup; // NEW: Set material markup
             document.getElementById('additionalConsiderationsValue').value = projectSettings.additionalConsiderationsValue;
             document.getElementById('additionalConsiderationsUnit').textContent = projectSettings.additionalConsiderationsType;
         }
@@ -1905,6 +1929,16 @@
             document.getElementById('salesTax').value = taxRate;
             projectSettings.salesTax = taxRate;
         }
+
+        // document.getElementById('projectState').addEventListener('change', (event) => {
+        //     updateSalesTaxForState(event.target.value);
+        // });
+        // Event listener for projectState change:
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('projectState').addEventListener('change', (event) => {
+                updateSalesTaxForState(event.target.value);
+            });
+        });
 
 
         function toggleAdditionalConsiderationsType() {
@@ -2228,6 +2262,10 @@
             if (checkbox.checked) {
                 if (!projectSettings.activeTrades.includes(trade)) {
                     projectSettings.activeTrades.push(trade);
+                    // When a default trade is selected, ensure its labor rates are initialized.
+                    // This is only needed if `allTradeLaborRates` were ever reset.
+                    // Since we reverted, the rates should already exist for default trades.
+                    // No need to add default rates here as they retain existing structure.
                 }
             } else {
                 projectSettings.activeTrades = projectSettings.activeTrades.filter(t => t !== trade);
@@ -2271,7 +2309,7 @@
                     checkbox.checked = false;
                     handleTradeSelection(checkbox);
                 }
-                event.stopPropagation(); 
+                event.stopPropagation(); // Prevent the click from toggling the dropdown immediately after removing a tag
             } else {
                 toggleTradeDropdown();
             }
@@ -2287,18 +2325,18 @@
             const defaultRole = projectSettings.allTradeLaborRates[defaultTrade] && Object.keys(projectSettings.allTradeLaborRates[defaultTrade]).length > 0 ? Object.keys(projectSettings.allTradeLaborRates[defaultTrade])[0] : "Journeyman";
 
             const newItem = {
-                id: Date.now(), 
+                id: Date.now(), // Ensures a unique ID for the first item
                 taskName: 'New Task',
                 description: 'Description for new task',
                 trade: defaultTrade,
                 rateRole: defaultRole,
                 hours: 0,
                 otDtMultiplier: 1.0,
-                materialQuantity: 0, 
-                materialUnitCost: 0, 
+                materialQuantity: 0, // was materialUnits
+                materialUnitCost: 0, // was materialPerUnit
                 equipmentRentalCost: 0,
                 subcontractorCostLineItem: 0,
-                miscLineItem: 0 
+                miscLineItem: 0 // New field
             };
             estimateItems.push(newItem);
             renderItems();
@@ -2385,7 +2423,8 @@
                 `;
                 estimateTableBody.appendChild(row);
             });
-            summaryOverallLaborHoursElem.textContent = totalLaborHoursVal.toFixed(2); 
+            // These two lines are now handled by the SummaryOverview module's updateSummaries function
+            // summaryOverallLaborHoursElem.textContent = totalLaborHoursVal.toFixed(2); 
             calculateTotals();
         }
 
@@ -2421,15 +2460,17 @@
 
 
         // --- Calculations ---
+        // This function will now only update data and then call SummaryOverview.updateSummaries
         function calculateTotals() {
-            let totalLaborCost = 0; 
-            let totalMaterialCostRaw = 0; 
-            let totalEquipmentCost = 0; 
-            let totalSubcontractorCost = 0; 
-            let totalMiscLineItemCosts = 0; 
+            let totalLaborCost = 0; // Accumulates total labor cost from line items
+            let totalMaterialCostRaw = 0; // Raw material cost from line items (before markup)
+            let totalEquipmentCost = 0; // Accumulates equipment cost from line items
+            let totalSubcontractorCost = 0; // Accumulates subcontractor cost from line items
+            let totalMiscLineItemCosts = 0; // Accumulates misc line item costs
 
-            let laborHoursBreakdown = {}; 
+            let laborHoursBreakdown = {}; // This accumulates hours per role for the UI
 
+            // Initialize all possible labor roles to 0 for consistent display
             const allPossibleRoles = new Set();
             Object.keys(projectSettings.allTradeLaborRates).forEach(trade => {
                 if (projectSettings.allTradeLaborRates[trade]) {
@@ -2448,7 +2489,7 @@
                 const materialsTotal = item.materialQuantity * item.materialUnitCost;
                 
                 totalLaborCost += laborTotal;
-                totalMaterialCostRaw += materialsTotal; 
+                totalMaterialCostRaw += materialsTotal; // Sum raw material costs
                 totalEquipmentCost += item.equipmentRentalCost;
                 totalSubcontractorCost += item.subcontractorCostLineItem;
                 totalMiscLineItemCosts += item.miscLineItem;
@@ -2506,133 +2547,135 @@
             // Sum of all 'Other' category costs for the pie chart (Equipment + Subcontractor + Misc Line Items)
             const totalOtherCostsForPieChart = totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
 
-            // Update UI
-            summaryTotalProposalElem.textContent = formatCurrency(grandTotal);
-            summaryOverallLaborHoursElem.textContent = formatHours(overallLaborHoursSum);
-            summaryProjectCost.textContent = formatCurrency(totalProjectCostDirect);
-            summaryMiscCost.textContent = formatCurrency(totalMiscCostAmount);
-            summaryOverhead.textContent = formatCurrency(totalOverheadCost);
-            summaryMaterialMarkup.textContent = `${projectSettings.materialMarkup.toFixed(2)}%`;
-            summaryMaterialMarkupAmount.textContent = formatCurrency(materialMarkupAmount);
-            summaryEstimateSubtotal.textContent = formatCurrency(estimateSubtotalAmount);
-            summaryProfitMargin.textContent = `${projectSettings.profitMargin.toFixed(2)}%`;
-            summarySalesTax.textContent = `${projectSettings.salesTax.toFixed(2)}%`;
-            summaryMiscPercent.textContent = `${projectSettings.miscellaneous.toFixed(2)}%`;
-            summaryAdditionalConsiderations.textContent = formatCurrency(additionalConsiderationAmount);
 
-            // Labor Breakdown (Hours)
-            laborPMTotal.textContent = formatHours(laborHoursBreakdown["Project Manager"] || 0);
-            laborSuperintendentTotal.textContent = formatHours(laborHoursBreakdown["Superintendent"] || 0);
-            laborGeneralForemanTotal.textContent = formatHours(laborHoursBreakdown["General Foreman"] || 0);
-            laborForemanTotal.textContent = formatHours(laborHoursBreakdown["Foreman"] || 0);
-            laborJourneymanTotal.textContent = formatHours(laborHoursBreakdown["Journeyman"] || 0);
-            // Assuming "Apprentice" is also a default role
-            const laborApprenticeTotalElem = document.getElementById('laborApprenticeTotal');
-            if (laborApprenticeTotalElem) {
-                laborApprenticeTotalElem.textContent = formatHours(laborHoursBreakdown["Apprentice"] || 0);
+            // All summary UI updates are now handled by SummaryOverview module
+            // This calculateTotals function now primarily calculates and then passes data for rendering
+            if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                window.SummaryOverview.updateSummaries({
+                    ...projectSettings, // Pass a copy of projectSettings
+                    totalLaborCost, // Pass calculated totals
+                    totalMaterialCostRaw,
+                    totalEquipmentCost,
+                    totalSubcontractorCost,
+                    totalMiscLineItemCosts,
+                    laborHoursBreakdown,
+                    totalProjectCostDirect,
+                    materialMarkupAmount,
+                    totalOverheadCost,
+                    totalMiscCostAmount,
+                    estimateSubtotalAmount,
+                    totalProfitMarginAmount,
+                    salesTaxAmount,
+                    additionalConsiderationAmount,
+                    grandTotal,
+                    overallLaborHoursSum,
+                    totalOtherCostsForPieChart
+                }, estimateItems, isDarkTheme);
             }
-            breakdownLaborHoursTotal.textContent = formatHours(overallLaborHoursSum);
-
-            // Project Cost Breakdown
-            breakdownLaborTotal.textContent = formatCurrency(totalLaborCost);
-            breakdownMaterialTotal.textContent = formatCurrency(totalMaterialCostRaw); // Display raw material cost here
-            breakdownEquipmentTotal.textContent = formatCurrency(totalEquipmentCost);
-            breakdownSubcontractorTotal.textContent = formatCurrency(totalSubcontractorCost);
-            breakdownMiscCostLineItems.textContent = formatCurrency(totalMiscLineItemCosts);
-            breakdownProjectTotal.textContent = formatCurrency(totalProjectCostDirect + materialMarkupAmount + totalOverheadCost + totalMiscCostAmount); // This should be total project cost including markup/overhead/misc for *this* breakdown
-
-            // Render the Pie Chart
-            renderPieChart(totalLaborCost, totalMaterialCostRaw, totalEquipmentCost, totalSubcontractorCost, totalMiscLineItemCosts);
         }
 
-        // --- Pie Chart Rendering ---
-        function renderPieChart(totalLaborCost, totalMaterialCostRaw, totalEquipmentCost, totalSubcontractorCost, totalMiscLineItemCosts) {
-            const ctx = laborMaterialPieChartCanvas.getContext('2d');
-            const dataLabels = ['Labor', 'Materials', 'Equipment', 'Subcontractor', 'Misc.'];
-            const dataValues = [
-                totalLaborCost,
-                totalMaterialCostRaw,
-                totalEquipmentCost,
-                totalSubcontractorCost,
-                totalMiscLineItemCosts
-            ];
+        // Removed renderPieChart as it's now in SummaryOverview.js
 
-            // Filter out categories with 0 values to avoid slices for them
-            const filteredData = dataLabels.map((label, index) => ({ label, value: dataValues[index] }))
-                                        .filter(item => item.value > 0);
-            
-            const labels = filteredData.map(item => item.label);
-            const values = filteredData.map(item => item.value);
+        // --- Dynamic Component Loading ---
+        // This will fetch AppHeader.html and AppHeader.js and inject them.
+        async function loadAppHeader() {
+            try {
+                const htmlResponse = await fetch('src/components/AppHeader/AppHeader.html');
+                const html = await htmlResponse.text();
+                document.getElementById('appHeaderPlaceholder').innerHTML = html;
 
-            const backgroundColors = [
-                '#3b82f6', // Blue for Labor (Tailwind blue-500)
-                '#10b981', // Green for Materials (Tailwind emerald-500)
-                '#f59e0b', // Amber for Equipment (Tailwind amber-500)
-                '#ef4444', // Red for Subcontractor (Tailwind red-500)
-                '#8b5cf6'  // Purple for Misc (Tailwind violet-500)
-            ];
+                // Load the JS after HTML is in DOM
+                const script = document.createElement('script');
+                script.src = 'src/components/AppHeader/AppHeader.js';
+                script.onload = () => {
+                    // Initialize AppHeader after its JS is loaded
+                    if (window.AppHeader) {
+                        window.AppHeader.init({
+                            mainAppLogoId: 'mainAppLogo',
+                            themeToggleBtnId: 'themeToggleBtn',
+                            reconfigureBtnId: 'reconfigureBtn',
+                            onThemeToggle: toggleTheme, // Pass the main app's toggleTheme function
+                            onReconfigure: showSetup // Pass the main app's showSetup function
+                        });
+                        // Ensure theme button reflects initial state
+                        // The button text is updated by AppHeader.js based on its internal state.
+                        // We need to trigger it once after init if the theme is already dark.
+                        if (isDarkTheme) {
+                            window.AppHeader.updateThemeButton('☀️');
+                        } else {
+                            window.AppHeader.updateThemeButton('🌙');
+                        }
+                    } else {
+                        console.error('AppHeader module not available after loading.');
+                    }
+                    // Continue to load SummaryOverview after AppHeader is ready
+                    loadSummaryOverview(); 
+                };
+                script.onerror = () => console.error("Failed to load AppHeader.js");
+                document.body.appendChild(script);
 
-            const hoverBackgroundColors = [
-                '#2563eb', // Darker Blue
-                '#059669', // Darker Green
-                '#d97706', // Darker Amber
-                '#dc2626', // Darker Red
-                '#7c3aed'  // Darker Purple
-            ];
-
-            // Get text color based on theme
-            const textColor = isDarkTheme ? '#e2e8f0' : '#1f2937';
-
-            if (laborMaterialPieChart) {
-                laborMaterialPieChart.destroy(); // Destroy existing chart before re-rendering
+            } catch (error) {
+                console.error("Error loading AppHeader component:", error);
             }
+        }
 
-            laborMaterialPieChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: backgroundColors,
-                        hoverBackgroundColor: hoverBackgroundColors,
-                        borderWidth: 1,
-                        borderColor: isDarkTheme ? '#2d3748' : '#ffffff', // Card background color
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                color: textColor, // Set legend text color
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        label += formatCurrency(context.parsed);
-                                    }
-                                    return label;
-                                }
+        // This will fetch SummaryOverview.html and SummaryOverview.js and inject them.
+        async function loadSummaryOverview() {
+            try {
+                const htmlResponse = await fetch('src/sections/SummaryOverview/SummaryOverview.html');
+                const html = await htmlResponse.text();
+                document.getElementById('summaryOverviewPlaceholder').innerHTML = html;
+
+                // Load the JS after HTML is in DOM
+                const script = document.createElement('script');
+                script.src = 'src/sections/SummaryOverview/SummaryOverview.js';
+                script.onload = () => {
+                    // Initialize SummaryOverview after its JS is loaded
+                    if (window.SummaryOverview) {
+                        window.SummaryOverview.init({
+                            projectSettings: projectSettings,
+                            estimateItems: estimateItems,
+                            formatCurrency: formatCurrency,
+                            formatHours: formatHours,
+                            isDarkTheme: isDarkTheme // Pass initial theme state
+                        });
+                    } else {
+                        console.error('SummaryOverview module not available after loading.');
+                    }
+                    // Now that all components are loaded, perform initial rendering and setup
+                    setupInitialEventListeners();
+                    showSetup(); // Show the wizard first
+                    updateSalesTaxForState(projectSettings.projectState); // Will set based on default CA, overriding the 0
+                    populateTradesDropdown();
+                    updateSelectedTradesDisplay();
+
+                    // Immediately apply initial collapsed state to the main table headers
+                    for (const group in collapsedState) {
+                        if (collapsedState.hasOwnProperty(group) && collapsedState[group]) {
+                            const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
+                            const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
+                            if (headerElement && mainThElement) {
+                                headerElement.classList.add('collapsed');
+                                mainThElement.colSpan = 1;
+                                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                    th.classList.add('column-hidden');
+                                });
                             }
                         }
                     }
-                }
-            });
+                    adjustTableMinWidth(); // Call adjustTableMinWidth initially as well
+                };
+                script.onerror = () => console.error("Failed to load SummaryOverview.js");
+                document.body.appendChild(script);
+
+            } catch (error) {
+                console.error("Error loading SummaryOverview component:", error);
+            }
         }
 
         // Consolidated event listener setup function
         function setupInitialEventListeners() {
+            // Event listeners previously defined in DOMContentLoaded that are NOT part of AppHeader or SummaryOverview
             document.getElementById('projectState').addEventListener('change', (event) => {
                 updateSalesTaxForState(event.target.value);
             });
@@ -2652,10 +2695,8 @@
             document.getElementById('startEstimatingBtn').addEventListener('click', startEstimating);
             document.getElementById('toggleAdditionalConsiderationsBtn').addEventListener('click', toggleAdditionalConsiderationsType);
             document.getElementById('addItemBtn').addEventListener('click', addItem);
-            
-            // Direct event listeners for header buttons
-            themeToggleBtn.addEventListener('click', toggleTheme);
-            reconfigureBtn.addEventListener('click', showSetup);
+            // themeToggleBtn event listener is now attached by AppHeader.js init
+            // document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme); 
 
             // Add event listeners for collapsible headers
             document.querySelectorAll('.collapsible-header').forEach(header => {
@@ -2671,29 +2712,8 @@
 
 
         // Entry point for the application, after the DOM is fully loaded.
-        document.addEventListener('DOMContentLoaded', () => {
-            setupInitialEventListeners();
-            showSetup(); // Show the wizard first
-            updateSalesTaxForState(projectSettings.projectState); // Will set based on default CA, overriding the 0
-            populateTradesDropdown();
-            updateSelectedTradesDisplay();
-
-            // Immediately apply initial collapsed state to the main table headers
-            for (const group in collapsedState) {
-                if (collapsedState.hasOwnProperty(group) && collapsedState[group]) {
-                    const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
-                    const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
-                    if (headerElement && mainThElement) {
-                        headerElement.classList.add('collapsed');
-                        mainThElement.colSpan = 1;
-                        document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                            th.classList.add('column-hidden');
-                        });
-                    }
-                }
-            }
-            adjustTableMinWidth(); // Call adjustTableMinWidth initially as well
-        });
+        // This now initiates the dynamic loading of components.
+        document.addEventListener('DOMContentLoaded', loadAppHeader);
 
     </script>
 </body>
