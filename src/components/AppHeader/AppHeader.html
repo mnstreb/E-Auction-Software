@@ -19,12 +19,13 @@
         <!-- Generate Report Dropdown (New Structure) -->
         <div class="dropdown-container relative">
             <button id="generateReportBtn" class="btn btn-green">Generate Report ▼</button>
-            <div id="reportDropdownMenu" class="dropdown-menu hidden">
+            <div id="reportDropdownMenu" class="dropdown-menu"> 
+                <!-- Removed 'hidden' class from here. CSS will control initial visibility. -->
                 <button id="exportPdfBtn" class="dropdown-item">Export as PDF</button>
                 <button id="exportCsvBtn" class="dropdown-item">Export as CSV/XLX</button>
                 <button id="emailClientBtn" class="dropdown-item">Email Directly To Client</button>
             </div>
         </div>
-        <!-- The old exportPdfBtn is removed as its functionality is now within the dropdown. -->
     </div>
 </div>
+
