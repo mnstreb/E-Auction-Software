@@ -128,9 +128,8 @@
             justify-content: center;
             z-index: 1000;
             backdrop-filter: blur(5px);
-            /* Ensure fitting and responsiveness */
-            overflow-y: auto; /* Allow scrolling if content exceeds viewport height */
-            padding: 20px; /* Add some padding so wizard doesn't touch screen edges on small devices */
+            /* Ensure fitting and responsiveness - KEY CHANGES HERE */
+            padding: 20px; /* Add some padding so wizard doesn't touch screen edges on mobile */
             box-sizing: border-box; /* Include padding in dimensions */
         }
 
@@ -925,7 +924,7 @@
             visibility: visible;
         }
 
-        /* Wizard specific styles - REPLICATED FROM LAST SUCCESSFUL MONOLITHIC CODE */
+        /* Wizard specific styles - REPLICATED AND FIXED FOR FITTING */
         .wizard-content {
             background: white;
             padding: 40px;
@@ -938,6 +937,10 @@
             flex-direction: column;
             align-items: center; /* Centers the entire wizard content block */
             transition: background-color 0.3s, box-shadow 0.3s;
+
+            /* KEY FIXES FOR FITTING ON SCREEN */
+            max-height: calc(100vh - 40px); /* Limit height to viewport height minus container padding */
+            overflow-y: auto; /* Enable vertical scrolling for content that exceeds max-height */
         }
 
         .step-indicator {
