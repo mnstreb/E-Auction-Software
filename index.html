@@ -243,37 +243,37 @@
             line-height: 1;
         }
         /* Pie Chart specific styles (now in top row, also a card) */
-        .chart-container.card { /* Make it a card for consistent styling */
-            padding: 20px; /* Adjust padding for visual balance */
+        .chart-container.card {
+            padding: 20px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 150px; /* Match height of other top cards if possible */
+            min-height: 150px;
         }
         .chart-canvas {
-            max-width: 100%; /* Make chart responsive */
-            max-height: 200px; /* Adjust max height for top row display */
+            max-width: 100%;
+            max-height: 200px;
             height: auto;
-            width: auto; /* Allow chart.js to manage width within limits */
+            width: auto;
         }
-        .chart-container.card h4 { /* Style the title of the chart in the new layout */
+        .chart-container.card h4 {
             font-size: 1.1rem;
             font-weight: 600;
             color: #1f2937;
             margin-bottom: 10px;
             text-align: center;
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            transition: color 0.3s;
         }
 
 
         /* Executive Summary Grid (now 3 columns) specific styles */
-        .executive-summary-grid-3col { /* Renamed class for clarity */
+        .executive-summary-grid-3col {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Explicitly 3 columns on large screens */
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
         }
-        .executive-summary-grid-3col .card { /* Ensure cards within this grid don't have extra bottom margin */
+        .executive-summary-grid-3col .card {
             margin-bottom: 0;
         }
         .summary-block h4 {
@@ -281,7 +281,7 @@
             font-weight: 600;
             color: #1f2937;
             margin-bottom: 10px;
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            transition: color 0.3s;
         }
         .summary-item {
             display: flex;
@@ -289,56 +289,54 @@
             padding: 4px 0;
             font-size: 0.95rem;
             color: #4b5563;
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            transition: color 0.3s;
         }
         .summary-item strong {
             color: #1f2937;
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            transition: color 0.3s;
         }
         .summary-item.total {
             font-weight: bold;
             font-size: 1.1rem;
-            color: #0d47a1; /* Darker blue for totals */
+            color: #0d47a1;
             border-top: 1px dashed #cbd5e1;
             margin-top: 8px;
             padding-top: 8px;
-            transition: color 0.3s, border-color 0.3s; /* Smooth transition for theme changes */
+            transition: color 0.3s, border-color 0.3s;
         }
 
 
         /* Responsive adjustments */
-        @media (max-width: 1024px) { /* Adjust grid for medium screens */
+        @media (max-width: 1024px) {
             .top-summary-row {
-                grid-template-columns: repeat(2, 1fr); /* 2 columns on medium screens */
+                grid-template-columns: repeat(2, 1fr);
             }
-            .executive-summary-grid-3col { /* Renamed class */
-                grid-template-columns: repeat(2, 1fr); /* 2 columns on medium screens */
+            .executive-summary-grid-3col {
+                grid-template-columns: repeat(2, 1fr);
             }
-            /* Adjust table for smaller screens */
             table, thead, tbody, th, td, tr {
-                display: block; /* Make table elements stack for smaller screens */
+                display: block;
             }
             thead tr {
                 position: absolute;
-                top: -9999px; /* Hide table headers visually on small screens */
+                top: -9999px;
                 left: -9999px;
             }
             tr {
-                border: 1px solid #ccc; /* Add border to rows */
+                border: 1px solid #ccc;
                 margin-bottom: 10px;
-                border-radius: 8px; /* Rounded corners for rows */
-                overflow: hidden; /* Hide overflow for rounded corners */
-                transition: border-color 0.3s; /* Smooth transition for theme changes */
+                border-radius: 8px;
+                overflow: hidden;
+                transition: border-color 0.3s;
             }
             td {
-                border: none; /* Remove individual cell borders */
+                border: none;
                 position: relative;
-                padding-left: 50%; /* Make space for pseudo-element labels */
+                padding-left: 50%;
                 text-align: right;
                 font-size: 14px;
             }
             td:before {
-                /* Create a label for each cell using data-label attribute */
                 content: attr(data-label);
                 position: absolute;
                 left: 6px;
@@ -347,14 +345,14 @@
                 white-space: nowrap;
                 text-align: left;
                 font-weight: bold;
-                color: #4b5563; /* Default label color */
-                transition: color 0.3s; /* Smooth transition for theme changes */
+                color: #4b5563;
+                transition: color 0.3s;
             }
             td:nth-of-type(1):before { content: "Task Name:"; }
             td:nth-of-type(2):before { content: "Description:"; }
             td:nth-of-type(3):before { content: "OT/DT Multiplier:"; }
             td:nth-of-type(4):before { content: "Skill:"; }
-            td:nth-of-type(5):before { content: "Rate:"; } /* Changed from $/hr */
+            td:nth-of-type(5):before { content: "Rate:"; }
             td:nth-of-type(6):before { content: "# hrs:"; }
             td:nth-of-type(7):before { content: "Labor Total:"; }
             td:nth-of-type(8):before { content: "QTY / UNIT:"; }
@@ -384,8 +382,6 @@
             .header-subtitle {
                 font-size: 15px;
             }
-            /* Removed th, td font-size adjust for more consistent mobile labels */
-
             .summary-overall-metric-card {
                 padding: 20px;
             }
@@ -395,11 +391,11 @@
             .summary-overall-metric-card .value {
                 font-size: 2.5rem;
             }
-            .top-summary-row, .executive-summary-grid-3col { /* Renamed class */
-                grid-template-columns: 1fr; /* Stack columns on small screens */
+            .top-summary-row, .executive-summary-grid-3col {
+                grid-template-columns: 1fr;
             }
             .chart-container.card h4 {
-                font-size: 1rem; /* Smaller title for chart on mobile */
+                font-size: 1rem;
             }
         }
 
@@ -418,7 +414,7 @@
             width: 100%;
             z-index: 10;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s; /* Smooth transition for theme changes */
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
         }
         .multi-select-dropdown label {
             display: block;
@@ -427,7 +423,7 @@
         }
         .multi-select-dropdown label:hover {
             background-color: #f3f4f6;
-            transition: background-color 0.3s; /* Smooth transition for theme changes */
+            transition: background-color 0.3s;
         }
         .multi-select-dropdown input[type="checkbox"] {
             margin-right: 8px;
@@ -443,100 +439,100 @@
             flex-wrap: wrap;
             gap: 6px;
             align-items: center;
-            transition: background-color 0.3s, border-color 0.3s; /* Smooth transition for theme changes */
+            transition: background-color 0.3s, border-color 0.3s;
         }
         .selected-trade-tag {
-            background-color: #e0f2fe; /* Light blue tag */
-            color: #1e40af; /* Dark blue text */
+            background-color: #e0f2fe;
+            color: #1e40af;
             padding: 4px 8px;
             border-radius: 6px;
             font-size: 0.85rem;
             display: flex;
             align-items: center;
             gap: 4px;
-            transition: background-color 0.3s, color 0.3s; /* Smooth transition for theme changes */
+            transition: background-color 0.3s, color 0.3s;
         }
         .selected-trade-tag .remove-tag {
             cursor: pointer;
             font-weight: bold;
-            color: #94a3b8; /* Gray for X */
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            color: #94a3b8;
+            transition: color 0.3s;
         }
         /* Styles for dynamic labor rate inputs in wizard */
         .trade-labor-rates-group {
             border: 1px solid #e5e7eb;
             border-radius: 10px;
             padding: 20px;
-            margin-bottom: 20px; /* Space between trade groups */
+            margin-bottom: 20px;
             background-color: #fcfcfc;
-            transition: background-color 0.3s, border-color 0.3s; /* Smooth transition for theme changes */
+            transition: background-color 0.3s, border-color 0.3s;
         }
         .trade-labor-rates-group h3 {
             margin-top: 0;
             margin-bottom: 15px;
             font-size: 1.25rem;
             color: #1f2937;
-            padding-bottom: 10px; /* Space below header */
-            border-bottom: 1px solid #e5e7eb; /* Separator for trade header */
-            transition: color 0.3s, border-color 0.3s; /* Smooth transition for theme changes */
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            transition: color 0.3s, border-color 0.3s;
         }
 
         .skill-level-row {
             display: flex;
-            align-items: center; /* Align to the center of the content in the row */
+            align-items: center;
             margin-bottom: 15px;
-            gap: 15px; /* Increased space between skill name and rate input */
-            padding-bottom: 10px; /* Add some padding below each row */
-            border-bottom: 1px dashed #e5e7eb; /* Subtle separator for skill rows */
-            justify-content: space-between; /* Pushes skill name to left, rate input to right */
-            transition: border-color 0.3s; /* Smooth transition for theme changes */
+            gap: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #e5e7eb;
+            justify-content: space-between;
+            transition: border-color 0.3s;
         }
         .skill-level-row:last-child {
             margin-bottom: 0;
-            border-bottom: none; /* No border for the last one */
+            border-bottom: none;
             padding-bottom: 0;
         }
 
-        .skill-name-display { /* New class for plain text skill name */
+        .skill-name-display {
             font-weight: 600;
             color: #1f2937;
             font-size: 15px;
-            flex-shrink: 0; /* Prevent shrinking if content is long */
-            width: 150px; /* Give it a fixed width for alignment */
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            flex-shrink: 0;
+            width: 150px;
+            transition: color 0.3s;
         }
 
         /* Adjustments for the rate input to align with the design */
-        .rate-input-group { /* Combined rate label, input, and delete button */
+        .rate-input-group {
             display: flex;
             align-items: center;
-            gap: 8px; /* Space between rate label, input, and delete button */
-            flex-grow: 1; /* Allow to grow and take remaining space */
-            justify-content: flex-end; /* Push rate input to the right within its group */
+            gap: 8px;
+            flex-grow: 1;
+            justify-content: flex-end;
         }
         .rate-label {
-            white-space: nowrap; /* Prevent label from wrapping */
+            white-space: nowrap;
             font-weight: 600;
             color: #4b5563;
             font-size: 15px;
-            margin-right: 0; /* Remove previous margin-right */
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            margin-right: 0;
+            transition: color 0.3s;
         }
-        .rate-input { /* Specific class for the rate input field */
-            width: 100px; /* Fixed width for rate input for consistent alignment */
-            flex-shrink: 0; /* Prevent shrinking */
+        .rate-input {
+            width: 100px;
+            flex-shrink: 0;
         }
         /* Style for editable skill name input */
         .skill-name-input.editable {
-            width: 150px; /* Match width of skill-name-display */
+            width: 150px;
             padding: 10px 14px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             font-size: 15px;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
-            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s; /* Smooth transition for theme changes */
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
             flex-shrink: 0;
-            box-sizing: border-box; /* Include padding and border in the width */
+            box-sizing: border-box;
         }
         .skill-name-input.editable:focus {
             outline: none;
@@ -547,91 +543,91 @@
 
         /* Smaller, aligned remove button */
         .remove-skill-btn {
-            background-color: #ef4444; /* Red */
+            background-color: #ef4444;
             color: white;
             border: none;
             border-radius: 50%;
-            width: 24px; /* Smaller width */
-            height: 24px; /* Smaller height */
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px; /* Smaller font for minus/X */
+            font-size: 16px;
             line-height: 1;
             cursor: pointer;
-            flex-shrink: 0; /* Don't shrink the button */
+            flex-shrink: 0;
             transition: background-color 0.2s ease;
-            margin-bottom: 0; /* No bottom margin needed */
-            margin-left: 0; /* No explicit margin-left needed, gap handles it */
-            position: static; /* Remove relative positioning */
-            top: auto; /* Remove top adjustment */
+            margin-bottom: 0;
+            margin-left: 0;
+            position: static;
+            top: auto;
         }
         .remove-skill-btn:hover {
-            background-color: #dc2626; /* Darker red */
+            background-color: #dc2626;
         }
 
         .advanced-link-wrapper {
             width: 100%;
-            text-align: left; /* Align to the left */
-            margin-top: 20px; /* Space above the button bar */
+            text-align: left;
+            margin-top: 20px;
         }
         .advanced-link {
-            color: #2563eb; /* Primary blue color for the link */
+            color: #2563eb;
             text-decoration: underline;
             font-size: 0.95rem;
             cursor: pointer;
             transition: color 0.2s ease;
         }
         .advanced-link:hover {
-            color: #1D4ED8; /* Darker blue on hover */
+            color: #1D4ED8;
         }
 
         /* Styles for the logo upload area (Step 1 of wizard) - REVERTED TO RECTANGULAR */
         .logo-upload-area {
-            background: #f8fafc; /* Light gray background */
-            border: 2px dashed #cbd5e1; /* Dashed border */
-            border-radius: 12px; /* Rectangular with rounded corners */
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px; /* Generous padding */
+            padding: 20px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
-            min-height: 120px; /* Ensure some minimum height */
-            gap: 10px; /* Space between crane and text */
-            position: relative; /* For positioning the image */
-            overflow: hidden; /* Hide overflow for image */
+            min-height: 120px;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
         }
         .logo-upload-area:hover {
-            background: #e0f2fe; /* Lighter blue on hover */
-            border-color: #60a5fa; /* Blue border on hover */
+            background: #e0f2fe;
+            border-color: #60a5fa;
         }
         .logo-upload-area.drag-over {
-            background: #dbeafe; /* Even lighter blue when dragging over */
-            border-color: #3b82f6; /* Solid blue border when dragging over */
+            background: #dbeafe;
+            border-color: #3b82f6;
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
         }
 
         /* Image preview within the upload area (for wizard) */
         .logo-upload-area .wizard-logo-img-preview {
             max-width: 100%;
-            max-height: 100px; /* Limit height of uploaded logo in wizard */
-            object-fit: contain; /* Ensure image fits without cropping */
-            border-radius: 8px; /* Slightly rounded corners for the logo itself */
+            max-height: 100px;
+            object-fit: contain;
+            border-radius: 8px;
         }
 
         /* Default icon and text when no logo is loaded (always visible in this format) */
         .logo-upload-area .default-icon {
             font-size: 32px;
             color: #3b82f6;
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            transition: color 0.3s;
         }
         .logo-upload-area .upload-text {
             font-size: 0.9rem;
             color: #6b7280;
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            transition: color 0.3s;
         }
         /* Removed .logo-upload-overlay and its related styles as per the new requested format */
 
@@ -648,8 +644,8 @@
         /* Custom styles for Task Name and Description fields to make them wider */
         /* Increased min-width of the table to ensure horizontal scroll if needed */
         table.min-w-full {
-            min-width: 1400px; /* Increased minimum width for better spacing */
-            width: 100%; /* Still allows stretching if screen is wider */
+            min-width: 1400px;
+            width: 100%;
         }
 
         /* General td padding adjustment for a more compact look */
@@ -658,66 +654,66 @@
         }
 
         /* Styles for Task Name and Description Textareas */
-        #estimateTableBody td:nth-child(1) textarea, /* Task Name */
-        #estimateTableBody td:nth-child(2) textarea { /* Description */
-            white-space: normal; /* Allow text to wrap */
-            height: auto; /* Auto height based on content */
-            min-height: 40px; /* Minimum height for visibility */
+        #estimateTableBody td:nth-child(1) textarea,
+        #estimateTableBody td:nth-child(2) textarea {
+            white-space: normal;
+            height: auto;
+            min-height: 40px;
             box-sizing: border-box;
-            resize: vertical; /* Allow vertical resizing */
-            overflow-y: auto; /* Add scrollbar if content exceeds min-height */
+            resize: vertical;
+            overflow-y: auto;
         }
         /* Ensure these textareas fill their cell width */
         #estimateTableBody td:nth-child(1) textarea,
         #estimateTableBody td:nth-child(2) textarea {
-            width: 100%; /* Fill the cell */
-            max-width: none; /* Override any max-width */
+            width: 100%;
+            max-width: none;
         }
 
         /* Styles for compact numerical input fields and selects */
         #estimateTableBody input[type="number"],
         #estimateTableBody select {
-            width: 70px; /* A fixed, smaller width for numerical inputs */
-            font-size: 0.9em; /* Smaller font for inputs */
-            padding: 6px 8px; /* Reduced padding */
-            box-sizing: border-box; /* Include padding/border in width */
-            text-align: right; /* Align numbers to the right */
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition for theme changes */
+            width: 70px;
+            font-size: 0.9em;
+            padding: 6px 8px;
+            box-sizing: border-box;
+            text-align: right;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
 
         /* Specific width adjustments for 'Skill' and 'OT/DT' selects */
-        #estimateTableBody td:nth-child(3) select, /* OT/DT Multiplier */
-        #estimateTableBody td:nth-child(4) select { /* Skill */
-            width: 90px; /* Slightly more space for selects */
-            text-align: left; /* Keep text aligned left for selections */
+        #estimateTableBody td:nth-child(3) select,
+        #estimateTableBody td:nth-child(4) select {
+            width: 90px;
+            text-align: left;
         }
 
         /* Keep currency output and total values on one line and bold */
         /* This applies to $/hr and TOTAL */
-        #estimateTableBody td:nth-child(5), /* $/hr */
-        #estimateTableBody td:nth-child(15) { /* TOTAL */
+        #estimateTableBody td:nth-child(5),
+        #estimateTableBody td:nth-child(15) {
             white-space: nowrap;
             font-weight: bold;
-            color: #1f2937; /* Darker text for totals */
-            text-align: right; /* Align currency/totals to the right */
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            color: #1f2937;
+            text-align: right;
+            transition: color 0.3s;
         }
 
         /* Center Labor Total, Materials Total, Other Total Cells in tbody */
-        #estimateTableBody td:nth-child(7), /* Labor Total */
-        #estimateTableBody td:nth-child(10), /* Materials Total */
-        #estimateTableBody td:nth-child(14) { /* Other Total */
+        #estimateTableBody td:nth-child(7),
+        #estimateTableBody td:nth-child(10),
+        #estimateTableBody td:nth-child(14) {
             white-space: nowrap;
             font-weight: bold;
-            color: #1f2937; /* Darker text for totals */
-            text-align: center; /* ALIGNED TO CENTER FOR COLLAPSED VIEW */
-            transition: color 0.3s; /* Smooth transition for theme changes */
+            color: #1f2937;
+            text-align: center;
+            transition: color 0.3s;
         }
         
         /* Adjust actions column button size */
         #estimateTableBody td button.btn-red {
-            padding: 6px 10px; /* Smaller padding for action button */
-            font-size: 0.85em; /* Smaller font */
+            padding: 6px 10px;
+            font-size: 0.85em;
         }
 
         /* Styles for collapsible columns */
@@ -725,28 +721,28 @@
         .collapsible-header {
             display: flex;
             align-items: center;
-            justify-content: center; /* Default: centers content within the header TH's colspan */
+            justify-content: center;
             gap: 8px;
             cursor: pointer;
-            user-select: none; /* Prevent text selection on click */
+            user-select: none;
             padding: 0;
             height: 100%;
-            width: 100%; /* Ensure it fills its parent TH */
+            width: 100%;
         }
         .collapsible-header span {
-            display: inline-block; /* Ensure text behaves well with flex */
+            display: inline-block;
         }
         .collapse-toggle-icon {
-            font-size: 0.8em; /* Smaller icon */
+            font-size: 0.8em;
             transition: transform 0.2s ease-in-out;
             display: inline-block;
         }
         .collapsible-header.collapsed .collapse-toggle-icon {
-            transform: rotate(-90deg); /* Rotate for collapsed state */
+            transform: rotate(-90deg);
         }
         /* Class to hide columns */
         .column-hidden {
-            display: none !important; /* Important to override default table cell display */
+            display: none !important;
         }
 
         /* Ensure second-row total headers are centered */
@@ -758,20 +754,20 @@
 
         /* Dark Theme Styles */
         body.dark-theme {
-            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%); /* Darker gradient */
-            color: #e2e8f0; /* Light text */
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            color: #e2e8f0;
         }
         .dark-theme .card {
-            background: #2d3748; /* Darker card background */
-            box-shadow: 0 6px 25px rgba(0,0,0,0.4); /* Stronger dark shadow */
+            background: #2d3748;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
         }
         .dark-theme .input-field {
-            background-color: #4a5568; /* Darker input field background */
-            border-color: #4a5568; /* Darker border */
-            color: #e2e8f0; /* Light text for inputs */
+            background-color: #4a5568;
+            border-color: #4a5568;
+            color: #e2e8f0;
         }
         .dark-theme .input-field:focus {
-            border-color: #63b3ed; /* Lighter blue focus */
+            border-color: #63b3ed;
             box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
         }
         .dark-theme .label,
@@ -779,11 +775,11 @@
         .dark-theme h2,
         .dark-theme .summary-block h4,
         .dark-theme .summary-item strong {
-            color: #e2e8f0; /* Light headings and strong text */
+            color: #e2e8f0;
         }
         /* ADDED: Specific rule for the chart h4 title in dark theme */
         .dark-theme .chart-container.card h4 {
-            color: #e2e8f0; /* Ensures the "Cost Distribution" title is light in dark mode */
+            color: #e2e8f0;
         }
         .dark-theme .header-subtitle,
         .dark-theme .summary-item,
@@ -792,54 +788,54 @@
         .dark-theme .multi-select-dropdown label span,
         .dark-theme .skill-name-display,
         .dark-theme .rate-label {
-            color: #a0aec0; /* Lighter gray for general text */
+            color: #a0aec0;
         }
         /* Fix: Lighter color for table total columns in dark mode */
         .dark-theme #estimateTableBody td:nth-child(5),
         .dark-theme #estimateTableBody td:nth-child(7),
         .dark-theme #estimateTableBody td:nth-child(10),
-        .dark-theme .dark-theme #estimateTableBody td:nth-child(14), /* Corrected duplicate here */
+        .dark-theme .dark-theme #estimateTableBody td:nth-child(14),
         .dark-theme #estimateTableBody td:nth-child(15) {
-            color: #e2e8f0; /* Light text for totals */
+            color: #e2e8f0;
         }
         /* Fix: Lighter color for mobile table labels in dark mode */
         .dark-theme td:before {
-            color: #a0aec0; /* Lighter gray for mobile labels */
+            color: #a0aec0;
         }
 
         .dark-theme .header-icon-box {
-            background: #4299e1; /* Slightly different blue for dark theme icon box */
+            background: #4299e1;
         }
         .dark-theme .summary-overall-metric-card {
-            background: linear-gradient(135deg, #2a4365 0%, #2c5282 100%); /* Darker blue gradient for prominence */
+            background: linear-gradient(135deg, #2a4365 0%, #2c5282 100%);
             box-shadow: 0 8px 30px rgba(0,0,0,0.4);
         }
         .dark-theme table,
         .dark-theme th,
         .dark-theme td {
-            border-color: #4a5568; /* Darker table borders */
+            border-color: #4a5568;
         }
         .dark-theme th {
-            background: #4a5568; /* Darker table header background */
+            background: #4a5568;
             color: #e2e8f0;
         }
         .dark-theme tr:nth-child(even) {
-            background: #2d3748; /* Darker zebra striping */
+            background: #2d3748;
         }
         .dark-theme tr:hover {
-            background: #4a5568; /* Darker hover */
+            background: #4a5568;
         }
         .dark-theme .selected-trades-display,
         .dark-theme .multi-select-dropdown {
-            background-color: #4a5568; /* Darker dropdown/tag background */
+            background-color: #4a5568;
             border-color: #4a5568;
         }
         .dark-theme .selected-trade-tag {
-            background-color: #4299e1; /* Darker tag background */
+            background-color: #4299e1;
             color: white;
         }
         .dark-theme .selected-trade-tag .remove-tag {
-            color: #a0aec0; /* Lighter gray for X in tags */
+            color: #a0aec0;
         }
         .dark-theme .multi-select-dropdown label:hover {
             background-color: #2d3748;
@@ -855,13 +851,13 @@
             border-color: #4a5568;
         }
         .dark-theme .advanced-link {
-            color: #63b3ed; /* Lighter blue for links in dark theme */
+            color: #63b3ed;
         }
         .dark-theme .advanced-link:hover {
             color: #90cdf4;
         }
         .dark-theme .summary-item.total {
-            color: #90cdf4; /* Lighter blue for totals in dark theme */
+            color: #90cdf4;
             border-color: #4a5568;
         }
         .dark-theme .logo-upload-area {
@@ -880,10 +876,10 @@
         .dark-theme .logo-upload-area .default-icon {
             color: #63b3ed;
         }
-        .dark-theme .setup-wizard-container { /* Renamed class */
+        .dark-theme .setup-wizard-container {
             background: rgba(0,0,0,0.7);
         }
-        .dark-theme .wizard-content { /* Existing wizard-content should be affected */
+        .dark-theme .wizard-content {
             background: #2d3748;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
@@ -906,7 +902,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 2000; /* Higher than other modals */
+            z-index: 2000;
             color: white;
             font-size: 1.5rem;
             flex-direction: column;
@@ -931,12 +927,12 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #10b981; /* Green */
+            background-color: #10b981;
             color: white;
             padding: 15px 30px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-            z-index: 2002; /* Higher than loading overlay */
+            z-index: 2002;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
@@ -948,6 +944,113 @@
         .success-notification.show {
             opacity: 1;
             visibility: visible;
+        }
+
+        /* Wizard specific styles - CRITICAL FOR WIZARD VISUALS */
+        .wizard-content {
+            background: white;
+            padding: 40px; /* Increased padding */
+            border-radius: 20px; /* More rounded */
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); /* Deeper shadow */
+            max-width: 600px; /* Max width for consistency */
+            width: 100%;
+            box-sizing: border-box;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Space between steps */
+            margin-bottom: 40px; /* More space below indicators */
+        }
+        .step {
+            width: 40px; /* Larger circles */
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb; /* Inactive background */
+            color: #6b7280; /* Inactive text */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .step.active {
+            background: #2563eb; /* Active background */
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            transform: scale(1.1); /* Slightly larger when active */
+        }
+        .step.inactive {
+            /* No specific inactive styles needed beyond default */
+        }
+        .step:not(:last-child)::after {
+            content: '';
+            position: relative;
+            left: 10px; /* Adjust to connect steps */
+            width: 40px; /* Length of the connecting line */
+            height: 2px;
+            background: #d1d5db;
+            align-self: center; /* Align with middle of circle */
+            margin: 0 10px; /* Space on either side of line */
+            z-index: -1; /* Send line behind circles */
+        }
+        
+        /* Text label styling within the wizard */
+        .wizard-content .label { /* Specificity for labels within wizard */
+            text-align: left; /* Ensure labels are left-aligned */
+            width: 100%; /* Take full width */
+        }
+        .wizard-content h2 { /* Adjust H2 margin in wizard */
+            margin-bottom: 25px;
+        }
+        /* Ensure wizard logo preview fits correctly */
+        .wizard-logo-img-preview {
+            max-width: 100%;
+            height: auto;
+            max-height: 120px; /* Larger max height for the logo in the wizard */
+            object-fit: contain;
+        }
+
+        /* Dark Theme for Wizard */
+        .dark-theme .wizard-content {
+            background: #2d3748;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+        .dark-theme .step {
+            background: #4a5568;
+            color: #a0aec0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .dark-theme .step.active {
+            background: #4299e1;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.4);
+        }
+        .dark-theme .step:not(:last-child)::after {
+            background: #4a5568;
+        }
+        .dark-theme .wizard-content h1,
+        .dark-theme .wizard-content h2,
+        .dark-theme .wizard-content h4,
+        .dark-theme .wizard-content .label {
+            color: #e2e8f0;
+        }
+        .dark-theme .wizard-content p {
+            color: #a0aec0;
+        }
+
+        /* Adjustments for wizard input fields in dark theme */
+        .dark-theme .wizard-content .input-field {
+            background-color: #4a5568;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        .dark-theme .wizard-content .input-field:focus {
+            border-color: #63b3ed;
+            box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
         }
     </style>
 </head>
