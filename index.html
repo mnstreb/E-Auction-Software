@@ -1108,8 +1108,23 @@
                             mainAppLogoId: 'mainAppLogo',
                             themeToggleBtnId: 'themeToggleBtn',
                             reconfigureBtnId: 'reconfigureBtn',
+                            generateReportBtnId: 'generateReportBtn',    // New: Main button ID
+                            reportDropdownMenuId: 'reportDropdownMenu',  // New: Dropdown menu ID
+                            exportPdfBtnId: 'exportPdfBtn',              // New: PDF option ID
+                            exportCsvBtnId: 'exportCsvBtn',              // New: CSV/XLX option ID
+                            emailClientBtnId: 'emailClientBtn',          // New: Email option ID
                             onThemeToggle: toggleTheme,
-                            onReconfigure: showSetupWizard
+                            onReconfigure: showSetupWizard,
+                            // New callbacks for the dropdown items (placeholders for now)
+                            onExportPdf: () => {
+                                renderMessageBox('Exporting to PDF...');
+                            },
+                            onExportCsv: () => {
+                                renderMessageBox('Exporting to CSV/XLX...');
+                            },
+                            onEmailClient: () => {
+                                renderMessageBox('Composing email to client...');
+                            }
                         });
                         if (isDarkTheme) {
                             window.AppHeader.updateThemeButton('☀️');
@@ -1126,75 +1141,6 @@
 
             } catch (error) {
                 console.error("Error loading AppHeader component:", error);
-            }
-        }
-
-        async function loadSummaryOverview() {
-            try {
-                const htmlResponse = await fetch('src/sections/SummaryOverview/SummaryOverview.html');
-                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SummaryOverview.html`);
-                const html = await htmlResponse.text();
-                document.getElementById('summaryOverviewPlaceholder').innerHTML = html;
-
-                const script = document.createElement('script');
-                script.src = 'src/sections/SummaryOverview/SummaryOverview.js';
-                script.onload = () => {
-                    if (window.SummaryOverview) {
-                        window.SummaryOverview.init({
-                            projectSettings: projectSettings,
-                            estimateItems: estimateItems,
-                            formatCurrency: formatCurrency,
-                            formatHours: formatHours,
-                            isDarkTheme: isDarkTheme
-                        });
-                    } else {
-                        console.error('SummaryOverview module not available after loading.');
-                    }
-                    loadSetupWizard();
-                };
-                script.onerror = (e) => console.error("Failed to load SummaryOverview.js", e);
-                document.body.appendChild(script);
-
-            } catch (error) {
-                console.error("Error loading SummaryOverview component:", error);
-            }
-        }
-
-        async function loadSetupWizard() {
-            try {
-                const htmlResponse = await fetch('src/sections/SetupWizard/SetupWizard.html');
-                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SetupWizard.html`);
-                const html = await htmlResponse.text();
-                document.getElementById('setupWizardPlaceholder').innerHTML = html;
-                document.getElementById('setupWizardPlaceholder').classList.remove('hidden');
-                mainApp.classList.add('hidden');
-
-                const script = document.createElement('script');
-                script.src = 'src/sections/SetupWizard/SetupWizard.js';
-                script.onload = () => {
-                    if (window.SetupWizard) {
-                        window.SetupWizard.init({
-                            projectSettings: projectSettings,
-                            estimateItems: estimateItems,
-                            stateSalesTax: stateSalesTax,
-                            onCompletion: handleWizardCompletion,
-                            renderMessageBox: renderMessageBox,
-                            closeMessageBox: closeMessageBox
-                        });
-                        window.SetupWizard.showStep(1);
-                        window.SetupWizard.populateTradesDropdown();
-                        window.SetupWizard.updateSelectedTradesDisplay();
-                        window.SetupWizard.updateSalesTaxForState(projectSettings.projectState);
-                        window.SetupWizard.loadSavedLogo();
-                    } else {
-                        console.error('SetupWizard module not available after loading.');
-                    }
-                };
-                script.onerror = (e) => console.error("Failed to load SetupWizard.js", e);
-                document.body.appendChild(script);
-
-            } catch (error) {
-                console.error("Error loading SetupWizard component:", error);
             }
         }
 
