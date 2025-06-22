@@ -8,8 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Link to Chart.js for the pie chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Link to AppHeader specific CSS -->
+    <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
     <style>
-        /* Base styles and UI improvements */
+        /* Base styles and UI improvements (General styles remain here) */
         body {
             margin: 0;
             font-family: 'Inter var', system-ui, -apple-system, sans-serif;
@@ -161,52 +163,7 @@
             margin-bottom: 20px !important;
             transition: color 0.3s;
         }
-        .header-info-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .header-icon-box {
-            background: #3b82f6;
-            padding: 15px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 64px;
-            height: 64px;
-            overflow: hidden;
-            transition: background-color 0.3s;
-        }
-        .header-logo-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        .header-title-container {
-            line-height: 1.3;
-        }
-        .header-title {
-            margin: 0;
-            color: #1f2937;
-            font-size: 28px;
-            font-weight: 700;
-            transition: color 0.3s;
-        }
-        .header-subtitle {
-            margin: 5px 0 0 0;
-            color: #6b7280;
-            font-size: 16px;
-            transition: color 0.3s;
-        }
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
+        /* Header-specific styles REMOVED from here */
         .top-summary-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -369,10 +326,10 @@
                 padding: 10px 20px;
                 font-size: 14px;
             }
-            .header-title {
+            .header-title { /* Kept here as it's a general heading style now */
                 font-size: 24px;
             }
-            .header-subtitle {
+            .header-subtitle { /* Kept here as it's a general subheading style now */
                 font-size: 15px;
             }
             .summary-overall-metric-card {
@@ -760,7 +717,8 @@
         .dark-theme .chart-container.card h4 {
             color: #e2e8f0;
         }
-        .dark-theme .header-subtitle,
+        /* AppHeader Dark Theme specific styles REMOVED from here */
+        .dark-theme .header-subtitle, /* Keep this here as a general style for subtitles if not specific to header */
         .dark-theme .summary-item,
         .dark-theme .logo-upload-area .upload-text,
         .dark-theme .multi-select-dropdown p,
@@ -780,9 +738,7 @@
             color: #a0aec0;
         }
 
-        .dark-theme .header-icon-box {
-            background: #4299e1;
-        }
+        /* AppHeader Dark Theme specific styles REMOVED from here */
         .dark-theme .summary-overall-metric-card {
             background: linear-gradient(135deg, #2a4365 0%, #2c5282 100%);
             box-shadow: 0 8px 30px rgba(0,0,0,0.4);
