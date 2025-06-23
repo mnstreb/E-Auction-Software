@@ -33,16 +33,16 @@
 
 /* New: Progress Bar Container */
 .progress-container {
-    width: 80%; /* Adjust as needed */
+    width: 90%; /* Wider to accommodate labels */
     height: 8px; /* Height of the bar */
     background-color: #e0e0e0;
     border-radius: 4px;
-    margin-bottom: 40px; /* Space below the progress bar */
+    margin-bottom: 50px; /* More space below the progress bar */
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* To space out the circles */
-    padding: 0 20px; /* Padding for circles to not touch edges */
+    justify-content: space-between;
+    padding: 0; /* Remove padding to make lines flush */
     box-sizing: border-box;
 }
 
@@ -52,23 +52,55 @@
     top: 0;
     left: 0;
     height: 100%;
-    background: linear-gradient(90deg, #60a5fa, #2563eb); /* Blue gradient */
+    background: linear-gradient(90deg, #34d399, #10b981); /* Green gradient for completed */
     border-radius: 4px;
     width: 0%; /* Starts empty */
     transition: width 0.5s ease-in-out; /* Smooth transition for width change */
-    z-index: 1; /* Below circles */
+    z-index: 1; /* Below step items */
 }
 
-/* New: Step Circles for the Progress Bar */
-.step-indicator-circles {
+/* New: Wrapper for step items to control their layout */
+.step-indicators-wrapper {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    position: absolute;
+    position: absolute; /* Position relative to .progress-container */
     top: 50%;
     transform: translateY(-50%);
     z-index: 2; /* Above the progress bar */
 }
+
+.step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1; /* Distribute space evenly */
+    position: relative; /* For connector lines and status text */
+    padding: 0 10px; /* Padding for text content */
+    box-sizing: border-box;
+}
+
+/* Connector Lines - New: Create lines between step circles */
+.step-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 15px; /* Half height of circle */
+    left: 50%;
+    width: 100%; /* Line will span to the next step's center */
+    height: 3px;
+    background-color: #e0e0e0; /* Inactive line color */
+    transform: translateX(calc(15px + 100% / 2)); /* Adjust to connect circles */
+    transition: background-color 0.5s ease-in-out;
+    z-index: -1; /* Behind circles */
+}
+
+/* Active/Completed Connector Lines */
+.step-item.active:not(:last-child)::after,
+.step-item.completed:not(:last-child)::after {
+    background: linear-gradient(90deg, #34d399, #10b981); /* Green gradient for active/completed lines */
+}
+
 
 .step-circle {
     width: 30px;
@@ -85,15 +117,76 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     flex-shrink: 0;
     z-index: 3; /* Above everything */
-    border: 3px solid white; /* White border to make it pop */
+    border: 3px solid transparent; /* Transparent border by default */
+    margin-bottom: 10px; /* Space between circle and label */
+    position: relative; /* For checkmark icon */
 }
 
+/* Active Step Circle */
 .step-circle.active {
-    background: #2563eb; /* Active circle color */
-    color: white;
+    background: white; /* White background for active circle */
+    border-color: #2563eb; /* Blue border for active circle */
+    color: #2563eb; /* Blue number for active circle */
     box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
     transform: scale(1.1);
-    border-color: #2563eb; /* Border color for active step */
+}
+
+/* Completed Step Circle */
+.step-circle.completed {
+    background: #10b981; /* Green background for completed circle */
+    color: white;
+    border-color: #10b981; /* Green border for completed circle */
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* Checkmark for completed steps */
+.step-circle.completed::before {
+    content: '✓'; /* Unicode checkmark character */
+    position: absolute;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+/* Hide number when checkmark is present */
+.step-circle.completed {
+    font-size: 0; /* Hide number */
+}
+
+
+/* New: Step Labels */
+.step-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4b5563; /* Default label color */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s;
+    margin-bottom: 4px; /* Space between label and status */
+}
+
+/* New: Step Status (Completed, In Progress, Pending) */
+.step-status {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #9ca3af; /* Default status color */
+    transition: color 0.3s;
+}
+
+/* Status specific colors */
+.step-item.completed .step-label,
+.step-item.completed .step-status {
+    color: #10b981; /* Green for completed text */
+}
+
+.step-item.active .step-label,
+.step-item.active .step-status {
+    color: #2563eb; /* Blue for active text */
 }
 
 
@@ -154,7 +247,7 @@
     border-color: #3b82f6;
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.4);
 }
-.logo-upload-area .wizard-logo-img-preview {
+.logo-upload-area .uploaded-logo { /* Corrected class name here */
     max-width: 100%;
     max-height: 100px;
     object-fit: contain;
@@ -374,7 +467,7 @@ body.dark-theme .progress-container {
 }
 
 body.dark-theme .progress-bar {
-    background: linear-gradient(90deg, #63b3ed, #4299e1); /* Lighter gradient for dark theme */
+    background: linear-gradient(90deg, #34d399, #10b981); /* Green gradient for dark theme */
 }
 
 body.dark-theme .step-circle {
@@ -383,10 +476,16 @@ body.dark-theme .step-circle {
     border-color: #2d3748; /* Dark border for dark theme circles */
 }
 body.dark-theme .step-circle.active {
-    background: #4299e1; /* Active circle in dark theme */
+    background: #2d3748; /* Active circle background in dark theme */
+    border-color: #4299e1; /* Active circle border in dark theme */
+    color: #4299e1; /* Active number in dark theme */
     box-shadow: 0 4px 15px rgba(66, 153, 225, 0.4);
-    border-color: #4299e1; /* Border color for active step in dark theme */
 }
+body.dark-theme .step-circle.completed {
+    background: #065f46; /* Darker green for completed in dark theme */
+    border-color: #065f46;
+}
+
 
 body.dark-theme .wizard-content h1,
 body.dark-theme .wizard-content h2,
@@ -402,7 +501,7 @@ body.dark-theme .wizard-content .input-field {
     border-color: #4a5568;
     color: #e2e8f0;
 }
-body.dark-theme .wizard-content .input-field:focus {
+body.dark-theme .input-field:focus {
     border-color: #63b3ed;
     box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
 }
@@ -452,4 +551,17 @@ body.dark-theme .logo-upload-area.drag-over {
 }
 body.dark-theme .logo-upload-area .default-icon {
     color: #63b3ed;
+}
+/* Dark theme for step labels and statuses */
+body.dark-theme .step-label,
+body.dark-theme .step-status {
+    color: #a0aec0;
+}
+body.dark-theme .step-item.completed .step-label,
+body.dark-theme .step-item.completed .step-status {
+    color: #10b981; /* Still green for completed */
+}
+body.dark-theme .step-item.active .step-label,
+body.dark-theme .step-item.active .step-status {
+    color: #4299e1; /* Blue for active */
 }
