@@ -1179,51 +1179,59 @@
             
             const totalProjectCostDirect = totalLaborCost + totalMaterialCostRaw + totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
 
-            const materialMarkupAmount = totalMaterialCostRaw * (projectSettings.materialMarkup / 100);
+            // Ensure projectSettings percentages are numbers
+            const materialMarkupPercent = parseFloat(projectSettings.materialMarkup) || 0;
+            const overheadPercent = parseFloat(projectSettings.overhead) || 0;
+            const miscellaneousPercent = parseFloat(projectSettings.miscellaneous) || 0;
+            const profitMarginPercent = parseFloat(projectSettings.profitMargin) || 0;
+            const salesTaxPercent = parseFloat(projectSettings.salesTax) || 0;
+            const additionalConsiderationsValue = parseFloat(projectSettings.additionalConsiderationsValue) || 0;
+
+            const materialMarkupAmount = totalMaterialCostRaw * (materialMarkupPercent / 100);
 
             const baseCostForOverheadMiscProfit = totalProjectCostDirect + materialMarkupAmount;
 
-            const totalOverheadCost = baseCostForOverheadMiscProfit * (projectSettings.overhead / 100);
+            const totalOverheadCost = baseCostForOverheadMiscProfit * (overheadPercent / 100);
 
-            const totalMiscCostAmount = baseCostForOverheadMiscProfit * (projectSettings.miscellaneous / 100);
+            const totalMiscCostAmount = baseCostForOverheadMiscProfit * (miscellaneousPercent / 100);
             
             const subtotalBeforeProfitTax = baseCostForOverheadMiscProfit + totalMiscCostAmount + totalOverheadCost;
             
-            const totalProfitMarginAmount = subtotalBeforeProfitTax * (projectSettings.profitMargin / 100);
+            const totalProfitMarginAmount = subtotalBeforeProfitTax * (profitMarginPercent / 100);
             
             const estimateSubtotalAmount = subtotalBeforeProfitTax + totalProfitMarginAmount;
 
             const salesTaxApplicableBase = totalMaterialCostRaw + materialMarkupAmount;
-            const salesTaxAmount = salesTaxApplicableBase * (projectSettings.salesTax / 100);
+            const salesTaxAmount = salesTaxApplicableBase * (salesTaxPercent / 100);
             
             let additionalConsiderationAmount = 0;
             if (projectSettings.additionalConsiderationsType === '%') {
-                additionalConsiderationAmount = estimateSubtotalAmount * (projectSettings.additionalConsiderationsValue / 100);
+                additionalConsiderationAmount = estimateSubtotalAmount * (additionalConsiderationsValue / 100);
             } else {
-                additionalConsiderationAmount = projectSettings.additionalConsiderationsValue;
+                additionalConsiderationAmount = additionalConsiderationsValue;
             }
 
             const grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
 
             // --- DEBUGGING LOGS START ---
             console.log("--- Debug CalculateTotals ---");
-            console.log("projectSettings.materialMarkup:", projectSettings.materialMarkup, typeof projectSettings.materialMarkup);
+            console.log("materialMarkupPercent (from PS):", materialMarkupPercent, typeof materialMarkupPercent);
             console.log("totalMaterialCostRaw:", totalMaterialCostRaw, typeof totalMaterialCostRaw);
             console.log("materialMarkupAmount:", materialMarkupAmount, typeof materialMarkupAmount);
             console.log("totalProjectCostDirect:", totalProjectCostDirect, typeof totalProjectCostDirect);
             console.log("baseCostForOverheadMiscProfit:", baseCostForOverheadMiscProfit, typeof baseCostForOverheadMiscProfit);
-            console.log("projectSettings.overhead:", projectSettings.overhead, typeof projectSettings.overhead);
+            console.log("overheadPercent (from PS):", overheadPercent, typeof overheadPercent);
             console.log("totalOverheadCost:", totalOverheadCost, typeof totalOverheadCost);
-            console.log("projectSettings.miscellaneous:", projectSettings.miscellaneous, typeof projectSettings.miscellaneous);
+            console.log("miscellaneousPercent (from PS):", miscellaneousPercent, typeof miscellaneousPercent);
             console.log("totalMiscCostAmount:", totalMiscCostAmount, typeof totalMiscCostAmount);
             console.log("subtotalBeforeProfitTax:", subtotalBeforeProfitTax, typeof subtotalBeforeProfitTax);
-            console.log("projectSettings.profitMargin:", projectSettings.profitMargin, typeof projectSettings.profitMargin);
+            console.log("profitMarginPercent (from PS):", profitMarginPercent, typeof profitMarginPercent);
             console.log("totalProfitMarginAmount:", totalProfitMarginAmount, typeof totalProfitMarginAmount);
             console.log("estimateSubtotalAmount:", estimateSubtotalAmount, typeof estimateSubtotalAmount);
             console.log("salesTaxApplicableBase:", salesTaxApplicableBase, typeof salesTaxApplicableBase);
-            console.log("projectSettings.salesTax:", projectSettings.salesTax, typeof projectSettings.salesTax);
+            console.log("salesTaxPercent (from PS):", salesTaxPercent, typeof salesTaxPercent);
             console.log("salesTaxAmount:", salesTaxAmount, typeof salesTaxAmount);
-            console.log("projectSettings.additionalConsiderationsValue:", projectSettings.additionalConsiderationsValue, typeof projectSettings.additionalConsiderationsValue);
+            console.log("additionalConsiderationsValue (from PS):", additionalConsiderationsValue, typeof additionalConsiderationsValue);
             console.log("additionalConsiderationAmount:", additionalConsiderationAmount, typeof additionalConsiderationAmount);
             console.log("GRAND TOTAL (calculated):", grandTotal, typeof grandTotal);
             console.log("--- End Debug CalculateTotals ---");
