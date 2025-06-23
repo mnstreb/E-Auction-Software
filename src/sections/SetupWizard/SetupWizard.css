@@ -81,19 +81,20 @@
     box-sizing: border-box;
 }
 
-/* Connector Lines - New: Create lines between step circles */
+/* Connector Lines - Fix: Adjusted left and width calculation */
 .step-item:not(:last-child)::after {
     content: '';
     position: absolute;
     top: 15px; /* Half height of circle */
-    left: 50%;
-    width: 100%; /* Line will span to the next step's center */
+    left: calc(50% + 15px); /* Start after the current circle's center + half its width */
+    width: calc(100% - 30px); /* Span the full width of the gap between circles minus the circles' width */
     height: 3px;
     background-color: #e0e0e0; /* Inactive line color */
-    transform: translateX(calc(15px + 100% / 2)); /* Adjust to connect circles */
+    /* Removed transform as it's no longer needed with corrected left/width */
     transition: background-color 0.5s ease-in-out;
     z-index: -1; /* Behind circles */
 }
+
 
 /* Active/Completed Connector Lines */
 .step-item.active:not(:last-child)::after,
@@ -212,10 +213,11 @@
 .wizard-content h1 {
     text-align: center;
 }
+/* Increased margin-bottom for p tags (intro text) */
 .wizard-content p {
     width: 100%;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px; /* Increased from 20px */
 }
 
 /* Styles for the logo upload area */
