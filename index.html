@@ -1161,11 +1161,32 @@
 
 
             estimateItems.forEach(item => {
+                // --- DEBUGGING ITEM VALUES & INDIVIDUAL TOTALS ---
+                console.log(`--- Item ${item.id} Debug ---`);
+                console.log("Item:", item);
+                console.log("item.hours:", item.hours, typeof item.hours);
+                console.log("item.materialQuantity:", item.materialQuantity, typeof item.materialQuantity);
+                console.log("item.materialUnitCost:", item.materialUnitCost, typeof item.materialUnitCost);
+                console.log("item.equipmentRentalCost:", item.equipmentRentalCost, typeof item.equipmentRentalCost);
+                console.log("item.subcontractorCostLineItem:", item.subcontractorCostLineItem, typeof item.subcontractorCostLineItem);
+                console.log("item.miscLineItem:", item.miscLineItem, typeof item.miscLineItem);
+                console.log("item.otDtMultiplier:", item.otDtMultiplier, typeof item.otDtMultiplier);
+                
                 const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
+                console.log("laborRate (from projectSettings):", laborRate, typeof laborRate);
+                
                 const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                console.log("effectiveLaborRate:", effectiveLaborRate, typeof effectiveLaborRate);
+                
                 const laborTotal = item.hours * effectiveLaborRate;
                 const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
                 
+                console.log("laborTotal (for item):", laborTotal, typeof laborTotal);
+                console.log("materialsTotal (for item):", materialsTotal, typeof materialsTotal);
+                console.log("otherCategoryTotal (for item):", otherCategoryTotal, typeof otherCategoryTotal);
+                // --- END DEBUGGING ITEM VALUES & INDIVIDUAL TOTALS ---
+
                 totalLaborCost += laborTotal;
                 totalMaterialCostRaw += materialsTotal;
                 totalEquipmentCost += item.equipmentRentalCost;
@@ -1213,10 +1234,15 @@
 
             const grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
 
-            // --- DEBUGGING LOGS START ---
-            console.log("--- Debug CalculateTotals ---");
-            console.log("materialMarkupPercent (from PS):", materialMarkupPercent, typeof materialMarkupPercent);
+            // --- DEBUGGING TOP-LEVEL TOTALS ---
+            console.log("--- Debug CalculateTotals FINAL ---"); // Renamed for clarity
+            console.log("totalLaborCost:", totalLaborCost, typeof totalLaborCost);
             console.log("totalMaterialCostRaw:", totalMaterialCostRaw, typeof totalMaterialCostRaw);
+            console.log("totalEquipmentCost:", totalEquipmentCost, typeof totalEquipmentCost);
+            console.log("totalSubcontractorCost:", totalSubcontractorCost, typeof totalSubcontractorCost);
+            console.log("totalMiscLineItemCosts:", totalMiscLineItemCosts, typeof totalMiscLineItemCosts);
+            
+            console.log("materialMarkupPercent (from PS):", materialMarkupPercent, typeof materialMarkupPercent);
             console.log("materialMarkupAmount:", materialMarkupAmount, typeof materialMarkupAmount);
             console.log("totalProjectCostDirect:", totalProjectCostDirect, typeof totalProjectCostDirect);
             console.log("baseCostForOverheadMiscProfit:", baseCostForOverheadMiscProfit, typeof baseCostForOverheadMiscProfit);
@@ -1234,8 +1260,8 @@
             console.log("additionalConsiderationsValue (from PS):", additionalConsiderationsValue, typeof additionalConsiderationsValue);
             console.log("additionalConsiderationAmount:", additionalConsiderationAmount, typeof additionalConsiderationAmount);
             console.log("GRAND TOTAL (calculated):", grandTotal, typeof grandTotal);
-            console.log("--- End Debug CalculateTotals ---");
-            // --- DEBUGGING LOGS END ---
+            console.log("--- End Debug CalculateTotals FINAL ---");
+            // --- END DEBUGGING LOGS ---
 
 
             const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
@@ -1311,20 +1337,31 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadAppHeader();
             setupInitialEventListeners();
+            // Initial setup for column visibility (to match collapsedState)
             for (const group in collapsedState) {
-                if (collapsedState.hasOwnProperty(group) && collapsedState[group]) {
+                if (collapsedState.hasOwnProperty(group)) {
                     const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
                     const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
                     if (headerElement && mainThElement) {
-                        headerElement.classList.add('collapsed');
-                        mainThElement.colSpan = 1;
-                        document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                            th.classList.add('column-hidden');
-                        });
+                        if (collapsedState[group]) {
+                            headerElement.classList.add('collapsed');
+                            mainThElement.colSpan = 1;
+                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                th.classList.add('column-hidden');
+                            });
+                        } else {
+                            headerElement.classList.remove('collapsed');
+                            if (group === 'labor') mainThElement.colSpan = 5;
+                            else if (group === 'materials') mainThElement.colSpan = 3;
+                            else if (group === 'other') mainThElement.colSpan = 4;
+                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                th.classList.remove('column-hidden');
+                            });
+                        }
                     }
                 }
             }
-            adjustTableMinWidth();
+            adjustTableMinWidth(); // Adjust table width based on initial column state
         });
 
         function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
