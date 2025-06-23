@@ -11,8 +11,8 @@ window.SetupWizard = (function() {
     // UI Element references (private to this module)
     let setupWizardContainer; // The main wizard div
     let wizardSteps = [];
-    let stepCircles = []; // Renamed from stepIndicators
-    let progressBar; // New element for the progress bar fill
+    let stepItems = []; // Renamed from stepCircles to stepItems (containers for circles and text)
+    let progressBar; // Element for the progress bar fill
 
     let logoUploadInput;
     let logoUploadArea;
@@ -51,6 +51,13 @@ window.SetupWizard = (function() {
     let isAdvancedDetailsActive = false; // For Step 1 advanced details
     let isAdvancedModeActive = false; // For Step 2 advanced labor rates
 
+    // Define step labels and statuses
+    const stepDetails = [
+        { label: 'Project Info', statusPending: 'Pending', statusInProgress: 'In Progress', statusCompleted: 'Completed' },
+        { label: 'Labor Rates', statusPending: 'Pending', statusInProgress: 'In Progress', statusCompleted: 'Completed' },
+        { label: 'Project Settings', statusPending: 'Pending', statusInProgress: 'In Progress', statusCompleted: 'Completed' }
+    ];
+
 
     /**
      * Initializes the SetupWizard module.
@@ -77,12 +84,13 @@ window.SetupWizard = (function() {
             document.getElementById('wizardStep2'),
             document.getElementById('wizardStep3')
         ];
-        stepCircles = [ // Updated reference to new step circle IDs
-            document.getElementById('step1'),
-            document.getElementById('step2'),
-            document.getElementById('step3')
+        // Referencing the step item containers now
+        stepItems = [ 
+            document.getElementById('step1Container'),
+            document.getElementById('step2Container'),
+            document.getElementById('step3Container')
         ];
-        progressBar = document.getElementById('progressBar'); // New progress bar element
+        progressBar = document.getElementById('progressBar'); // Progress bar element
 
         logoUploadInput = document.getElementById('logoUploadInput');
         logoUploadArea = document.getElementById('logoUploadArea');
@@ -161,18 +169,43 @@ window.SetupWizard = (function() {
             }
         });
         
-        // Update step circles and progress bar
-        stepCircles.forEach((circle, index) => {
-            if (index + 1 <= stepNumber) {
-                circle.classList.add('active');
+        // Update step items, circles, labels, and progress bar
+        stepItems.forEach((stepItem, index) => {
+            const stepNum = index + 1;
+            const stepCircle = stepItem.querySelector('.step-circle');
+            const stepLabel = stepItem.querySelector('.step-label');
+            const stepStatus = stepItem.querySelector('.step-status');
+
+            stepItem.classList.remove('active', 'completed'); // Reset classes
+            stepCircle.classList.remove('active', 'completed');
+            
+            // Set text labels and numbers
+            stepLabel.textContent = stepDetails[index].label;
+            stepCircle.textContent = stepNum;
+
+            if (stepNum < stepNumber) {
+                // Completed step
+                stepItem.classList.add('completed');
+                stepCircle.classList.add('completed');
+                stepStatus.textContent = stepDetails[index].statusCompleted;
+            } else if (stepNum === stepNumber) {
+                // Current step
+                stepItem.classList.add('active');
+                stepCircle.classList.add('active');
+                stepStatus.textContent = stepDetails[index].statusInProgress;
             } else {
-                circle.classList.remove('active');
+                // Pending step
+                stepStatus.textContent = stepDetails[index].statusPending;
             }
         });
 
-        // Calculate progress bar width
+        // Calculate progress bar width based on active step
+        // For 3 steps, 0% for step 1, 50% for step 2, 100% for step 3
         const totalSteps = wizardSteps.length;
-        const progressWidth = ((stepNumber - 1) / (totalSteps - 1)) * 100;
+        let progressWidth = 0;
+        if (totalSteps > 1) {
+             progressWidth = ((stepNumber - 1) / (totalSteps - 1)) * 100;
+        }
         progressBar.style.width = `${progressWidth}%`;
 
         currentStep = stepNumber;
