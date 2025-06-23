@@ -31,64 +31,71 @@
     overflow-y: auto;
 }
 
-.step-indicator {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 40px;
-    width: 100%;
+/* New: Progress Bar Container */
+.progress-container {
+    width: 80%; /* Adjust as needed */
+    height: 8px; /* Height of the bar */
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 40px; /* Space below the progress bar */
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* To space out the circles */
+    padding: 0 20px; /* Padding for circles to not touch edges */
+    box-sizing: border-box;
 }
 
-.step {
-    width: 40px;
-    height: 40px;
+/* New: Actual Progress Bar Fill */
+.progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #60a5fa, #2563eb); /* Blue gradient */
+    border-radius: 4px;
+    width: 0%; /* Starts empty */
+    transition: width 0.5s ease-in-out; /* Smooth transition for width change */
+    z-index: 1; /* Below circles */
+}
+
+/* New: Step Circles for the Progress Bar */
+.step-indicator-circles {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2; /* Above the progress bar */
+}
+
+.step-circle {
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: #e5e7eb;
+    background: #e5e7eb; /* Inactive circle color */
     color: #6b7280;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     transition: all 0.3s ease-in-out;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     flex-shrink: 0;
-    z-index: 1;
-    position: relative;
-    margin: 0 10px;
+    z-index: 3; /* Above everything */
+    border: 3px solid white; /* White border to make it pop */
 }
 
-.step.active {
-    background: #2563eb;
+.step-circle.active {
+    background: #2563eb; /* Active circle color */
     color: white;
     box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
     transform: scale(1.1);
+    border-color: #2563eb; /* Border color for active step */
 }
 
-.step:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: calc(100% + 5px);
-    width: 20px;
-    height: 2px;
-    background: #d1d5db;
-    transform: translateY(-50%);
-    z-index: 0;
-}
-
-.step:not(:first-child)::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: calc(100% + 5px);
-    width: 20px;
-    height: 2px;
-    background: #d1d5db;
-    transform: translateY(-50%);
-    z-index: 0;
-}
 
 #wizardStep1, #wizardStep2, #wizardStep3 {
     width: 100%;
@@ -360,19 +367,27 @@ body.dark-theme .wizard-content {
     background: #2d3748;
     box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }
-body.dark-theme .step {
-    background: #4a5568;
-    color: #a0aec0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+
+/* Dark Theme for New Progress Bar */
+body.dark-theme .progress-container {
+    background-color: #4a5568;
 }
-body.dark-theme .step.active {
-    background: #4299e1;
-    box-shadow: 0 2px 8px rgba(66, 153, 225, 0.4);
+
+body.dark-theme .progress-bar {
+    background: linear-gradient(90deg, #63b3ed, #4299e1); /* Lighter gradient for dark theme */
 }
-body.dark-theme .step:not(:last-child)::after,
-body.dark-theme .step:not(:first-child)::before {
-    background: #4a5568;
+
+body.dark-theme .step-circle {
+    background: #6b7280; /* Inactive circle in dark theme */
+    color: #e2e8f0;
+    border-color: #2d3748; /* Dark border for dark theme circles */
 }
+body.dark-theme .step-circle.active {
+    background: #4299e1; /* Active circle in dark theme */
+    box-shadow: 0 4px 15px rgba(66, 153, 225, 0.4);
+    border-color: #4299e1; /* Border color for active step in dark theme */
+}
+
 body.dark-theme .wizard-content h1,
 body.dark-theme .wizard-content h2,
 body.dark-theme .wizard-content h4,
