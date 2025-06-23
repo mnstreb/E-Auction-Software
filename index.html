@@ -90,6 +90,17 @@
             box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
             transform: translateY(-1px);
         }
+        .btn-orange { /* NEW: Style for the orange button */
+            background: #f97316;
+            color: white;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2);
+        }
+        .btn-orange:hover {
+            background: #ea580c;
+            box-shadow: 0 6px 20px rgba(234, 88, 12, 0.3);
+            transform: translateY(-1px);
+        }
+
 
         table {
             width: 100%;
@@ -572,23 +583,33 @@
                             mainAppLogoId: 'mainAppLogo',
                             themeToggleBtnId: 'themeToggleBtn',
                             reconfigureBtnId: 'reconfigureBtn',
-                            generateReportBtnId: 'generateReportBtn',    // New: Main button ID
-                            reportDropdownMenuId: 'reportDropdownMenu',  // New: Dropdown menu ID
-                            exportPdfBtnId: 'exportPdfBtn',              // New: PDF option ID
-                            exportCsvBtnId: 'exportCsvBtn',              // New: CSV/XLX option ID
-                            emailClientBtnId: 'emailClientBtn',          // New: Email option ID
+                            // Report Dropdown IDs
+                            generateReportBtnId: 'generateReportBtn',
+                            reportDropdownMenuId: 'reportDropdownMenu',
+                            exportPdfReportBtnId: 'exportPdfReportBtn', // New ID for detailed PDF
+                            exportCsvBtnId: 'exportCsvBtn',
+                            // Quote Dropdown IDs
+                            generateQuoteBtnId: 'generateQuoteBtn', // NEW ID
+                            quoteDropdownMenuId: 'quoteDropdownMenu', // NEW ID
+                            exportPdfQuoteBtnId: 'exportPdfQuoteBtn', // NEW ID for client quote PDF
+                            emailClientBtnId: 'emailClientBtn',          // Moved to quote dropdown
                             onThemeToggle: toggleTheme,
                             onReconfigure: showSetupWizard,
-                            // New callbacks for the dropdown items (placeholders for now)
-                            onExportPdf: () => {
-                                renderMessageBox('Exporting to PDF...');
+                            // Callbacks for Report Dropdown
+                            onExportPdfReport: () => {
+                                renderMessageBox('Exporting Detailed Report to PDF...');
+                                // Actual detailed PDF generation logic will go here
                             },
                             onExportCsv: () => {
                                 renderMessageBox('Exporting to CSV/XLX...');
+                                // Actual CSV/XLX generation logic will go here
                             },
-                            onEmailClient: () => {
-                                renderMessageBox('Composing email to client...');
-                            }
+                            // Callbacks for Quote Dropdown
+                            onExportPdfQuote: () => {
+                                renderMessageBox('Exporting Client Quote to PDF...');
+                                // Actual client quote PDF generation logic will go here
+                            },
+                            onEmailClient: sendEstimateEmailToClient // Connected to the new function
                         });
                         if (isDarkTheme) {
                             window.AppHeader.updateThemeButton('☀️');
@@ -1212,6 +1233,38 @@
                     totalOtherCostsForPieChart
                 }, estimateItems, isDarkTheme);
             }
+        }
+
+
+        // NEW: Function to send estimate email
+        function sendEstimateEmailToClient() {
+            // First, ensure all calculations are up-to-date
+            calculateTotals(); 
+
+            const recipientEmail = projectSettings.ownerEmail;
+            const projectName = projectSettings.projectName;
+            const clientName = projectSettings.clientName;
+            const grandTotal = formatCurrency(projectSettings.grandTotal); // Use the globally available grandTotal
+
+            if (!recipientEmail || recipientEmail.trim() === "") {
+                renderMessageBox("Please enter the client's email in the Setup Wizard (under Project Information -> Owner Email) to use this feature.");
+                return;
+            }
+
+            const subject = encodeURIComponent(`Estimate for Your Project: ${projectName}`);
+            const body = encodeURIComponent(
+                `Dear ${clientName || 'Client'},\n\n` +
+                `Here is a summary of the estimate for your project: "${projectName}".\n\n` +
+                `The estimated Grand Total is: ${grandTotal}.\n\n` +
+                `Please let us know if you have any questions or require further details.\n\n` +
+                `Regards,\n${projectSettings.contractorName || 'Your Company'}` // Assuming contractorName exists or using a fallback
+            );
+
+            const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
+
+            // Open the mail client
+            window.open(mailtoLink, '_blank');
+            renderMessageBox('Your email client should open with a pre-filled estimate. Please remember to send it!');
         }
 
 
