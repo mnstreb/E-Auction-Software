@@ -11,7 +11,8 @@ window.SetupWizard = (function() {
     // UI Element references (private to this module)
     let setupWizardContainer; // The main wizard div
     let wizardSteps = [];
-    let stepIndicators = [];
+    let stepCircles = []; // Renamed from stepIndicators
+    let progressBar; // New element for the progress bar fill
 
     let logoUploadInput;
     let logoUploadArea;
@@ -76,11 +77,12 @@ window.SetupWizard = (function() {
             document.getElementById('wizardStep2'),
             document.getElementById('wizardStep3')
         ];
-        stepIndicators = [
+        stepCircles = [ // Updated reference to new step circle IDs
             document.getElementById('step1'),
             document.getElementById('step2'),
             document.getElementById('step3')
         ];
+        progressBar = document.getElementById('progressBar'); // New progress bar element
 
         logoUploadInput = document.getElementById('logoUploadInput');
         logoUploadArea = document.getElementById('logoUploadArea');
@@ -158,15 +160,21 @@ window.SetupWizard = (function() {
                 stepDiv.classList.add('hidden');
             }
         });
-        stepIndicators.forEach((indicator, index) => {
-            if (index + 1 === stepNumber) {
-                indicator.classList.add('active');
-                indicator.classList.remove('inactive');
+        
+        // Update step circles and progress bar
+        stepCircles.forEach((circle, index) => {
+            if (index + 1 <= stepNumber) {
+                circle.classList.add('active');
             } else {
-                indicator.classList.remove('active');
-                indicator.classList.add('inactive');
+                circle.classList.remove('active');
             }
         });
+
+        // Calculate progress bar width
+        const totalSteps = wizardSteps.length;
+        const progressWidth = ((stepNumber - 1) / (totalSteps - 1)) * 100;
+        progressBar.style.width = `${progressWidth}%`;
+
         currentStep = stepNumber;
 
         // Re-populate data each time a step is shown to reflect latest projectSettings
@@ -195,7 +203,7 @@ window.SetupWizard = (function() {
             if (!projectState) { renderMessageBoxCallback("Please select a State/Location."); return; }
             if (projectSettings.activeTrades.length === 0) { renderMessageBoxCallback("Please select at least one Trade Involved."); return; }
 
-            // Save values to projectSettings
+            // Save values to projectSettings, ensuring correct types
             projectSettings.projectName = projectName;
             projectSettings.clientName = clientName;
             projectSettings.projectAddress = document.getElementById('projectAddress').value;
@@ -213,7 +221,7 @@ window.SetupWizard = (function() {
             for (const trade of projectSettings.activeTrades) {
                 if (projectSettings.allTradeLaborRates[trade]) { // Only validate if the trade actually exists in the rates data
                     for (const role in projectSettings.allTradeLaborRates[trade]) {
-                        const rate = projectSettings.allTradeLaborRates[trade][role];
+                        const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]); // Ensure it's a number here too
                         if (isNaN(rate) || rate < 0) {
                             renderMessageBoxCallback(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
                             return;
@@ -251,7 +259,7 @@ window.SetupWizard = (function() {
                 return;
             }
             for (const role in projectSettings.allTradeLaborRates[trade]) {
-                const rate = projectSettings.allTradeLaborRates[trade][role];
+                const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]); // Ensure it's a number here too
                 if (isNaN(rate) || rate < 0) {
                     renderMessageBoxCallback(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
                     return;
@@ -259,7 +267,7 @@ window.SetupWizard = (function() {
             }
         }
 
-        // Save final settings to projectSettings
+        // Save final settings to projectSettings, ensuring ALL numerical values are parsed
         projectSettings.projectName = projectNameInput.value;
         projectSettings.clientName = clientNameInput.value;
         projectSettings.projectAddress = document.getElementById('projectAddress').value;
@@ -272,12 +280,15 @@ window.SetupWizard = (function() {
         projectSettings.projectType = projectTypeSelect.value;
         projectSettings.projectState = projectStateSelect.value;
         
+        // --- IMPORTANT: Ensure parseFloat for ALL numeric settings here ---
         projectSettings.profitMargin = parseFloat(profitMarginInput.value) || 0;
         projectSettings.salesTax = parseFloat(salesTaxInput.value) || 0;
         projectSettings.miscellaneous = parseFloat(miscellaneousInput.value) || 0;
         projectSettings.overhead = parseFloat(overheadInput.value) || 0;
         projectSettings.materialMarkup = parseFloat(materialMarkupInput.value) || 0;
         projectSettings.additionalConsiderationsValue = parseFloat(additionalConsiderationsValueInput.value) || 0;
+        // --- END IMPORTANT ---
+
 
         // Callback to main script indicating completion
         onCompletionCallback(projectSettings);
@@ -502,7 +513,7 @@ window.SetupWizard = (function() {
                         `}
                         <div class="rate-input-group">
                             <label for="${rateInputId}" class="rate-label">Rate ($/hr):</label>
-                            <input type="number" id="${rateInputId}" class="input-field rate-input" value="${rate}"
+                            <input type="number" id="${rateInputId}" class="input-field rate-input" value="${parseFloat(rate) || 0}"
                                 onchange="window.SetupWizard.updateLaborRate('${trade}', '${role}', this.value)">
                             ${isAdvancedModeActive ? `
                                 <button class="remove-skill-btn" onclick="window.SetupWizard.confirmRemoveSkillLevel('${trade}', '${role}')">
@@ -522,11 +533,13 @@ window.SetupWizard = (function() {
         const parsedValue = parseFloat(value);
         if (!isNaN(parsedValue) && parsedValue >= 0) {
             projectSettings.allTradeLaborRates[trade][role] = parsedValue;
-            populateWizardStep2LaborRates(); // Re-render to update the display
+            // No need to re-render populateWizardStep2LaborRates() here, as it causes focus issues.
+            // The value is correctly updated in projectSettings, and main app will recalculate on wizard completion.
         } else {
             console.error(`Invalid input for ${trade} ${role} rate: ${value}`);
             const inputId = `rate-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
-            document.getElementById(inputId).value = projectSettings.allTradeLaborRates[trade][role] || 0; // Revert to old value
+            // Revert to old value if input is invalid
+            document.getElementById(inputId).value = parseFloat(projectSettings.allTradeLaborRates[trade][role]) || 0; 
         }
     }
 
