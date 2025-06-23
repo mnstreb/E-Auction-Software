@@ -609,7 +609,7 @@
                                 renderMessageBox('Exporting Client Quote to PDF...');
                                 // Actual client quote PDF generation logic will go here
                             },
-                            onEmailClient: sendEstimateEmailToClient // Connected to the new function
+                            onEmailClient: sendEstimateEmailToClient // Connect to the new function
                         });
                         if (isDarkTheme) {
                             window.AppHeader.updateThemeButton('☀️');
@@ -1236,20 +1236,16 @@
         }
 
 
-        // NEW: Function to send estimate email
+        // NEW: Function to send estimate email (without pre-filled recipient)
         function sendEstimateEmailToClient() {
             // First, ensure all calculations are up-to-date
             calculateTotals(); 
 
-            const recipientEmail = projectSettings.ownerEmail;
+            // Recipient email is intentionally left blank as per request
+            const recipientEmail = ""; 
             const projectName = projectSettings.projectName;
             const clientName = projectSettings.clientName;
-            const grandTotal = formatCurrency(projectSettings.grandTotal); // Use the globally available grandTotal
-
-            if (!recipientEmail || recipientEmail.trim() === "") {
-                renderMessageBox("Please enter the client's email in the Setup Wizard (under Project Information -> Owner Email) to use this feature.");
-                return;
-            }
+            const grandTotal = formatCurrency(projectSettings.grandTotal);
 
             const subject = encodeURIComponent(`Estimate for Your Project: ${projectName}`);
             const body = encodeURIComponent(
@@ -1257,14 +1253,14 @@
                 `Here is a summary of the estimate for your project: "${projectName}".\n\n` +
                 `The estimated Grand Total is: ${grandTotal}.\n\n` +
                 `Please let us know if you have any questions or require further details.\n\n` +
-                `Regards,\n${projectSettings.contractorName || 'Your Company'}` // Assuming contractorName exists or using a fallback
+                `Regards,\n${projectSettings.contractorName || 'Your Company'}` 
             );
 
             const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
 
             // Open the mail client
             window.open(mailtoLink, '_blank');
-            renderMessageBox('Your email client should open with a pre-filled estimate. Please remember to send it!');
+            renderMessageBox('Your email client should open with a pre-filled estimate. Please remember to add a recipient and send it!');
         }
 
 
