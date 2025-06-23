@@ -1205,6 +1205,30 @@
 
             const grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
 
+            // --- DEBUGGING LOGS START ---
+            console.log("--- Debug CalculateTotals ---");
+            console.log("projectSettings.materialMarkup:", projectSettings.materialMarkup, typeof projectSettings.materialMarkup);
+            console.log("totalMaterialCostRaw:", totalMaterialCostRaw, typeof totalMaterialCostRaw);
+            console.log("materialMarkupAmount:", materialMarkupAmount, typeof materialMarkupAmount);
+            console.log("totalProjectCostDirect:", totalProjectCostDirect, typeof totalProjectCostDirect);
+            console.log("baseCostForOverheadMiscProfit:", baseCostForOverheadMiscProfit, typeof baseCostForOverheadMiscProfit);
+            console.log("projectSettings.overhead:", projectSettings.overhead, typeof projectSettings.overhead);
+            console.log("totalOverheadCost:", totalOverheadCost, typeof totalOverheadCost);
+            console.log("projectSettings.miscellaneous:", projectSettings.miscellaneous, typeof projectSettings.miscellaneous);
+            console.log("totalMiscCostAmount:", totalMiscCostAmount, typeof totalMiscCostAmount);
+            console.log("subtotalBeforeProfitTax:", subtotalBeforeProfitTax, typeof subtotalBeforeProfitTax);
+            console.log("projectSettings.profitMargin:", projectSettings.profitMargin, typeof projectSettings.profitMargin);
+            console.log("totalProfitMarginAmount:", totalProfitMarginAmount, typeof totalProfitMarginAmount);
+            console.log("estimateSubtotalAmount:", estimateSubtotalAmount, typeof estimateSubtotalAmount);
+            console.log("salesTaxApplicableBase:", salesTaxApplicableBase, typeof salesTaxApplicableBase);
+            console.log("projectSettings.salesTax:", projectSettings.salesTax, typeof projectSettings.salesTax);
+            console.log("salesTaxAmount:", salesTaxAmount, typeof salesTaxAmount);
+            console.log("projectSettings.additionalConsiderationsValue:", projectSettings.additionalConsiderationsValue, typeof projectSettings.additionalConsiderationsValue);
+            console.log("additionalConsiderationAmount:", additionalConsiderationAmount, typeof additionalConsiderationAmount);
+            console.log("GRAND TOTAL (calculated):", grandTotal, typeof grandTotal);
+            console.log("--- End Debug CalculateTotals ---");
+            // --- DEBUGGING LOGS END ---
+
 
             const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
 
