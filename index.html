@@ -671,7 +671,7 @@
 
                 const script = document.createElement('script');
                 script.src = 'src/sections/SetupWizard/SetupWizard.js';
-                script.onload = () => {
+             script.onload = () => {
                     if (window.SetupWizard) {
                         window.SetupWizard.init({
                             projectSettings: projectSettings,
@@ -1161,32 +1161,11 @@
 
 
             estimateItems.forEach(item => {
-                // --- DEBUGGING ITEM VALUES & INDIVIDUAL TOTALS ---
-                console.log(`--- Item ${item.id} Debug ---`);
-                console.log("Item:", item);
-                console.log("item.hours:", item.hours, typeof item.hours);
-                console.log("item.materialQuantity:", item.materialQuantity, typeof item.materialQuantity);
-                console.log("item.materialUnitCost:", item.materialUnitCost, typeof item.materialUnitCost);
-                console.log("item.equipmentRentalCost:", item.equipmentRentalCost, typeof item.equipmentRentalCost);
-                console.log("item.subcontractorCostLineItem:", item.subcontractorCostLineItem, typeof item.subcontractorCostLineItem);
-                console.log("item.miscLineItem:", item.miscLineItem, typeof item.miscLineItem);
-                console.log("item.otDtMultiplier:", item.otDtMultiplier, typeof item.otDtMultiplier);
-                
                 const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
-                console.log("laborRate (from projectSettings):", laborRate, typeof laborRate);
-                
                 const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
-                console.log("effectiveLaborRate:", effectiveLaborRate, typeof effectiveLaborRate);
-                
                 const laborTotal = item.hours * effectiveLaborRate;
                 const materialsTotal = item.materialQuantity * item.materialUnitCost;
-                const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
                 
-                console.log("laborTotal (for item):", laborTotal, typeof laborTotal);
-                console.log("materialsTotal (for item):", materialsTotal, typeof materialsTotal);
-                console.log("otherCategoryTotal (for item):", otherCategoryTotal, typeof otherCategoryTotal);
-                // --- END DEBUGGING ITEM VALUES & INDIVIDUAL TOTALS ---
-
                 totalLaborCost += laborTotal;
                 totalMaterialCostRaw += materialsTotal;
                 totalEquipmentCost += item.equipmentRentalCost;
@@ -1200,7 +1179,7 @@
             
             const totalProjectCostDirect = totalLaborCost + totalMaterialCostRaw + totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
 
-            // Ensure projectSettings percentages are numbers
+            // Ensure projectSettings percentages are numbers (already done in SetupWizard, but good to reinforce)
             const materialMarkupPercent = parseFloat(projectSettings.materialMarkup) || 0;
             const overheadPercent = parseFloat(projectSettings.overhead) || 0;
             const miscellaneousPercent = parseFloat(projectSettings.miscellaneous) || 0;
@@ -1233,36 +1212,6 @@
             }
 
             const grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
-
-            // --- DEBUGGING TOP-LEVEL TOTALS ---
-            console.log("--- Debug CalculateTotals FINAL ---"); // Renamed for clarity
-            console.log("totalLaborCost:", totalLaborCost, typeof totalLaborCost);
-            console.log("totalMaterialCostRaw:", totalMaterialCostRaw, typeof totalMaterialCostRaw);
-            console.log("totalEquipmentCost:", totalEquipmentCost, typeof totalEquipmentCost);
-            console.log("totalSubcontractorCost:", totalSubcontractorCost, typeof totalSubcontractorCost);
-            console.log("totalMiscLineItemCosts:", totalMiscLineItemCosts, typeof totalMiscLineItemCosts);
-            
-            console.log("materialMarkupPercent (from PS):", materialMarkupPercent, typeof materialMarkupPercent);
-            console.log("materialMarkupAmount:", materialMarkupAmount, typeof materialMarkupAmount);
-            console.log("totalProjectCostDirect:", totalProjectCostDirect, typeof totalProjectCostDirect);
-            console.log("baseCostForOverheadMiscProfit:", baseCostForOverheadMiscProfit, typeof baseCostForOverheadMiscProfit);
-            console.log("overheadPercent (from PS):", overheadPercent, typeof overheadPercent);
-            console.log("totalOverheadCost:", totalOverheadCost, typeof totalOverheadCost);
-            console.log("miscellaneousPercent (from PS):", miscellaneousPercent, typeof miscellaneousPercent);
-            console.log("totalMiscCostAmount:", totalMiscCostAmount, typeof totalMiscCostAmount);
-            console.log("subtotalBeforeProfitTax:", subtotalBeforeProfitTax, typeof subtotalBeforeProfitTax);
-            console.log("profitMarginPercent (from PS):", profitMarginPercent, typeof profitMarginPercent);
-            console.log("totalProfitMarginAmount:", totalProfitMarginAmount, typeof totalProfitMarginAmount);
-            console.log("estimateSubtotalAmount:", estimateSubtotalAmount, typeof estimateSubtotalAmount);
-            console.log("salesTaxApplicableBase:", salesTaxApplicableBase, typeof salesTaxApplicableBase);
-            console.log("salesTaxPercent (from PS):", salesTaxPercent, typeof salesTaxPercent);
-            console.log("salesTaxAmount:", salesTaxAmount, typeof salesTaxAmount);
-            console.log("additionalConsiderationsValue (from PS):", additionalConsiderationsValue, typeof additionalConsiderationsValue);
-            console.log("additionalConsiderationAmount:", additionalConsiderationAmount, typeof additionalConsiderationAmount);
-            console.log("GRAND TOTAL (calculated):", grandTotal, typeof grandTotal);
-            console.log("--- End Debug CalculateTotals FINAL ---");
-            // --- END DEBUGGING LOGS ---
-
 
             const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
 
@@ -1303,14 +1252,14 @@
             const recipientEmail = ""; 
             const projectName = projectSettings.projectName;
             const clientName = projectSettings.clientName;
-            const grandTotal = formatCurrency(projectSettings.grandTotal);
-
+            
+            // Removed grandTotal from here as per user request
             const subject = encodeURIComponent(`Estimate for Your Project: ${projectName}`);
             const body = encodeURIComponent(
                 `Dear ${clientName || 'Client'},\n\n` +
-                `Here is a summary of the estimate for your project: "${projectName}".\n\n` +
-                `The estimated Grand Total is: ${grandTotal}.\n\n` +
-                `Please let us know if you have any questions or require further details.\n\n` +
+                `This email contains a summary of the estimate for your project: "${projectName}".\n\n` +
+                `A detailed quote will be provided in a separate attachment or document.\n\n` +
+                `Please let us know if you have any questions.\n\n` +
                 `Regards,\n${projectSettings.contractorName || 'Your Company'}` 
             );
 
