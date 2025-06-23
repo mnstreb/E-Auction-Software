@@ -16,16 +16,22 @@
         <button id="themeToggleBtn" class="btn btn-primary">🌙</button>
         <button id="reconfigureBtn" class="btn btn-primary">⚙️ Reconfigure</button>
 
-        <!-- Generate Report Dropdown (New Structure) -->
+        <!-- Generate Report Dropdown -->
         <div class="dropdown-container relative">
             <button id="generateReportBtn" class="btn btn-green">Generate Report ▼</button>
             <div id="reportDropdownMenu" class="dropdown-menu"> 
-                <!-- Removed 'hidden' class from here. CSS will control initial visibility. -->
-                <button id="exportPdfBtn" class="dropdown-item">Export as PDF</button>
+                <button id="exportPdfReportBtn" class="dropdown-item">Export as PDF (Detailed)</button>
                 <button id="exportCsvBtn" class="dropdown-item">Export as CSV/XLX</button>
+            </div>
+        </div>
+
+        <!-- NEW: Generate Professional Quote Dropdown -->
+        <div class="dropdown-container relative">
+            <button id="generateQuoteBtn" class="btn btn-orange">Generate Professional Quote ▼</button>
+            <div id="quoteDropdownMenu" class="dropdown-menu">
+                <button id="exportPdfQuoteBtn" class="dropdown-item">Export as PDF (Client Quote)</button>
                 <button id="emailClientBtn" class="dropdown-item">Email Directly To Client</button>
             </div>
         </div>
     </div>
 </div>
-
