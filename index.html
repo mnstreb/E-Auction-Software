@@ -112,7 +112,7 @@
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
             transition: border-color 0.3s;
-            vertical-align: middle; /* Re-added to vertically align cell content within the row */
+            vertical-align: middle; /* Essential for aligning td content */
         }
         th {
             background: #f3f4f6;
@@ -308,22 +308,20 @@
             transition: color 0.3s;
         }
         
-        /* Updated: Styles for the actions-cell */
+        /* Simpler style for actions-cell, relying on inner div for flex */
         #estimateTableBody td.actions-cell {
-            padding: 8px 10px; /* Adjust padding as needed */
-            display: flex;
-            align-items: center; /* Vertically centers the buttons within this flex container */
-            justify-content: flex-end; /* Aligns buttons to the right of the cell */
-            /* Removed height: 100% and min-height as vertical-align on TD should handle parent height */
-            box-sizing: border-box; /* Include padding in height calculation */
-            gap: 8px; /* Control spacing between buttons */
+            /* Padding already handled by general td rule */
+            /* Do not set display: flex here */
+            text-align: right; /* Ensure content is right-aligned initially */
+            white-space: nowrap; /* Prevent buttons from wrapping */
         }
 
+        /* Styles for the buttons and their SVG icons */
         #estimateTableBody td button.btn-red,
         #estimateTableBody td button.btn-orange { 
             padding: 6px 10px;
             font-size: 0.85em;
-            display: flex; 
+            display: flex; /* Make buttons themselves flex for icon centering */
             align-items: center;
             justify-content: center;
         }
@@ -1177,13 +1175,15 @@
                     <td data-label="Other Total">${formatCurrency(otherCategoryTotal)}</td>
                     
                     <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
-                    <td class="actions-cell flex items-center gap-2"> 
-                        <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                        </button>
-                        <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-                        </button>
+                    <td class="actions-cell"> 
+                        <div class="flex items-center justify-end gap-2 h-full w-full"> <!-- NEW wrapper div with flex, height, width -->
+                            <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                            <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                            </button>
+                        </div>
                     </td>
                 `;
                 estimateTableBody.appendChild(row);
@@ -1423,3 +1423,4 @@
     </script>
 </body>
 </html>
+
