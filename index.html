@@ -112,7 +112,7 @@
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
             transition: border-color 0.3s;
-            vertical-align: middle; /* Ensures all cell content is vertically centered */
+            /* Removed vertical-align: middle; from here, actions-cell will handle it */
         }
         th {
             background: #f3f4f6;
@@ -308,35 +308,35 @@
             transition: color 0.3s;
         }
         
-        /* New CSS for the actions-cell to ensure vertical centering */
+        /* NEW: Styles for the actions-cell to ensure perfect vertical centering */
         #estimateTableBody td.actions-cell {
+            padding: 8px 10px; /* Reset padding to match other dynamic cells if needed */
             display: flex;
-            align-items: center; /* Vertically center buttons */
-            justify-content: center; /* Horizontally center buttons */
-            padding: 0 10px; /* Adjust padding as flex handles spacing now */
-            height: 100%; /* Ensure it tries to take full height of row */
-            min-height: 40px; /* A minimum height to prevent squishing on very short rows */
-            box-sizing: border-box;
+            align-items: center; /* Vertically centers the buttons within this flex container */
+            justify-content: center; /* Horizontally centers the buttons */
+            height: 100%; /* Important: Makes the flex container fill the TD's height */
+            box-sizing: border-box; /* Include padding in height calculation */
+            gap: 8px; /* Control spacing between buttons as before */
         }
 
         #estimateTableBody td button.btn-red,
-        #estimateTableBody td button.btn-orange { /* Added btn-orange here */
+        #estimateTableBody td button.btn-orange { 
             padding: 6px 10px;
             font-size: 0.85em;
-            display: flex; /* Use flex for centering SVG */
+            display: flex; 
             align-items: center;
             justify-content: center;
         }
         #estimateTableBody td button.btn-red svg,
         #estimateTableBody td button.btn-orange svg {
-            width: 16px; /* Adjust SVG size */
-            height: 16px; /* Adjust SVG size */
-            stroke: currentColor; /* Inherit color from button text */
+            width: 16px; 
+            height: 16px; 
+            stroke: currentColor; 
             stroke-width: 2;
         }
         /* Specific override for delete icon to be bolder and centered */
         #estimateTableBody td button.btn-red svg {
-             stroke-width: 3; /* Make 'x' bolder */
+             stroke-width: 3; 
         }
 
 
@@ -1177,7 +1177,7 @@
                     <td data-label="Other Total">${formatCurrency(otherCategoryTotal)}</td>
                     
                     <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
-                    <td class="actions-cell"> <!-- Added actions-cell class here -->
+                    <td class="actions-cell flex items-center gap-2"> <!-- Added actions-cell here -->
                         <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                         </button>
