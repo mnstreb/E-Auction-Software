@@ -112,7 +112,7 @@
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
             transition: border-color 0.3s;
-            vertical-align: middle; /* ADDED: Ensures all cell content is vertically centered */
+            vertical-align: middle; /* Ensures all cell content is vertically centered */
         }
         th {
             background: #f3f4f6;
@@ -308,6 +308,17 @@
             transition: color 0.3s;
         }
         
+        /* New CSS for the actions-cell to ensure vertical centering */
+        #estimateTableBody td.actions-cell {
+            display: flex;
+            align-items: center; /* Vertically center buttons */
+            justify-content: center; /* Horizontally center buttons */
+            padding: 0 10px; /* Adjust padding as flex handles spacing now */
+            height: 100%; /* Ensure it tries to take full height of row */
+            min-height: 40px; /* A minimum height to prevent squishing on very short rows */
+            box-sizing: border-box;
+        }
+
         #estimateTableBody td button.btn-red,
         #estimateTableBody td button.btn-orange { /* Added btn-orange here */
             padding: 6px 10px;
@@ -1166,7 +1177,7 @@
                     <td data-label="Other Total">${formatCurrency(otherCategoryTotal)}</td>
                     
                     <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
-                    <td class="flex items-center gap-2">
+                    <td class="actions-cell"> <!-- Added actions-cell class here -->
                         <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                         </button>
@@ -1370,7 +1381,7 @@
                     }
                 }
             }
-            adjustTableMinWidth(); // Adjust table width based on initial column state
+            adjustTableMinWidth();
         });
 
         function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
