@@ -311,7 +311,22 @@
         #estimateTableBody td button.btn-orange { /* Added btn-orange here */
             padding: 6px 10px;
             font-size: 0.85em;
+            display: flex; /* Use flex for centering SVG */
+            align-items: center;
+            justify-content: center;
         }
+        #estimateTableBody td button.btn-red svg,
+        #estimateTableBody td button.btn-orange svg {
+            width: 16px; /* Adjust SVG size */
+            height: 16px; /* Adjust SVG size */
+            stroke: currentColor; /* Inherit color from button text */
+            stroke-width: 2;
+        }
+        /* Specific override for delete icon to be bolder and centered */
+        #estimateTableBody td button.btn-red svg {
+             stroke-width: 3; /* Make 'x' bolder */
+        }
+
 
         .collapsible-header {
             display: flex;
@@ -1151,8 +1166,12 @@
                     
                     <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
                     <td class="flex items-center gap-2">
-                        <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">📋</button>
-                        <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">🗑️</button>
+                        <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                        <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                        </button>
                     </td>
                 `;
                 estimateTableBody.appendChild(row);
