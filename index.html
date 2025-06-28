@@ -307,7 +307,8 @@
             transition: color 0.3s;
         }
         
-        #estimateTableBody td button.btn-red {
+        #estimateTableBody td button.btn-red,
+        #estimateTableBody td button.btn-orange { /* Added btn-orange here */
             padding: 6px 10px;
             font-size: 0.85em;
         }
@@ -1042,6 +1043,41 @@
             renderItems();
         }
 
+        /**
+         * Duplicates an existing item and inserts it directly after the original.
+         * @param {number} id - The ID of the item to duplicate.
+         */
+        function duplicateItem(id) {
+            const itemToDuplicateIndex = estimateItems.findIndex(item => item.id === id);
+
+            if (itemToDuplicateIndex !== -1) {
+                const originalItem = estimateItems[itemToDuplicateIndex];
+                // Create a deep copy to ensure independence
+                const duplicatedItem = JSON.parse(JSON.stringify(originalItem));
+                duplicatedItem.id = Date.now(); // Assign a new unique ID
+
+                // Insert the duplicated item right after the original
+                estimateItems.splice(itemToDuplicateIndex + 1, 0, duplicatedItem);
+                renderItems();
+
+                // Optional: Scroll to the new item and/or highlight it briefly
+                // This requires a slight delay to allow rendering
+                setTimeout(() => {
+                    const newItemElement = document.querySelector(`tr[data-id="${duplicatedItem.id}"]`);
+                    if (newItemElement) {
+                        newItemElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        newItemElement.style.transition = 'background-color 0.5s ease-in-out';
+                        newItemElement.style.backgroundColor = 'rgba(144, 238, 144, 0.3)'; // Light green highlight
+                        setTimeout(() => {
+                            newItemElement.style.backgroundColor = ''; // Remove highlight
+                            newItemElement.style.transition = ''; // Remove transition
+                        }, 1000);
+                    }
+                }, 50);
+            }
+        }
+
+
         function updateItem(id, field, value) {
             const item = estimateItems.find(item => item.id === id);
             if (item) {
@@ -1078,6 +1114,7 @@
                 totalLaborHoursVal += item.hours;
 
                 const row = document.createElement('tr');
+                row.setAttribute('data-id', item.id); // Add data-id for easy selection after duplication
                 row.innerHTML = `
                     <td data-label="Task Name"><textarea rows="2" onchange="updateItem(${item.id}, 'taskName', this.value)" class="input-field">${item.taskName}</textarea></td>
                     <td data-label="Description"><textarea rows="2" onchange="updateItem(${item.id}, 'description', this.value)" class="input-field">${item.description}</textarea></td>
@@ -1113,7 +1150,10 @@
                     <td data-label="Other Total">${formatCurrency(otherCategoryTotal)}</td>
                     
                     <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
-                    <td><button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})">🗑️</button></td>
+                    <td class="flex items-center gap-2">
+                        <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">📋</button>
+                        <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">🗑️</button>
+                    </td>
                 `;
                 estimateTableBody.appendChild(row);
             });
