@@ -82,7 +82,7 @@ body.dark-theme .header-subtitle {
     color: #a0aec0; /* Lighter grey for dark theme subtitle */
 }
 
-/* New Dropdown Styles */
+/* Dropdown Styles */
 .dropdown-container {
     position: relative; /* Essential for positioning the dropdown menu */
 }
@@ -128,13 +128,20 @@ body.dark-theme .header-subtitle {
     font-size: 15px;
     color: #374151;
     transition: background-color 0.2s ease, color 0.2s ease;
-    /* Removed gap as there are no emojis here to gap */
 }
 
 .dropdown-item:hover {
     background-color: #e0f2fe; /* Light blue on hover */
     color: #2563eb;
 }
+
+/* NEW: Styles for the dropdown divider */
+.dropdown-divider {
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 8px 0; /* Vertical spacing for the divider */
+}
+
 
 /* Dark Theme Dropdown Styles */
 body.dark-theme .dropdown-menu {
@@ -149,4 +156,8 @@ body.dark-theme .dropdown-item {
 body.dark-theme .dropdown-item:hover {
     background-color: #4a5568; /* Darker blue on hover */
     color: #63b3ed;
+}
+
+body.dark-theme .dropdown-divider {
+    background-color: #4a5568; /* Darker divider in dark theme */
 }
