@@ -620,7 +620,7 @@
                             userProfileBtnId: 'userProfileBtn',
                             userProfileDropdownMenuId: 'userProfileDropdownMenu', 
                             profileDropdownThemeToggleId: 'profileDropdownThemeToggle', 
-                            savedProjectsMenuItemId: 'savedProjectsMenuItem', // NEW ID passed here
+                            savedProjectsMenuItemId: 'savedProjectsMenuItem', 
                             // Report Dropdown IDs (now nested under export)
                             exportPdfReportBtnId: 'exportPdfReportBtn',
                             exportCsvBtnId: 'exportCsvBtn',
@@ -750,8 +750,8 @@
                         window.SavedProjects.init({
                             // Pass necessary data/callbacks to SavedProjects module
                             onGoToCalculator: showMainApp, // Callback to return to the main calculator
-                            // For now, no actual data loading will happen here, just UI.
-                            // Firebase integration will add data loading later.
+                            formatCurrency: formatCurrency, // NEW: Pass formatCurrency
+                            isDarkTheme: isDarkTheme // NEW: Pass isDarkTheme
                         });
                         // Once loaded, if the view is set to saved projects, show it.
                         document.getElementById('savedProjectsPlaceholder').classList.remove('hidden');
@@ -988,6 +988,10 @@
             if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
             }
+            // Trigger SavedProjects to update its chart based on new theme
+            if (window.SavedProjects && typeof window.SavedProjects.updateCustomerTotalsChart === 'function') {
+                window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
+            }
         }
 
         // --- View Management Functions (Show/Hide Sections) ---
@@ -1092,6 +1096,11 @@
                 loadSavedProjects();
             } else {
                 savedProjectsPlaceholder.classList.remove('hidden');
+                // If it was already loaded, make sure its contents are re-rendered/updated
+                if (window.SavedProjects && typeof window.SavedProjects.renderProjects === 'function') {
+                     window.SavedProjects.renderProjects(window.SavedProjects.getSavedProjectsData()); // Render with current data
+                     window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme); // Update chart
+                }
             }
             closeMessageBox(); 
         }
