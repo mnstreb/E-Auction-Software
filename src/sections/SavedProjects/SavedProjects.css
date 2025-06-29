@@ -1,142 +1,76 @@
-/* src/sections/SavedProjects/SavedProjects.css */
+/* src/components/SaveProjectModal/SaveProjectModal.css */
 
-.saved-projects-container {
+.save-project-modal {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 1001; /* Ensure it's above other content and backdrop-filter */
     backdrop-filter: blur(5px);
     padding: 20px;
     box-sizing: border-box;
-    overflow-y: auto; /* Allow scrolling if content overflows */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
 }
 
-.saved-projects-content {
-    /* Inherits card styles, but can add specifics here if needed */
-    max-width: 1000px; /* Adjust max-width for the dashboard */
+.save-project-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.save-project-modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    max-width: 500px;
     width: 100%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    /* transition is already on .card */
-    padding: 40px; /* More padding for a dashboard look */
+    gap: 20px;
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
-.projects-list {
-    /* Grid properties defined in HTML, just ensure proper styling for cards */
-    width: 100%; /* Ensure it takes full width within content */
-}
-
-.project-card {
-    background: #f8fafc; /* Light background for individual cards */
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    transition: all 0.2s ease-in-out;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Push buttons to bottom */
-}
-
-.project-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-}
-
-.project-card h3 {
-    color: #1f2937;
+.save-project-modal-content h3 {
     margin-top: 0;
-    margin-bottom: 8px;
+    text-align: center;
+    font-size: 1.8rem;
+    color: #1f2937;
+    transition: color 0.3s;
 }
 
-.project-card p {
-    margin-bottom: 4px;
-    line-height: 1.4;
+.save-project-modal-content .form-group {
+    margin-bottom: 0; /* Override default form-group margin */
 }
 
-.project-card .status-select {
-    max-width: 150px; /* Limit width of status dropdown */
-    padding: 4px 8px; /* Smaller padding for status select */
-    height: auto; /* Allow height to adjust */
-    font-size: 0.875rem; /* Smaller font size */
-}
-
-.project-card .btn-sm {
-    padding: 8px 15px; /* Smaller padding for load/delete buttons */
-    font-size: 0.9em;
+.save-project-modal-content .value-display {
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
     border-radius: 8px;
+    background-color: #f3f4f6; /* Light gray background for display fields */
+    color: #4b5563;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: not-allowed; /* Indicate it's not directly editable */
 }
 
-/* Styles for the small chart container */
-.chart-container-small {
-    padding: 20px; /* Smaller padding than main cards */
-    width: 100%;
-    max-width: 300px; /* Max width for chart card */
-    box-sizing: border-box;
-    min-height: 250px; /* Ensure minimum height for chart */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.chart-container-small h4 {
-    margin-top: 0; /* Remove default margin */
-}
-
-.chart-canvas-small {
-    max-width: 100%;
-    max-height: 180px; /* Max height for the canvas itself */
-    width: auto;
-    height: auto;
-}
-
-/* Dark Theme Specifics for Saved Projects */
-body.dark-theme .saved-projects-content h2,
-body.dark-theme .saved-projects-content h4 {
-    color: #e2e8f0;
-}
-body.dark-theme .saved-projects-content p {
-    color: #a0aec0;
-}
-
-body.dark-theme .project-card {
+/* Dark Theme for Save Project Modal */
+body.dark-theme .save-project-modal-content {
     background: #2d3748;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }
-
-body.dark-theme .project-card:hover {
-    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-}
-
-body.dark-theme .project-card h3 {
+body.dark-theme .save-project-modal-content h3 {
     color: #e2e8f0;
 }
-
-body.dark-theme .project-card p.text-gray-600 {
-    color: #a0aec0; /* Ensure text within p tags is light grey */
-}
-
-body.dark-theme .project-card .status-select {
+body.dark-theme .save-project-modal-content .value-display {
     background-color: #4a5568;
     border-color: #4a5568;
     color: #e2e8f0;
 }
-
-body.dark-theme .chart-container-small h4 {
-    color: #e2e8f0;
-}
-
-body.dark-theme #noCustomerDataMessage,
-body.dark-theme #noProjectsMessage {
-    color: #a0aec0;
-}
-
-
