@@ -5,12 +5,14 @@ window.AppHeader = (function() {
     let mainAppDefaultIcon;
     let projectTypeDisplayElem;
     let projectNameDisplayElem;
-    let themeToggleBtnElem;
+    // Removed themeToggleBtnElem as it's replaced by a slider in dropdown
     let reconfigureBtnElem;
     let saveProjectBtnElem;
-    let exportDropdownBtnElem; // NEW: Reference for the main Export button
-    let exportDropdownMenuElem; // NEW: Reference for the Export dropdown menu
-    let userProfileBtnElem; // NEW: Reference for the User Profile button
+    let exportDropdownBtnElem; // Reference for the main Export button
+    let exportDropdownMenuElem; // Reference for the Export dropdown menu
+    let userProfileBtnElem; // Reference for the User Profile button
+    let userProfileDropdownMenuElem; // NEW: Reference for the User Profile dropdown menu
+    let profileDropdownThemeToggleElem; // NEW: Reference for the theme toggle checkbox in profile dropdown
     
     // Removed direct references to old report/quote buttons; now they are dropdown items
     let exportPdfReportBtnElem;
@@ -25,19 +27,20 @@ window.AppHeader = (function() {
     let onExportCsvCallback;
     let onExportPdfQuoteCallback;
     let onEmailClientCallback;
-    let onUserProfileClickCallback; // NEW: Callback for user profile button
+    let onUserProfileClickCallback; // Callback for user profile button
 
     /**
      * Initializes the AppHeader component by getting element references and
      * setting up event listeners.
      * @param {object} config - Configuration object.
      * @param {string} config.mainAppLogoId - ID for the main application logo image.
-     * @param {string} config.themeToggleBtnId - ID for the theme toggle button.
      * @param {string} config.reconfigureBtnId - ID for the reconfigure button.
      * @param {string} config.saveProjectBtnId - ID for the save project button.
-     * @param {string} config.exportDropdownBtnId - NEW: ID for the main Export button.
-     * @param {string} config.exportDropdownMenuId - NEW: ID for the Export dropdown menu container.
-     * @param {string} config.userProfileBtnId - NEW: ID for the user profile button.
+     * @param {string} config.exportDropdownBtnId - ID for the main Export button.
+     * @param {string} config.exportDropdownMenuId - ID for the Export dropdown menu container.
+     * @param {string} config.userProfileBtnId - ID for the user profile button.
+     * @param {string} config.userProfileDropdownMenuId - NEW: ID for the user profile dropdown menu.
+     * @param {string} config.profileDropdownThemeToggleId - NEW: ID for the theme toggle checkbox in profile dropdown.
      * @param {string} config.exportPdfReportBtnId - ID for the Export as PDF (Detailed Report) button.
      * @param {string} config.exportCsvBtnId - ID for the Export as CSV/XLX button.
      * @param {string} config.exportPdfQuoteBtnId - ID for the Export as PDF (Client Quote) button.
@@ -49,19 +52,21 @@ window.AppHeader = (function() {
      * @param {function} config.onExportCsv - Callback for Export as CSV/XLX action.
      * @param {function} config.onExportPdfQuote - Callback for Export as PDF (Client Quote) action.
      * @param {function} config.onEmailClient - Callback for Email Client Quote action.
-     * @param {function} config.onUserProfileClick - NEW: Callback for user profile button click.
+     * @param {function} config.onUserProfileClick - Callback for user profile button click.
      */
     function init(config) {
         mainAppLogoElem = document.getElementById(config.mainAppLogoId);
         mainAppDefaultIcon = document.getElementById('mainAppDefaultIcon'); // Static ID
         projectTypeDisplayElem = document.getElementById('projectTypeDisplay');
         projectNameDisplayElem = document.getElementById('projectNameDisplay');
-        themeToggleBtnElem = document.getElementById(config.themeToggleBtnId);
+        // themeToggleBtnElem = document.getElementById(config.themeToggleBtnId); // Removed
         reconfigureBtnElem = document.getElementById(config.reconfigureBtnId);
         saveProjectBtnElem = document.getElementById(config.saveProjectBtnId);
-        exportDropdownBtnElem = document.getElementById(config.exportDropdownBtnId); // NEW
-        exportDropdownMenuElem = document.getElementById(config.exportDropdownMenuId); // NEW
-        userProfileBtnElem = document.getElementById(config.userProfileBtnId); // NEW
+        exportDropdownBtnElem = document.getElementById(config.exportDropdownBtnId);
+        exportDropdownMenuElem = document.getElementById(config.exportDropdownMenuId);
+        userProfileBtnElem = document.getElementById(config.userProfileBtnId);
+        userProfileDropdownMenuElem = document.getElementById(config.userProfileDropdownMenuId); // NEW
+        profileDropdownThemeToggleElem = document.getElementById(config.profileDropdownThemeToggleId); // NEW
         
         // Dropdown menu item references (now consolidated under 'Export')
         exportPdfReportBtnElem = document.getElementById(config.exportPdfReportBtnId);
@@ -77,12 +82,12 @@ window.AppHeader = (function() {
         onExportCsvCallback = config.onExportCsv;
         onExportPdfQuoteCallback = config.onExportPdfQuote;
         onEmailClientCallback = config.onEmailClient;
-        onUserProfileClickCallback = config.onUserProfileClick; // NEW: Assign user profile callback
+        onUserProfileClickCallback = config.onUserProfileClick;
 
         // Set up event listeners
-        if (themeToggleBtnElem) {
-            themeToggleBtnElem.addEventListener('click', onThemeToggleCallback);
-        }
+        // if (themeToggleBtnElem) { // Removed old theme toggle button listener
+        //     themeToggleBtnElem.addEventListener('click', onThemeToggleCallback);
+        // }
         if (reconfigureBtnElem) {
             reconfigureBtnElem.addEventListener('click', onReconfigureCallback);
         }
@@ -90,17 +95,16 @@ window.AppHeader = (function() {
             saveProjectBtnElem.addEventListener('click', onSaveProjectCallback);
         }
         
-        // NEW: Export Dropdown button listener
+        // Export Dropdown button listener
         if (exportDropdownBtnElem) {
             exportDropdownBtnElem.addEventListener('click', (event) => {
                 event.stopPropagation(); // Prevent document click listener from immediately closing
                 toggleDropdown(exportDropdownMenuElem);
-                // If you add other dropdowns later (e.g., user profile dropdown), hide them here:
-                // hideDropdown(userProfileDropdownMenuElem);
+                hideDropdown(userProfileDropdownMenuElem); // Hide other dropdowns if open
             });
         }
 
-        // NEW: Export Dropdown menu item listeners
+        // Export Dropdown menu item listeners
         if (exportPdfReportBtnElem) {
             exportPdfReportBtnElem.addEventListener('click', (event) => {
                 onExportPdfReportCallback();
@@ -130,11 +134,15 @@ window.AppHeader = (function() {
         if (userProfileBtnElem) {
             userProfileBtnElem.addEventListener('click', (event) => {
                 event.stopPropagation(); // Prevent document click listener from immediately closing
-                onUserProfileClickCallback(); // Call the callback for user profile click
-                // If you add a user profile dropdown later, toggle it here:
-                // toggleDropdown(userProfileDropdownMenuElem);
+                toggleDropdown(userProfileDropdownMenuElem); // Toggle this dropdown
+                onUserProfileClickCallback(); // Call the callback for user profile click (e.g., show saved projects)
                 hideDropdown(exportDropdownMenuElem); // Hide other dropdowns if open
             });
+        }
+
+        // NEW: Theme Toggle Slider listener inside the profile dropdown
+        if (profileDropdownThemeToggleElem) {
+            profileDropdownThemeToggleElem.addEventListener('change', onThemeToggleCallback);
         }
 
 
@@ -144,18 +152,16 @@ window.AppHeader = (function() {
             const isClickOutsideExport = !(exportDropdownBtnElem && exportDropdownBtnElem.contains(event.target)) && 
                                          !(exportDropdownMenuElem && exportDropdownMenuElem.contains(event.target));
             
-            // Check if click is outside user profile button (and its future dropdown)
-            const isClickOutsideUserProfile = !(userProfileBtnElem && userProfileBtnElem.contains(event.target));
-            // Add check for user profile dropdown if it gets one later:
-            // && !(userProfileDropdownMenuElem && userProfileDropdownMenuElem.contains(event.target));
+            // NEW: Check if click is outside user profile dropdown and its button
+            const isClickOutsideUserProfile = !(userProfileBtnElem && userProfileBtnElem.contains(event.target)) &&
+                                              !(userProfileDropdownMenuElem && userProfileDropdownMenuElem.contains(event.target));
 
             if (isClickOutsideExport) {
                 hideDropdown(exportDropdownMenuElem);
             }
-            // If user profile gets a dropdown, add similar logic here:
-            // if (isClickOutsideUserProfile) {
-            //     hideDropdown(userProfileDropdownMenuElem);
-            // }
+            if (isClickOutsideUserProfile) { // NEW
+                hideDropdown(userProfileDropdownMenuElem);
+            }
         });
     }
 
@@ -213,13 +219,18 @@ window.AppHeader = (function() {
     }
 
     /**
-     * Updates the text/icon of the theme toggle button.
-     * @param {string} icon - The icon/text to display (e.g., '☀️' or '🌙').
+     * Updates the state of the theme toggle slider in the profile dropdown.
+     * This function is called by the main script's toggleTheme().
+     * @param {boolean} isDark - True if dark theme is active, false otherwise.
      */
-    function updateThemeButton(icon) {
-        if (themeToggleBtnElem) {
-            themeToggleBtnElem.textContent = icon;
+    function updateThemeToggleSlider(isDark) {
+        if (profileDropdownThemeToggleElem) {
+            // If isDark is true, the checkbox should be unchecked (to show light mode state on slider)
+            // If isDark is false (light theme active), the checkbox should be checked (to show light mode state on slider)
+            profileDropdownThemeToggleElem.checked = !isDark;
         }
+        // No direct update to user icon SVG needed here as its color is handled by CSS based on body.dark-theme
+        // If the SVG itself changed shape based on theme, that logic would go here.
     }
 
     // Expose public methods
@@ -227,6 +238,6 @@ window.AppHeader = (function() {
         init: init,
         updateProjectInfo: updateProjectInfo,
         updateLogo: updateLogo,
-        updateThemeButton: updateThemeButton
+        updateThemeToggleSlider: updateThemeToggleSlider // NEW exposed function
     };
 })();
