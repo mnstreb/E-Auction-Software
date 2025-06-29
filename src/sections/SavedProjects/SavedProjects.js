@@ -146,7 +146,7 @@ window.SavedProjects = (function() {
         }
         // Sort projects alphabetically by project name for consistency
         savedProjectsData.sort((a, b) => a.projectName.localeCompare(b.projectName));
-        filterAndRenderProjects(); // Re-filter and re-render the displayed list
+        filterAndRenderProjects(isDarkTheme); // Re-filter and re-render the displayed list
     }
 
     /**
