@@ -13,8 +13,8 @@ window.AppHeader = (function() {
     let userProfileBtnElem; // Reference for the User Profile button
     let userProfileDropdownMenuElem; // NEW: Reference for the User Profile dropdown menu
     let profileDropdownThemeToggleElem; // NEW: Reference for the theme toggle checkbox in profile dropdown
+    let savedProjectsMenuItemElem; // NEW: Reference for the Saved Projects menu item
     
-    // Removed direct references to old report/quote buttons; now they are dropdown items
     let exportPdfReportBtnElem;
     let exportCsvBtnElem;
     let exportPdfQuoteBtnElem;
@@ -27,7 +27,7 @@ window.AppHeader = (function() {
     let onExportCsvCallback;
     let onExportPdfQuoteCallback;
     let onEmailClientCallback;
-    let onUserProfileClickCallback; // Callback for user profile button
+    let onUserProfileClickCallback; // Callback for showing saved projects
 
     /**
      * Initializes the AppHeader component by getting element references and
@@ -41,6 +41,7 @@ window.AppHeader = (function() {
      * @param {string} config.userProfileBtnId - ID for the user profile button.
      * @param {string} config.userProfileDropdownMenuId - NEW: ID for the user profile dropdown menu.
      * @param {string} config.profileDropdownThemeToggleId - NEW: ID for the theme toggle checkbox in profile dropdown.
+     * @param {string} config.savedProjectsMenuItemId - NEW: ID for the Saved Projects menu item in profile dropdown.
      * @param {string} config.exportPdfReportBtnId - ID for the Export as PDF (Detailed Report) button.
      * @param {string} config.exportCsvBtnId - ID for the Export as CSV/XLX button.
      * @param {string} config.exportPdfQuoteBtnId - ID for the Export as PDF (Client Quote) button.
@@ -52,7 +53,7 @@ window.AppHeader = (function() {
      * @param {function} config.onExportCsv - Callback for Export as CSV/XLX action.
      * @param {function} config.onExportPdfQuote - Callback for Export as PDF (Client Quote) action.
      * @param {function} config.onEmailClient - Callback for Email Client Quote action.
-     * @param {function} config.onUserProfileClick - Callback for user profile button click.
+     * @param {function} config.onUserProfileClick - Callback for showing saved projects component.
      */
     function init(config) {
         mainAppLogoElem = document.getElementById(config.mainAppLogoId);
@@ -67,6 +68,7 @@ window.AppHeader = (function() {
         userProfileBtnElem = document.getElementById(config.userProfileBtnId);
         userProfileDropdownMenuElem = document.getElementById(config.userProfileDropdownMenuId); // NEW
         profileDropdownThemeToggleElem = document.getElementById(config.profileDropdownThemeToggleId); // NEW
+        savedProjectsMenuItemElem = document.getElementById(config.savedProjectsMenuItemId); // NEW
         
         // Dropdown menu item references (now consolidated under 'Export')
         exportPdfReportBtnElem = document.getElementById(config.exportPdfReportBtnId);
@@ -135,7 +137,6 @@ window.AppHeader = (function() {
             userProfileBtnElem.addEventListener('click', (event) => {
                 event.stopPropagation(); // Prevent document click listener from immediately closing
                 toggleDropdown(userProfileDropdownMenuElem); // Toggle this dropdown
-                onUserProfileClickCallback(); // Call the callback for user profile click (e.g., show saved projects)
                 hideDropdown(exportDropdownMenuElem); // Hide other dropdowns if open
             });
         }
@@ -143,6 +144,14 @@ window.AppHeader = (function() {
         // NEW: Theme Toggle Slider listener inside the profile dropdown
         if (profileDropdownThemeToggleElem) {
             profileDropdownThemeToggleElem.addEventListener('change', onThemeToggleCallback);
+        }
+
+        // NEW: Saved Projects menu item listener
+        if (savedProjectsMenuItemElem) {
+            savedProjectsMenuItemElem.addEventListener('click', (event) => {
+                onUserProfileClickCallback(); // Call the callback to show saved projects component
+                hideDropdown(userProfileDropdownMenuElem); // Hide the profile dropdown after click
+            });
         }
 
 
@@ -225,12 +234,10 @@ window.AppHeader = (function() {
      */
     function updateThemeToggleSlider(isDark) {
         if (profileDropdownThemeToggleElem) {
-            // If isDark is true, the checkbox should be unchecked (to show light mode state on slider)
-            // If isDark is false (light theme active), the checkbox should be checked (to show light mode state on slider)
+            // If isDark is true, the checkbox should be unchecked (to visually represent dark mode on slider)
+            // If isDark is false (light theme active), the checkbox should be checked (to visually represent light mode on slider)
             profileDropdownThemeToggleElem.checked = !isDark;
         }
-        // No direct update to user icon SVG needed here as its color is handled by CSS based on body.dark-theme
-        // If the SVG itself changed shape based on theme, that logic would go here.
     }
 
     // Expose public methods
