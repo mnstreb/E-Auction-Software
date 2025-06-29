@@ -1,1 +1,142 @@
+/* src/sections/SavedProjects/SavedProjects.css */
+
+.saved-projects-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+.saved-projects-content {
+    /* Inherits card styles, but can add specifics here if needed */
+    max-width: 1000px; /* Adjust max-width for the dashboard */
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* transition is already on .card */
+    padding: 40px; /* More padding for a dashboard look */
+}
+
+.projects-list {
+    /* Grid properties defined in HTML, just ensure proper styling for cards */
+    width: 100%; /* Ensure it takes full width within content */
+}
+
+.project-card {
+    background: #f8fafc; /* Light background for individual cards */
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Push buttons to bottom */
+}
+
+.project-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+.project-card h3 {
+    color: #1f2937;
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.project-card p {
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.project-card .status-select {
+    max-width: 150px; /* Limit width of status dropdown */
+    padding: 4px 8px; /* Smaller padding for status select */
+    height: auto; /* Allow height to adjust */
+    font-size: 0.875rem; /* Smaller font size */
+}
+
+.project-card .btn-sm {
+    padding: 8px 15px; /* Smaller padding for load/delete buttons */
+    font-size: 0.9em;
+    border-radius: 8px;
+}
+
+/* Styles for the small chart container */
+.chart-container-small {
+    padding: 20px; /* Smaller padding than main cards */
+    width: 100%;
+    max-width: 300px; /* Max width for chart card */
+    box-sizing: border-box;
+    min-height: 250px; /* Ensure minimum height for chart */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-container-small h4 {
+    margin-top: 0; /* Remove default margin */
+}
+
+.chart-canvas-small {
+    max-width: 100%;
+    max-height: 180px; /* Max height for the canvas itself */
+    width: auto;
+    height: auto;
+}
+
+/* Dark Theme Specifics for Saved Projects */
+body.dark-theme .saved-projects-content h2,
+body.dark-theme .saved-projects-content h4 {
+    color: #e2e8f0;
+}
+body.dark-theme .saved-projects-content p {
+    color: #a0aec0;
+}
+
+body.dark-theme .project-card {
+    background: #2d3748;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+body.dark-theme .project-card:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+}
+
+body.dark-theme .project-card h3 {
+    color: #e2e8f0;
+}
+
+body.dark-theme .project-card p.text-gray-600 {
+    color: #a0aec0; /* Ensure text within p tags is light grey */
+}
+
+body.dark-theme .project-card .status-select {
+    background-color: #4a5568;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.dark-theme .chart-container-small h4 {
+    color: #e2e8f0;
+}
+
+body.dark-theme #noCustomerDataMessage,
+body.dark-theme #noProjectsMessage {
+    color: #a0aec0;
+}
+
 
