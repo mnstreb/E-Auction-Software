@@ -441,87 +441,6 @@
             background-color: #4299e1;
             color: white;
         }
-        .dark-theme .selected-trade-tag .remove-tag {
-            color: #a0aec0;
-        }
-        .dark-theme .multi-select-dropdown label:hover {
-            background-color: #2d3748;
-        }
-        .dark-theme .trade-labor-rates-group {
-            background-color: #2d3748;
-            border-color: #4a5568;
-        }
-        .dark-theme .trade-labor-rates-group h3 {
-            border-color: #4a5568;
-        }
-        .dark-theme .skill-level-row {
-            border-color: #4a5568;
-        }
-        .dark-theme .advanced-link {
-            color: #63b3ed;
-        }
-        .dark-theme .advanced-link:hover {
-            color: #90cdf4;
-        }
-        .dark-theme .summary-item.total {
-            color: #90cdf4;
-            border-color: #4a5568;
-        }
-        
-        /* Styles for loading overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            color: white;
-            font-size: 1.5rem;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #ffffff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Styles for the auto-closing success notification */
-        .success-notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #10b981;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-            z-index: 2002;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-        .success-notification.show {
-            opacity: 1;
-            visibility: visible;
-        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -597,6 +516,32 @@
     <!-- NEW: Placeholder for SavedProjects component -->
     <div id="savedProjectsPlaceholder"></div>
 
+    <!-- NEW: Save Project Confirmation Modal -->
+    <div id="saveProjectModal" class="save-project-modal">
+        <div class="save-project-modal-content">
+            <h3>Save Project</h3>
+            <div class="form-group">
+                <label for="saveProjectName" class="label">Project Name:</label>
+                <input type="text" id="saveProjectName" class="input-field" required>
+            </div>
+            <div class="form-group">
+                <label for="saveCustomerName" class="label">Customer Name:</label>
+                <input type="text" id="saveCustomerName" class="input-field" required>
+            </div>
+            <div class="form-group">
+                <label for="saveLocation" class="label">Location (State):</label>
+                <input type="text" id="saveLocation" class="value-display" readonly>
+            </div>
+            <div class="form-group">
+                <label for="saveProjectCost" class="label">Total Project Cost:</label>
+                <input type="text" id="saveProjectCost" class="value-display" readonly>
+            </div>
+            <div class="flex justify-end gap-3 mt-4">
+                <button id="cancelSaveProjectBtn" class="btn btn-red">Cancel</button>
+                <button id="confirmSaveProjectBtn" class="btn btn-green">Save</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // --- Core Application Functions (Defined at the top to ensure hoisting) ---
@@ -629,7 +574,7 @@
                             emailClientBtnId: 'emailClientBtn',
                             onThemeToggle: toggleTheme,
                             onReconfigure: showSetupWizard,
-                            onSaveProject: handleSaveProject,
+                            onSaveProject: handleSaveProject, // This will trigger the new modal
                             // Callbacks for Export Dropdown
                             onExportPdfReport: () => {
                                 renderMessageBox('Exporting Detailed Report to PDF...');
@@ -751,7 +696,9 @@
                             // Pass necessary data/callbacks to SavedProjects module
                             onGoToCalculator: showMainApp, // Callback to return to the main calculator
                             formatCurrency: formatCurrency, // NEW: Pass formatCurrency
-                            isDarkTheme: isDarkTheme // NEW: Pass isDarkTheme
+                            isDarkTheme: isDarkTheme, // NEW: Pass isDarkTheme
+                            renderMessageBox: renderMessageBox, // Pass renderMessageBox for SavedProjects
+                            closeMessageBox: closeMessageBox // Pass closeMessageBox for SavedProjects
                         });
                         // Once loaded, if the view is set to saved projects, show it.
                         document.getElementById('savedProjectsPlaceholder').classList.remove('hidden');
@@ -895,6 +842,15 @@
         // UI Element references
         const mainApp = document.getElementById('mainApp');
         const estimateTableBody = document.getElementById('estimateTableBody');
+        // NEW: References for the Save Project modal elements
+        const saveProjectModal = document.getElementById('saveProjectModal');
+        const saveProjectNameInput = document.getElementById('saveProjectName');
+        const saveCustomerNameInput = document.getElementById('saveCustomerName');
+        const saveLocationInput = document.getElementById('saveLocation');
+        const saveProjectCostInput = document.getElementById('saveProjectCost');
+        const cancelSaveProjectBtn = document.getElementById('cancelSaveProjectBtn');
+        const confirmSaveProjectBtn = document.getElementById('confirmSaveProjectBtn');
+
 
         // State for theme - will be initialized in DOMContentLoaded
         let isDarkTheme = false;
@@ -1079,11 +1035,69 @@
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden'); // Ensure saved projects is hidden
         }
 
-        // NEW: Handler for the "Save Project" button click
+        // NEW: Handler for the "Save Project" button click - NOW OPENS A MODAL
         function handleSaveProject() {
-            renderMessageBox('Save Project button clicked! This is where we will implement the saving logic.');
-            // This is where we'll add the logic to save project data to Firestore
-            // For now, it just shows a message.
+            // First, ensure all calculations are up-to-date to get the grandTotal
+            calculateTotals(); 
+
+            // Pre-fill the modal fields
+            saveProjectNameInput.value = projectSettings.projectName;
+            saveCustomerNameInput.value = projectSettings.clientName; // Use clientName from projectSettings
+            saveLocationInput.value = projectSettings.projectState; // Use projectState from projectSettings
+            // The grandTotal is calculated by calculateTotals() and passed to SummaryOverview.
+            // We need to access the final grandTotal directly or via SummaryOverview.
+            // For now, let's assume projectSettings has a `grandTotal` field after calculateTotals() updates it.
+            // Or, ideally, we pass it explicitly. For now, let's rely on projectSettings being up-to-date from calculateTotals
+            // which updates SummaryOverview which has the final grandTotal passed.
+            // Let's add a `totalProposal` property to projectSettings in calculateTotals for clarity.
+            saveProjectCostInput.value = formatCurrency(projectSettings.grandTotal || 0); // Use the grandTotal property
+
+            // Show the modal
+            saveProjectModal.classList.add('show');
+        }
+
+        // NEW: Function to close the Save Project modal
+        function closeSaveProjectModal() {
+            saveProjectModal.classList.remove('show');
+        }
+
+        // NEW: Function to confirm saving the project
+        function confirmSaveProject() {
+            const projectName = saveProjectNameInput.value.trim();
+            const customerName = saveCustomerNameInput.value.trim();
+            const projectState = saveLocationInput.value.trim(); // This is read-only, but important for save data
+            const totalProposalRaw = projectSettings.grandTotal || 0; // Use the actual number
+
+            if (!projectName || !customerName) {
+                renderMessageBox('Project Name and Customer Name are required.');
+                return;
+            }
+
+            const newSavedProject = {
+                id: `proj_${Date.now()}`, // Unique ID for the saved project
+                projectName: projectName,
+                customerName: customerName,
+                projectType: projectSettings.projectType, // From global settings
+                projectState: projectState, // From global settings
+                totalProposal: totalProposalRaw, // Numerical value
+                lastSavedDate: new Date().toISOString().split('T')[0], // формате YYYY-MM-DD
+                status: 'Draft', // Default status for new saves
+                // Store a copy of the current project's full state (settings and items)
+                projectDetails: JSON.stringify({ // Stringify to handle complex nested objects for saving
+                    settings: { ...projectSettings },
+                    items: [...estimateItems]
+                })
+            };
+
+            // Call a function in SavedProjects module to add this project
+            if (window.SavedProjects && typeof window.SavedProjects.addProject === 'function') {
+                window.SavedProjects.addProject(newSavedProject);
+                renderMessageBox(`Project "${projectName}" saved successfully!`);
+            } else {
+                renderMessageBox('Error: SavedProjects module not fully loaded or missing addProject function.');
+            }
+
+            closeSaveProjectModal(); // Close the modal after saving
         }
 
         // NEW: Function to handle user profile button click and show Saved Projects view
@@ -1125,9 +1139,9 @@
             const defaultRole = projectSettings.allTradeLaborRates[defaultTrade] && Object.keys(projectSettings.allTradeLaborRates[defaultTrade]).length > 0 ? Object.keys(projectSettings.allTradeLaborRates[defaultTrade])[0] : "Journeyman";
 
             const newItem = {
-                id: Date.now(),
-                taskName: 'New Task',
-                description: 'Description for new task',
+                id: Date.now(), // Ensures a unique ID for the first item
+                taskName: 'New Task', // A more generic default name
+                description: 'Detail your first project task here.',
                 trade: defaultTrade,
                 rateRole: defaultRole,
                 hours: 0,
@@ -1361,8 +1375,10 @@
                 additionalConsiderationAmount = additionalConsiderationsValue;
             }
 
-            const grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
+            // Store grandTotal directly in projectSettings after calculation for easy access
+            projectSettings.grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
 
+            const grandTotal = projectSettings.grandTotal; // Use the stored value
             const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
 
             const totalOtherCostsForPieChart = totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
@@ -1437,6 +1453,10 @@
                     showMainApp();
                 }
             });
+            
+            // NEW: Event listeners for Save Project modal buttons
+            cancelSaveProjectBtn.addEventListener('click', closeSaveProjectModal);
+            confirmSaveProjectBtn.addEventListener('click', confirmSaveProject);
         }
 
 
