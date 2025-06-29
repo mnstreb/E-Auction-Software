@@ -4,11 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Construction Estimate Calculator</title>
+    <!-- Link to Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link to Chart.js for the pie chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Link to AppHeader specific CSS -->
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
+    <!-- Link to SummaryOverview specific CSS -->
     <link rel="stylesheet" href="src/sections/SummaryOverview/SummaryOverview.css">
+    <!-- Link to SetupWizard specific CSS -->
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
+    <!-- NEW: Link to SavedProjects specific CSS -->
     <link rel="stylesheet" href="src/sections/SavedProjects/SavedProjects.css">
     <style>
         /* Base styles and UI improvements (General styles remain here) */
@@ -520,8 +526,11 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
+    <!-- Main Application Interface -->
     <div id="mainApp" class="container hidden">
+        <!-- Placeholder for AppHeader component -->
         <div id="appHeaderPlaceholder"></div>
+        <!-- Placeholder for SummaryOverview component -->
         <div id="summaryOverviewPlaceholder"></div>
 
         <div class="card overflow-x-auto" id="estimateLineItemsTableContainer">
@@ -534,18 +543,21 @@
                     <tr>
                         <th rowspan="2" class="task-name-col">Task Name</th>
                         <th rowspan="2" class="description-col">Description</th>
+                        <!-- Initial colspan="5" for LABOR (4 detail + 1 total) -->
                         <th colspan="5" class="text-center labor-col" id="thLaborHeader">
                             <div class="collapsible-header" data-group="labor">
                                 <span>LABOR</span>
                                 <span class="collapse-toggle-icon">▼</span>
                             </div>
                         </th>
+                        <!-- Initial colspan="3" for MATERIALS (2 detail + 1 total) -->
                         <th colspan="3" class="text-center materials-col" id="thMaterialsHeader">
                             <div class="collapsible-header" data-group="materials">
                                 <span>MATERIALS</span>
                                 <span class="collapse-toggle-icon">▼</span>
                             </div>
                         </th>
+                        <!-- Initial colspan="4" for OTHER (3 detail + 1 total) - Corrected from 3 to 4 -->
                         <th colspan="4" class="text-center other-col" id="thOtherHeader">
                             <div class="collapsible-header" data-group="other">
                                 <span>OTHER</span>
@@ -556,6 +568,7 @@
                         <th rowspan="2" class="actions-col">Actions</th>
                     </tr>
                     <tr>
+                        <!-- These THs will be hidden/shown by JS and are targeted by data-col-group -->
                         <th class="border-b" data-col-group="labor-details">OT/DT</th>
                         <th class="border-b" data-col-group="labor-details">Skill</th>
                         <th class="border-b" data-col-group="labor-details">$/hr</th>
@@ -569,7 +582,8 @@
                         <th class="border-b" data-col-group="other-details">Equipment / Rental</th>
                         <th class="border-b" data-col-group="other-details">Subcontractor</th>
                         <th class="border-b" data-col-group="other-details">Misc.</th>
-                        <th class="border-b other-total-col">Other Total</th> </tr>
+                        <th class="border-b other-total-col">Other Total</th> <!-- Added this header -->
+                    </tr>
                 </thead>
                 <tbody id="estimateTableBody">
                     </tbody>
@@ -577,8 +591,10 @@
         </div>
     </div>
 
+    <!-- Placeholder for SetupWizard component -->
     <div id="setupWizardPlaceholder"></div>
 
+    <!-- NEW: Placeholder for SavedProjects component -->
     <div id="savedProjectsPlaceholder"></div>
 
 
@@ -600,20 +616,19 @@
                             themeToggleBtnId: 'themeToggleBtn',
                             reconfigureBtnId: 'reconfigureBtn',
                             saveProjectBtnId: 'saveProjectBtn',
-                            // Report Dropdown IDs
-                            generateReportBtnId: 'generateReportBtn',
-                            reportDropdownMenuId: 'reportDropdownMenu',
+                            exportDropdownBtnId: 'exportDropdownBtn', // NEW ID
+                            exportDropdownMenuId: 'exportDropdownMenu', // NEW ID
+                            userProfileBtnId: 'userProfileBtn', // NEW ID
+                            // Report Dropdown IDs (now nested under export)
                             exportPdfReportBtnId: 'exportPdfReportBtn',
                             exportCsvBtnId: 'exportCsvBtn',
-                            // Quote Dropdown IDs
-                            generateQuoteBtnId: 'generateQuoteBtn',
-                            quoteDropdownMenuId: 'quoteDropdownMenu',
+                            // Quote Dropdown IDs (now nested under export)
                             exportPdfQuoteBtnId: 'exportPdfQuoteBtn',
                             emailClientBtnId: 'emailClientBtn',
                             onThemeToggle: toggleTheme,
                             onReconfigure: showSetupWizard,
-                            onSaveProject: showSavedProjects, // MODIFIED: Call showSavedProjects
-                            // Callbacks for Report Dropdown
+                            onSaveProject: handleSaveProject, // Changed to a more specific name
+                            // Callbacks for Export Dropdown
                             onExportPdfReport: () => {
                                 renderMessageBox('Exporting Detailed Report to PDF...');
                                 // Actual detailed PDF generation logic will go here
@@ -622,12 +637,12 @@
                                 renderMessageBox('Exporting to CSV/XLX...');
                                 // Actual CSV/XLX generation logic will go here
                             },
-                            // Callbacks for Quote Dropdown
                             onExportPdfQuote: () => {
                                 renderMessageBox('Exporting Client Quote to PDF...');
                                 // Actual client quote PDF generation logic will go here
                             },
-                            onEmailClient: sendEstimateEmailToClient
+                            onEmailClient: sendEstimateEmailToClient,
+                            onUserProfileClick: showSavedProjects // NEW: Handle user profile click
                         });
                         if (isDarkTheme) {
                             window.AppHeader.updateThemeButton('☀️');
@@ -737,6 +752,8 @@
                             // For now, no actual data loading will happen here, just UI.
                             // Firebase integration will add data loading later.
                         });
+                        // Once loaded, if the view is set to saved projects, show it.
+                        document.getElementById('savedProjectsPlaceholder').classList.remove('hidden');
                     } else {
                         console.error('SavedProjects module not available after loading.');
                     }
@@ -1062,7 +1079,14 @@
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden'); // Ensure saved projects is hidden
         }
 
-        // NEW: Function to show the Saved Projects view
+        // NEW: Handler for the "Save Project" button click
+        function handleSaveProject() {
+            renderMessageBox('Save Project button clicked! This is where we will implement the saving logic.');
+            // This is where we'll add the logic to save project data to Firestore
+            // For now, it just shows a message.
+        }
+
+        // NEW: Function to handle user profile button click and show Saved Projects view
         function showSavedProjects() {
             mainApp.classList.add('hidden');
             document.getElementById('setupWizardPlaceholder').classList.add('hidden');
@@ -1073,7 +1097,7 @@
             } else {
                 savedProjectsPlaceholder.classList.remove('hidden');
             }
-            // Temporarily, we'll hide the message box
+            // Temporarily, we'll hide the message box if it was open
             closeMessageBox(); 
         }
 
@@ -1227,7 +1251,8 @@
                     
                     <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
                     <td class="actions-cell"> 
-                        <div class="flex items-center justify-end gap-2 h-full w-full"> <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
+                        <div class="flex items-center justify-end gap-2 h-full w-full"> <!-- NEW wrapper div with flex, height, width -->
+                            <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
                             <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
