@@ -613,12 +613,13 @@
                     if (window.AppHeader) {
                         window.AppHeader.init({
                             mainAppLogoId: 'mainAppLogo',
-                            themeToggleBtnId: 'themeToggleBtn',
                             reconfigureBtnId: 'reconfigureBtn',
                             saveProjectBtnId: 'saveProjectBtn',
-                            exportDropdownBtnId: 'exportDropdownBtn', // NEW ID
-                            exportDropdownMenuId: 'exportDropdownMenu', // NEW ID
-                            userProfileBtnId: 'userProfileBtn', // NEW ID
+                            exportDropdownBtnId: 'exportDropdownBtn',
+                            exportDropdownMenuId: 'exportDropdownMenu',
+                            userProfileBtnId: 'userProfileBtn',
+                            userProfileDropdownMenuId: 'userProfileDropdownMenu', // NEW ID
+                            profileDropdownThemeToggleId: 'profileDropdownThemeToggle', // NEW ID
                             // Report Dropdown IDs (now nested under export)
                             exportPdfReportBtnId: 'exportPdfReportBtn',
                             exportCsvBtnId: 'exportCsvBtn',
@@ -627,7 +628,7 @@
                             emailClientBtnId: 'emailClientBtn',
                             onThemeToggle: toggleTheme,
                             onReconfigure: showSetupWizard,
-                            onSaveProject: handleSaveProject, // Changed to a more specific name
+                            onSaveProject: handleSaveProject,
                             // Callbacks for Export Dropdown
                             onExportPdfReport: () => {
                                 renderMessageBox('Exporting Detailed Report to PDF...');
@@ -644,10 +645,9 @@
                             onEmailClient: sendEstimateEmailToClient,
                             onUserProfileClick: showSavedProjects // NEW: Handle user profile click
                         });
-                        if (isDarkTheme) {
-                            window.AppHeader.updateThemeButton('☀️');
-                        } else {
-                            window.AppHeader.updateThemeButton('🌙');
+                        // Update theme slider immediately based on current theme state
+                        if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
+                            window.AppHeader.updateThemeToggleSlider(isDarkTheme);
                         }
                     } else {
                         console.error('AppHeader module not available after loading.');
@@ -976,20 +976,15 @@
             isDarkTheme = !isDarkTheme;
             if (isDarkTheme) {
                 document.body.classList.add('dark-theme');
-                // Call AppHeader's exposed function to update its button
-                if (window.AppHeader && typeof window.AppHeader.updateThemeButton === 'function') {
-                    window.AppHeader.updateThemeButton('☀️'); // Sun icon for light theme
-                }
             } else {
                 document.body.classList.remove('dark-theme');
-                // Call AppHeader's exposed function to update its button
-                if (window.AppHeader && typeof window.AppHeader.updateThemeButton === 'function') {
-                    window.AppHeader.updateThemeButton('🌙'); // Moon icon for dark theme
-                }
+            }
+            // Call AppHeader's exposed function to update its slider
+            if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
+                window.AppHeader.updateThemeToggleSlider(isDarkTheme);
             }
             // Trigger SummaryOverview to update its chart based on new theme
             if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
-                // Pass current projectSettings and estimateItems for full re-calculation if needed
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
             }
         }
@@ -1089,15 +1084,13 @@
         // NEW: Function to handle user profile button click and show Saved Projects view
         function showSavedProjects() {
             mainApp.classList.add('hidden');
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden'); // Hide saved projects if it was visible
             document.getElementById('setupWizardPlaceholder').classList.add('hidden');
             // Check if SavedProjects is already loaded, if not, load it
-            const savedProjectsPlaceholder = document.getElementById('savedProjectsPlaceholder');
-            if (savedProjectsPlaceholder.innerHTML === '') { // Only load if empty
-                loadSavedProjects();
-            } else {
-                savedProjectsPlaceholder.classList.remove('hidden');
-            }
-            // Temporarily, we'll hide the message box if it was open
+            // For now, we are just implementing the dropdown itself
+            // The `onUserProfileClickCallback` in AppHeader.js will be used for showing the SavedProjects component later
+            // Here, we just ensure other main sections are hidden if the profile dropdown will be shown.
+            // The actual display of the dropdown is handled by AppHeader.js.
             closeMessageBox(); 
         }
 
@@ -1200,7 +1193,7 @@
                 }
                 if (!projectSettings.allTradeLaborRates[item.trade] || !projectSettings.allTradeLaborRates[item.trade][item.rateRole]) {
                     const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
-                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman"; // Fallback to Journeyman if no other roles
                 }
 
                 const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
