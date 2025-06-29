@@ -1044,12 +1044,6 @@
             saveProjectNameInput.value = projectSettings.projectName;
             saveCustomerNameInput.value = projectSettings.clientName; // Use clientName from projectSettings
             saveLocationInput.value = projectSettings.projectState; // Use projectState from projectSettings
-            // The grandTotal is calculated by calculateTotals() and passed to SummaryOverview.
-            // We need to access the final grandTotal directly or via SummaryOverview.
-            // For now, let's assume projectSettings has a `grandTotal` field after calculateTotals() updates it.
-            // Or, ideally, we pass it explicitly. For now, let's rely on projectSettings being up-to-date from calculateTotals
-            // which updates SummaryOverview which has the final grandTotal passed.
-            // Let's add a `totalProposal` property to projectSettings in calculateTotals for clarity.
             saveProjectCostInput.value = formatCurrency(projectSettings.grandTotal || 0); // Use the grandTotal property
 
             // Show the modal
@@ -1080,7 +1074,7 @@
                 projectType: projectSettings.projectType, // From global settings
                 projectState: projectState, // From global settings
                 totalProposal: totalProposalRaw, // Numerical value
-                lastSavedDate: new Date().toISOString().split('T')[0], // формате YYYY-MM-DD
+                lastSavedDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
                 status: 'Draft', // Default status for new saves
                 // Store a copy of the current project's full state (settings and items)
                 projectDetails: JSON.stringify({ // Stringify to handle complex nested objects for saving
