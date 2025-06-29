@@ -36,13 +36,23 @@
             </div>
         </div>
 
-        <!-- Theme Toggle Button (standalone) -->
-        <button id="themeToggleBtn" class="btn btn-primary">🌙</button>
-
         <!-- NEW: User Profile Icon/Button (placeholder for dropdown) -->
-        <button id="userProfileBtn" class="btn btn-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        </button>
-        <!-- User Profile Dropdown (will be added later) -->
+        <div class="dropdown-container relative">
+            <button id="userProfileBtn" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </button>
+            <div id="userProfileDropdownMenu" class="dropdown-menu"> 
+                <div class="dropdown-item flex items-center justify-between">
+                    <span>Dark Mode</span>
+                    <label class="theme-switch">
+                        <input type="checkbox" id="profileDropdownThemeToggle">
+                        <span class="slider round"></span>
+                        <div class="slider-icon moon-icon">🌙</div>
+                        <div class="slider-icon sun-icon">☀️</div>
+                    </label>
+                </div>
+                <!-- More profile options will go here later -->
+            </div>
+        </div>
     </div>
 </div>
