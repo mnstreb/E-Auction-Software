@@ -65,6 +65,28 @@
     gap: 15px; /* Spacing between buttons */
 }
 
+/* NEW: Styles for uniform header buttons */
+.header-buttons .btn {
+    min-width: 140px; /* Example min-width, adjust as needed */
+    display: flex; /* Ensure flex for centering content */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    padding: 12px 15px; /* Adjust padding to be more consistent with min-width */
+}
+
+/* Specific adjustment for the user profile button to make it square */
+.header-buttons #userProfileBtn {
+    min-width: 50px; /* Make it smaller/square, align with the icon box size */
+    width: 50px;
+    height: 50px;
+    padding: 0; /* Remove padding to make it a true square */
+}
+.header-buttons #userProfileBtn svg {
+    margin-right: 0; /* No margin right for icon-only button */
+}
+
+
 /* Dark Theme specific header styles */
 body.dark-theme .header-icon-box {
     background-color: #2d3748; /* Darker blue for dark theme */
