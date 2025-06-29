@@ -10,6 +10,8 @@ window.SavedProjects = (function() {
     let noProjectsMessage;
 
     let onGoToCalculatorCallback; // Callback to return to main app
+    let renderMessageBoxCallback; // Passed from main script for message box
+    let closeMessageBoxCallback; // Passed from main script for closing message box
 
     let customerProjectsPieChart; // Chart.js instance for customer totals
 
@@ -24,11 +26,8 @@ window.SavedProjects = (function() {
             totalProposal: 150000.00,
             lastSavedDate: '2025-06-28',
             status: 'Draft',
-            // Store the full projectSettings and estimateItems if needed for loading
-            // For now, these are just illustrative mock fields.
-            // When we implement actual saving/loading, this object would contain
-            // the stringified projectSettings and estimateItems.
-            projectDetails: { /* ...full project data here... */ } 
+            // projectDetails will be a stringified JSON of projectSettings and estimateItems
+            projectDetails: '{"settings": {}, "items": []}' 
         },
         {
             id: 'proj_002',
@@ -39,7 +38,7 @@ window.SavedProjects = (function() {
             totalProposal: 75500.00,
             lastSavedDate: '2025-06-27',
             status: 'Pending Review',
-            projectDetails: { /* ...full project data here... */ }
+            projectDetails: '{"settings": {}, "items": []}'
         },
         {
             id: 'proj_003',
@@ -50,7 +49,7 @@ window.SavedProjects = (function() {
             totalProposal: 320000.00,
             lastSavedDate: '2025-06-25',
             status: 'Awarded',
-            projectDetails: { /* ...full project data here... */ }
+            projectDetails: '{"settings": {}, "items": []}'
         },
         {
             id: 'proj_004',
@@ -61,7 +60,7 @@ window.SavedProjects = (function() {
             totalProposal: 98000.00,
             lastSavedDate: '2025-06-20',
             status: 'Rejected',
-            projectDetails: { /* ...full project data here... */ }
+            projectDetails: '{"settings": {}, "items": []}'
         },
         {
             id: 'proj_005',
@@ -72,7 +71,7 @@ window.SavedProjects = (function() {
             totalProposal: 42000.00,
             lastSavedDate: '2025-06-19',
             status: 'Draft',
-            projectDetails: { /* ...full project data here... */ }
+            projectDetails: '{"settings": {}, "items": []}'
         }
     ];
 
@@ -81,15 +80,25 @@ window.SavedProjects = (function() {
      * @param {object} config - Configuration object.
      * @param {function} config.onGoToCalculator - Callback function to navigate back to the main calculator.
      * @param {function} config.formatCurrency - Reference to the main currency formatting function.
+     * @param {boolean} config.isDarkTheme - Current theme state for chart colors.
+     * @param {function} config.renderMessageBox - Reference to the global renderMessageBox function.
+     * @param {function} config.closeMessageBox - Reference to the global closeMessageBox function.
      */
     function init(config) {
         onGoToCalculatorCallback = config.onGoToCalculator;
+        renderMessageBoxCallback = config.renderMessageBox;
+        closeMessageBoxCallback = config.closeMessageBox;
         // Assume formatCurrency is available globally or passed in config
         // For now, directly referencing window.formatCurrency as it's global
         if (typeof window.formatCurrency !== 'function') {
             console.error("formatCurrency function not found. Please ensure it's loaded globally.");
             window.formatCurrency = (amount) => `$${amount.toFixed(2)}`; // Fallback
         }
+        // Ensure isDarkTheme is also passed
+        if (typeof config.isDarkTheme === 'undefined') {
+             console.warn("isDarkTheme not passed to SavedProjects.init. Chart colors might be incorrect.");
+        }
+
 
         // Get UI element references
         savedProjectsContainer = document.getElementById('savedProjectsContainer');
@@ -106,25 +115,62 @@ window.SavedProjects = (function() {
             goToCalculatorBtn.addEventListener('click', onGoToCalculatorCallback);
         }
         if (customerFilterInput) {
-            customerFilterInput.addEventListener('input', filterAndRenderProjects);
+            customerFilterInput.addEventListener('input', () => filterAndRenderProjects(config.isDarkTheme));
         }
 
         // Initial render
         renderProjects(savedProjectsData);
-        updateCustomerTotalsChart(savedProjectsData);
+        updateCustomerTotalsChart(savedProjectsData, config.isDarkTheme);
     }
 
     /**
-     * Filters projects based on the customer filter input and re-renders the list.
+     * Adds a new project to the saved projects data and re-renders the list.
+     * @param {object} newProject - The new project object to add.
      */
-    function filterAndRenderProjects() {
+    function addProject(newProject) {
+        // Check if a project with the same name and customer already exists to prevent duplicates
+        const existingProjectIndex = savedProjectsData.findIndex(p => 
+            p.projectName === newProject.projectName && p.customerName === newProject.customerName
+        );
+
+        if (existingProjectIndex !== -1) {
+            // Optionally, update the existing project or notify the user
+            renderMessageBoxCallback(`Project "${newProject.projectName}" for "${newProject.customerName}" already exists. Updating its details.`);
+            savedProjectsData[existingProjectIndex] = {
+                ...savedProjectsData[existingProjectIndex], // Keep old ID
+                ...newProject, // Override with new details
+                lastSavedDate: new Date().toISOString().split('T')[0] // Update last saved date
+            };
+        } else {
+            savedProjectsData.push(newProject);
+        }
+        // Sort projects alphabetically by project name for consistency
+        savedProjectsData.sort((a, b) => a.projectName.localeCompare(b.projectName));
+        filterAndRenderProjects(); // Re-filter and re-render the displayed list
+    }
+
+    /**
+     * Returns the current in-memory saved projects data.
+     * This will be useful when loading projects or re-rendering from outside the module.
+     * @returns {Array<object>} The current array of saved project objects.
+     */
+    function getSavedProjectsData() {
+        return savedProjectsData;
+    }
+
+
+    /**
+     * Filters projects based on the customer filter input and re-renders the list.
+     * @param {boolean} isDarkTheme - Current theme state for chart colors.
+     */
+    function filterAndRenderProjects(isDarkTheme) {
         const searchTerm = customerFilterInput.value.toLowerCase();
         const filteredProjects = savedProjectsData.filter(project =>
             project.customerName.toLowerCase().includes(searchTerm) ||
             project.projectName.toLowerCase().includes(searchTerm)
         );
         renderProjects(filteredProjects);
-        updateCustomerTotalsChart(filteredProjects); // Update chart based on filtered data
+        updateCustomerTotalsChart(filteredProjects, isDarkTheme); // Update chart based on filtered data
     }
 
     /**
@@ -170,7 +216,8 @@ window.SavedProjects = (function() {
             projectsList.appendChild(projectCard);
         });
 
-        // Attach event listeners to newly rendered buttons
+        // Attach event listeners to newly rendered buttons (using delegation or direct attachment)
+        // Using direct attachment here for simplicity as elements are re-rendered each time
         projectsList.querySelectorAll('.load-project-btn').forEach(button => {
             button.addEventListener('click', (event) => {
                 const projectId = event.target.dataset.id;
@@ -195,13 +242,23 @@ window.SavedProjects = (function() {
     function updateProjectStatus(projectId, newStatus) {
         const projectIndex = savedProjectsData.findIndex(p => p.id === projectId);
         if (projectIndex !== -1) {
-            savedProjectsData[projectIndex].status = newStatus;
-            // In a real application, you'd send this update to Firestore here.
-            console.log(`Project ${projectId} status updated to: ${newStatus}`);
-            // Re-render to ensure any visual updates or chart updates based on status
-            renderProjects(savedProjectsData);
-            updateCustomerTotalsChart(savedProjectsData);
-            window.renderMessageBox(`Project "${savedProjectsData[projectIndex].projectName}" status updated to ${newStatus}.`);
+            // Prevent changing from Awarded/Rejected back to Draft/Pending without confirmation
+            const currentStatus = savedProjectsData[projectIndex].status;
+            if (['Awarded', 'Rejected'].includes(currentStatus) && ['Draft', 'Pending Review'].includes(newStatus)) {
+                renderMessageBoxCallback(`Changing status from "${currentStatus}" to "${newStatus}" is usually not recommended. Are you sure?`,
+                    () => {
+                        savedProjectsData[projectIndex].status = newStatus;
+                        renderMessageBoxCallback(`Project "${savedProjectsData[projectIndex].projectName}" status updated to ${newStatus}.`);
+                        filterAndRenderProjects(savedProjectsContainer.classList.contains('dark-theme')); // Re-render and update chart
+                        closeMessageBoxCallback();
+                    },
+                    true // isConfirm: true
+                );
+            } else {
+                savedProjectsData[projectIndex].status = newStatus;
+                renderMessageBoxCallback(`Project "${savedProjectsData[projectIndex].projectName}" status updated to ${newStatus}.`);
+                filterAndRenderProjects(savedProjectsContainer.classList.contains('dark-theme')); // Re-render and update chart
+            }
         }
     }
 
@@ -214,14 +271,20 @@ window.SavedProjects = (function() {
     function loadProject(projectId) {
         const projectToLoad = savedProjectsData.find(p => p.id === projectId);
         if (projectToLoad) {
-            window.renderMessageBox(`Loading project: "${projectToLoad.projectName}"... (Not fully implemented yet)`);
-            // In a real app:
-            // 1. Prompt user to confirm unsaved changes if current project is modified.
-            // 2. Load projectToLoad.projectDetails (assuming it holds stringified projectSettings/estimateItems)
-            //    into the main app's global projectSettings and estimateItems.
-            // 3. Call onGoToCalculatorCallback();
+            renderMessageBoxCallback(`Loading project: "${projectToLoad.projectName}"... (Not fully implemented yet)`);
+            
+            // This is where you would parse and load the actual project details
+            // into the main application's global `projectSettings` and `estimateItems`.
+            // Example (assuming projectDetails is a stringified JSON):
+            // const loadedData = JSON.parse(projectToLoad.projectDetails);
+            // window.projectSettings = loadedData.settings; // Assuming projectSettings is global in index.html
+            // window.estimateItems = loadedData.items;     // Assuming estimateItems is global in index.html
+            // window.renderItems(); // Trigger re-render of main table
+            
+            // After loading, go back to calculator view
+            onGoToCalculatorCallback();
         } else {
-            window.renderMessageBox('Project not found!');
+            renderMessageBoxCallback('Project not found!');
         }
     }
 
@@ -232,13 +295,18 @@ window.SavedProjects = (function() {
      * @param {string} projectId - The ID of the project to delete.
      */
     function deleteProject(projectId) {
-        window.renderMessageBox(`Are you sure you want to delete project: "${savedProjectsData.find(p => p.id === projectId)?.projectName || projectId}"? This action cannot be undone.`,
+        const projectToDelete = savedProjectsData.find(p => p.id === projectId);
+        if (!projectToDelete) {
+            renderMessageBoxCallback('Project not found for deletion!');
+            return;
+        }
+
+        renderMessageBoxCallback(`Are you sure you want to delete project: "${projectToDelete.projectName}"? This action cannot be undone.`,
             () => {
                 savedProjectsData = savedProjectsData.filter(p => p.id !== projectId);
-                renderProjects(savedProjectsData); // Re-render after deletion
-                updateCustomerTotalsChart(savedProjectsData); // Update chart
-                window.renderMessageBox('Project deleted successfully.');
-                window.closeMessageBox(); // Close the confirmation box
+                filterAndRenderProjects(savedProjectsContainer.classList.contains('dark-theme')); // Re-render and update chart
+                renderMessageBoxCallback('Project deleted successfully.');
+                closeMessageBoxCallback();
             },
             true // isConfirm: true
         );
@@ -247,9 +315,9 @@ window.SavedProjects = (function() {
     /**
      * Generates and updates the pie chart showing total proposal by customer.
      * @param {Array<object>} projects - The array of projects (can be filtered or unfiltered).
-     * @param {boolean} isDarkTheme - Current theme state for chart colors (will be passed from main script later).
+     * @param {boolean} isDarkTheme - Current theme state for chart colors.
      */
-    function updateCustomerTotalsChart(projects, isDarkTheme = false) { // isDarkTheme is hardcoded for now
+    function updateCustomerTotalsChart(projects, isDarkTheme) {
         const customerTotals = {};
         projects.forEach(project => {
             if (project.customerName && project.totalProposal !== undefined) {
@@ -286,9 +354,9 @@ window.SavedProjects = (function() {
             const b = parseInt(color.slice(5, 7), 16);
             // Simple logic to make border lighter/darker
             if (isDarkTheme) {
-                return `rgba(${r + 30}, ${g + 30}, ${b + 30}, 1)`; // Slightly lighter border for dark theme
+                return `rgba(${Math.min(r + 40, 255)}, ${Math.min(g + 40, 255)}, ${Math.min(b + 40, 255)}, 1)`; // Slightly lighter border for dark theme
             } else {
-                return `rgba(${r - 30}, ${g - 30}, ${b - 30}, 1)`; // Slightly darker border for light theme
+                return `rgba(${Math.max(r - 40, 0)}, ${Math.max(g - 40, 0)}, ${Math.max(b - 40, 0)}, 1)`; // Slightly darker border for light theme
             }
         });
 
@@ -360,7 +428,9 @@ window.SavedProjects = (function() {
     return {
         init: init,
         renderProjects: renderProjects, // Might be useful for external triggers
-        updateProjectStatus: updateProjectStatus // Expose for onchange in HTML
+        updateProjectStatus: updateProjectStatus, // Expose for onchange in HTML
+        addProject: addProject, // NEW: Expose addProject for index.html
+        getSavedProjectsData: getSavedProjectsData, // NEW: Expose data getter for index.html
+        updateCustomerTotalsChart: updateCustomerTotalsChart // Expose for theme toggling
     };
 })();
-
