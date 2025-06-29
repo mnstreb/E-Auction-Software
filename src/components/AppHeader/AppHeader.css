@@ -161,3 +161,108 @@ body.dark-theme .dropdown-item:hover {
 body.dark-theme .dropdown-divider {
     background-color: #4a5568; /* Darker divider in dark theme */
 }
+
+/* Theme Toggle Slider Styles (Based on your provided image) */
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px; /* Width of the switch */
+    height: 34px; /* Height of the switch */
+    margin-left: 10px; /* Spacing from label */
+    flex-shrink: 0; /* Prevent it from shrinking in flex container */
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #2d3748; /* Dark background for dark mode (initial) */
+    transition: .4s;
+    border-radius: 34px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px; /* Height of the circle */
+    width: 26px; /* Width of the circle */
+    left: 4px; /* Initial position for dark mode */
+    bottom: 4px;
+    background-color: white; /* Color of the circle */
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Checked (Light Mode) State */
+input:checked + .slider {
+    background-color: #e0e0e0; /* Light background for light mode */
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px); /* Move circle to the right */
+    background-color: #333; /* Darker circle in light mode */
+}
+
+/* Slider Icons (Moon/Sun) */
+.slider-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2em; /* Adjust size as needed */
+    transition: opacity 0.4s ease-in-out;
+    pointer-events: none; /* Ensure clicks go through to the input */
+}
+
+.moon-icon {
+    left: 8px; /* Position of moon icon */
+    opacity: 1; /* Visible in dark mode */
+    color: white;
+}
+
+.sun-icon {
+    right: 8px; /* Position of sun icon */
+    opacity: 0; /* Hidden in dark mode */
+    color: #333;
+}
+
+/* When checked (light mode) */
+input:checked ~ .moon-icon {
+    opacity: 0; /* Hide moon icon */
+}
+
+input:checked ~ .sun-icon {
+    opacity: 1; /* Show sun icon */
+}
+
+/* Dark Theme specifics for the slider */
+body.dark-theme .theme-switch .slider {
+    background-color: #2d3748; /* Ensures slider background is dark in dark theme */
+}
+body.dark-theme .theme-switch input:checked + .slider {
+    background-color: #e0e0e0; /* Still light in checked state, regardless of body theme */
+}
+body.dark-theme .theme-switch .moon-icon {
+    color: white; /* Moon icon always white */
+}
+body.dark-theme .theme-switch .sun-icon {
+    color: #333; /* Sun icon always dark */
+}
+
+/* Ensure dropdown item containing the slider handles flex correctly */
+.dropdown-item.flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
