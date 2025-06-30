@@ -1,5 +1,7 @@
 // src/sections/SavedProjects/SavedProjects.js
 
+console.log("SavedProjects.js: Script started loading."); // DEBUG LOG 1
+
 window.SavedProjects = (function() {
     let savedProjectsContainer;
     let customerFilterInput;
@@ -85,6 +87,7 @@ window.SavedProjects = (function() {
      * @param {function} config.closeMessageBox - Reference to the global closeMessageBox function.
      */
     function init(config) {
+        console.log("SavedProjects.js: init function called."); // DEBUG LOG 2
         onGoToCalculatorCallback = config.onGoToCalculator;
         renderMessageBoxCallback = config.renderMessageBox;
         closeMessageBoxCallback = config.closeMessageBox;
@@ -121,6 +124,8 @@ window.SavedProjects = (function() {
         // Initial render
         renderProjects(savedProjectsData);
         updateCustomerTotalsChart(savedProjectsData, config.isDarkTheme);
+
+        console.log("SavedProjects.js: init function finished, window.SavedProjects exposed."); // DEBUG LOG 3
     }
 
     /**
@@ -128,6 +133,7 @@ window.SavedProjects = (function() {
      * @param {object} newProject - The new project object to add.
      */
     function addProject(newProject) {
+        console.log("SavedProjects.js: addProject called with", newProject); // DEBUG LOG 4
         // Check if a project with the same name and customer already exists to prevent duplicates
         const existingProjectIndex = savedProjectsData.findIndex(p => 
             p.projectName === newProject.projectName && p.customerName === newProject.customerName
@@ -146,7 +152,8 @@ window.SavedProjects = (function() {
         }
         // Sort projects alphabetically by project name for consistency
         savedProjectsData.sort((a, b) => a.projectName.localeCompare(b.projectName));
-        filterAndRenderProjects(savedProjectsContainer.classList.contains('dark-theme')); // Re-filter and re-render the displayed list, passing current theme state
+        // We need the current isDarkTheme state from the main app for correct chart colors
+        filterAndRenderProjects(document.body.classList.contains('dark-theme')); // Re-filter and re-render the displayed list
     }
 
     /**
@@ -155,6 +162,7 @@ window.SavedProjects = (function() {
      * @returns {Array<object>} The current array of saved project objects.
      */
     function getSavedProjectsData() {
+        console.log("SavedProjects.js: getSavedProjectsData called."); // DEBUG LOG 5
         return savedProjectsData;
     }
 
@@ -164,6 +172,7 @@ window.SavedProjects = (function() {
      * @param {boolean} isDarkTheme - Current theme state for chart colors.
      */
     function filterAndRenderProjects(isDarkTheme) {
+        console.log("SavedProjects.js: filterAndRenderProjects called. Current theme:", isDarkTheme); // DEBUG LOG 6
         const searchTerm = customerFilterInput.value.toLowerCase();
         const filteredProjects = savedProjectsData.filter(project =>
             project.customerName.toLowerCase().includes(searchTerm) ||
@@ -178,6 +187,7 @@ window.SavedProjects = (function() {
      * @param {Array<object>} projectsToRender - The array of project objects to display.
      */
     function renderProjects(projectsToRender) {
+        console.log("SavedProjects.js: renderProjects called with", projectsToRender.length, "projects."); // DEBUG LOG 7
         projectsList.innerHTML = ''; // Clear existing projects
 
         if (projectsToRender.length === 0) {
@@ -240,6 +250,7 @@ window.SavedProjects = (function() {
      * @param {string} newStatus - The new status to set.
      */
     function updateProjectStatus(projectId, newStatus) {
+        console.log("SavedProjects.js: updateProjectStatus called for", projectId, "to", newStatus); // DEBUG LOG 8
         const projectIndex = savedProjectsData.findIndex(p => p.id === projectId);
         if (projectIndex !== -1) {
             // Prevent changing from Awarded/Rejected back to Draft/Pending without confirmation
@@ -249,7 +260,7 @@ window.SavedProjects = (function() {
                     () => {
                         savedProjectsData[projectIndex].status = newStatus;
                         renderMessageBoxCallback(`Project "${savedProjectsData[projectIndex].projectName}" status updated to ${newStatus}.`);
-                        filterAndRenderProjects(savedProjectsContainer.classList.contains('dark-theme')); // Re-render and update chart
+                        filterAndRenderProjects(document.body.classList.contains('dark-theme')); // Re-render and update chart
                         closeMessageBoxCallback();
                     },
                     true // isConfirm: true
@@ -257,7 +268,7 @@ window.SavedProjects = (function() {
             } else {
                 savedProjectsData[projectIndex].status = newStatus;
                 renderMessageBoxCallback(`Project "${savedProjectsData[projectIndex].projectName}" status updated to ${newStatus}.`);
-                filterAndRenderProjects(savedProjectsContainer.classList.contains('dark-theme')); // Re-render and update chart
+                filterAndRenderProjects(document.body.classList.contains('dark-theme')); // Re-render and update chart
             }
         }
     }
@@ -269,6 +280,7 @@ window.SavedProjects = (function() {
      * @param {string} projectId - The ID of the project to load.
      */
     function loadProject(projectId) {
+        console.log("SavedProjects.js: loadProject called for", projectId); // DEBUG LOG 9
         const projectToLoad = savedProjectsData.find(p => p.id === projectId);
         if (projectToLoad) {
             renderMessageBoxCallback(`Loading project: "${projectToLoad.projectName}"... (Not fully implemented yet)`);
@@ -295,6 +307,7 @@ window.SavedProjects = (function() {
      * @param {string} projectId - The ID of the project to delete.
      */
     function deleteProject(projectId) {
+        console.log("SavedProjects.js: deleteProject called for", projectId); // DEBUG LOG 10
         const projectToDelete = savedProjectsData.find(p => p.id === projectId);
         if (!projectToDelete) {
             renderMessageBoxCallback('Project not found for deletion!');
@@ -304,7 +317,7 @@ window.SavedProjects = (function() {
         renderMessageBoxCallback(`Are you sure you want to delete project: "${projectToDelete.projectName}"? This action cannot be undone.`,
             () => {
                 savedProjectsData = savedProjectsData.filter(p => p.id !== projectId);
-                filterAndRenderProjects(savedProjectsContainer.classList.contains('dark-theme')); // Re-render and update chart
+                filterAndRenderProjects(document.body.classList.contains('dark-theme')); // Re-render and update chart
                 renderMessageBoxCallback('Project deleted successfully.');
                 closeMessageBoxCallback();
             },
@@ -318,6 +331,7 @@ window.SavedProjects = (function() {
      * @param {boolean} isDarkTheme - Current theme state for chart colors.
      */
     function updateCustomerTotalsChart(projects, isDarkTheme) {
+        console.log("SavedProjects.js: updateCustomerTotalsChart called. Projects length:", projects.length, "Dark Theme:", isDarkTheme); // DEBUG LOG 11
         const customerTotals = {};
         projects.forEach(project => {
             if (project.customerName && project.totalProposal !== undefined) {
