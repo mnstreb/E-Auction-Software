@@ -183,7 +183,7 @@
             tr {
                 border: 1px solid #ccc;
                 margin-bottom: 10px;
-                border-radius: 8品种;
+                border-radius: 8px;
                 overflow: hidden;
                 transition: border-color 0.3s;
             }
@@ -309,7 +309,7 @@
             font-weight: bold;
             color: #1f2937;
             text-align: center;
-            transition: color 0.3s;
+            transition: color : 0.3s;
         }
         
         /* Simpler style for actions-cell, relying on inner div for flex */
@@ -1076,7 +1076,7 @@
                 projectType: projectSettings.projectType, // From global settings
                 projectState: projectState, // From global settings
                 totalProposal: totalProposalRaw, // Numerical value
-                lastSavedDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
+                lastSavedDate: new Date().toISOString().split('T')[0], // формате
                 status: 'Draft', // Default status for new saves
                 // Store a copy of the current project's full state (settings and items)
                 projectDetails: JSON.stringify({ // Stringify to handle complex nested objects for saving
@@ -1179,7 +1179,6 @@
                 setTimeout(() => {
                     const newItemElement = document.querySelector(`tr[data-id="${duplicatedItem.id}"]`);
                     if (newItemElement) {
-                        newItemElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         newItemElement.style.transition = 'background-color 0.5s ease-in-out';
                         newItemElement.style.backgroundColor = 'rgba(144, 238, 144, 0.3)'; // Light green highlight
                         setTimeout(() => {
