@@ -309,7 +309,7 @@
             font-weight: bold;
             color: #1f2937;
             text-align: center;
-            transition: color : 0.3s;
+            transition: color 0.3s;
         }
         
         /* Simpler style for actions-cell, relying on inner div for flex */
@@ -580,15 +580,12 @@
                             // Callbacks for Export Dropdown
                             onExportPdfReport: () => {
                                 renderMessageBox('Exporting Detailed Report to PDF...');
-                                // Actual detailed PDF generation logic will go here
                             },
                             onExportCsv: () => {
                                 renderMessageBox('Exporting to CSV/XLX...');
-                                // Actual CSV/XLX generation logic will go here
                             },
                             onExportPdfQuote: () => {
                                 renderMessageBox('Exporting Client Quote to PDF...');
-                                // Actual client quote PDF generation logic will go here
                             },
                             onEmailClient: sendEstimateEmailToClient,
                             onUserProfileClick: showSavedProjects 
@@ -685,6 +682,12 @@
         // NEW: Function to load SavedProjects component
         async function loadSavedProjects() {
             try {
+                // Remove existing script before adding a new one to avoid conflicts if already loaded
+                const oldScript = document.querySelector('script[src="src/sections/SavedProjects/SavedProjects.js"]');
+                if (oldScript) {
+                    oldScript.remove();
+                }
+
                 const htmlResponse = await fetch('src/sections/SavedProjects/SavedProjects.html');
                 if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SavedProjects.html`);
                 const html = await htmlResponse.text();
@@ -935,20 +938,21 @@
             isDarkTheme = !isDarkTheme;
             if (isDarkTheme) {
                 document.body.classList.add('dark-theme');
+                // Call AppHeader's exposed function to update its button
+                if (window.AppHeader && typeof window.AppHeader.updateThemeButton === 'function') {
+                    window.AppHeader.updateThemeButton('☀️'); // Sun icon for light theme
+                }
             } else {
                 document.body.classList.remove('dark-theme');
-            }
-            // Call AppHeader's exposed function to update its slider
-            if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
-                window.AppHeader.updateThemeToggleSlider(isDarkTheme);
+                // Call AppHeader's exposed function to update its button
+                if (window.AppHeader && typeof window.AppHeader.updateThemeButton === 'function') {
+                    window.AppHeader.updateThemeButton('🌙'); // Moon icon for dark theme
+                }
             }
             // Trigger SummaryOverview to update its chart based on new theme
             if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                // Pass current projectSettings and estimateItems for full re-calculation if needed
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
-            }
-            // Trigger SavedProjects to update its chart based on new theme
-            if (window.SavedProjects && typeof window.SavedProjects.updateCustomerTotalsChart === 'function') {
-                window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
             }
         }
 
@@ -1008,10 +1012,7 @@
                                 th.classList.add('column-hidden');
                             });
                         } else {
-                            headerElement.classList.remove('collapsed');
-                            if (group === 'labor') mainThElement.colSpan = 5;
-                            else if (group === 'materials') mainThElement.colSpan = 3;
-                            else if (group === 'other') mainThElement.colSpan = 4;
+                            mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); // Fixed to use direct values
                             document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
                                 th.classList.remove('column-hidden');
                             });
@@ -1076,7 +1077,7 @@
                 projectType: projectSettings.projectType, // From global settings
                 projectState: projectState, // From global settings
                 totalProposal: totalProposalRaw, // Numerical value
-                lastSavedDate: new Date().toISOString().split('T')[0], // форматеYYYY-MM-DD
+                lastSavedDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
                 status: 'Draft', // Default status for new saves
                 // Store a copy of the current project's full state (settings and items)
                 projectDetails: JSON.stringify({ // Stringify to handle complex nested objects for saving
@@ -1370,10 +1371,8 @@
                 additionalConsiderationAmount = additionalConsiderationsValue;
             }
 
-            // Store grandTotal directly in projectSettings after calculation for easy access
-            projectSettings.grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
+            const grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
 
-            const grandTotal = projectSettings.grandTotal; // Use the stored value
             const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
 
             const totalOtherCostsForPieChart = totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
@@ -1421,106 +1420,4 @@
                 `This email contains a summary of the estimate for your project: "${projectName}".\n\n` +
                 `A detailed quote will be provided in a separate attachment or document.\n\n` +
                 `Please let us know if you have any questions.\n\n` +
-                `Regards,\n${projectSettings.contractorName || 'Your Company'}` 
-            );
-
-            const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
-
-            // Open the mail client
-            window.open(mailtoLink, '_blank');
-            renderMessageBox('Your email client should open with a pre-filled estimate. Please remember to add a recipient and send it!');
-        }
-
-
-        function setupInitialEventListeners() {
-            document.getElementById('addItemBtn').addEventListener('click', addItem);
-            
-            document.querySelectorAll('.collapsible-header').forEach(header => {
-                header.addEventListener('click', function() {
-                    const group = this.dataset.group;
-                    toggleColumnVisibility(group);
-                });
-            });
-            // NEW: Add event listener for the "Back to Calculator" button in SavedProjects.html
-            // This button will only exist after SavedProjects.html is loaded
-            document.addEventListener('click', function(event) {
-                if (event.target && event.target.id === 'goToCalculatorBtn') {
-                    showMainApp();
-                }
-            });
-            
-            // NEW: Event listeners for Save Project modal buttons
-            cancelSaveProjectBtn.addEventListener('click', closeSaveProjectModal);
-            confirmSaveProjectBtn.addEventListener('click', confirmSaveProject);
-        }
-
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAppHeader();
-            setupInitialEventListeners();
-            // Initial setup for column visibility (to match collapsedState)
-            for (const group in collapsedState) {
-                if (collapsedState.hasOwnProperty(group)) {
-                    const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
-                    const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
-                    if (headerElement && mainThElement) {
-                        if (collapsedState[group]) {
-                            headerElement.classList.add('collapsed');
-                            mainThElement.colSpan = 1;
-                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                th.classList.add('column-hidden');
-                            });
-                        } else {
-                            headerElement.classList.remove('collapsed');
-                            if (group === 'labor') mainThElement.colSpan = 5;
-                            else if (group === 'materials') mainThElement.colSpan = 3;
-                            else if (group === 'other') mainThElement.colSpan = 4;
-                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                th.classList.remove('column-hidden');
-                            });
-                        }
-                    }
-                }
-            }
-            adjustTableMinWidth();
-        });
-
-        function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
-            const messageBoxOverlay = document.createElement('div');
-            messageBoxOverlay.id = 'messageBoxOverlay';
-            messageBoxOverlay.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[1001] backdrop-filter backdrop-blur-sm';
-            
-            const messageBox = document.createElement('div');
-            messageBox.className = 'bg-white rounded-xl p-8 shadow-2xl max-w-sm mx-auto text-center';
-            
-            let buttonsHtml = `<button class="btn btn-primary" onclick="closeMessageBox()">OK</button>`;
-            if (isConfirm) {
-                buttonsHtml = `
-                    <button class="btn btn-red mr-3" id="confirmYesBtn">Yes</button>
-                    <button class="btn btn-primary" onclick="closeMessageBox()">No</button>
-                `;
-            }
-
-            messageBox.innerHTML = `
-                <p class="text-lg font-semibold text-gray-800 mb-6">${message}</p>
-                <div class="flex justify-center gap-3">
-                    ${buttonsHtml}
-                </div>
-            `;
-            messageBoxOverlay.appendChild(messageBox);
-            document.body.appendChild(messageBoxOverlay);
-
-            if (isConfirm && onConfirmCallback) {
-                document.getElementById('confirmYesBtn').addEventListener('click', onConfirmCallback);
-            }
-        }
-
-        function closeMessageBox() {
-            const messageBoxOverlay = document.getElementById('messageBoxOverlay');
-            if (messageBoxOverlay) {
-                messageBoxOverlay.remove();
-            }
-        }
-    </script>
-</body>
-</html>
+                `Regards,\n${projectSettings.contractorName || 'Your
