@@ -1076,7 +1076,7 @@
                 projectType: projectSettings.projectType, // From global settings
                 projectState: projectState, // From global settings
                 totalProposal: totalProposalRaw, // Numerical value
-                lastSavedDate: new Date().toISOString().split('T')[0], // формате
+                lastSavedDate: new Date().toISOString().split('T')[0], // форматеYYYY-MM-DD
                 status: 'Draft', // Default status for new saves
                 // Store a copy of the current project's full state (settings and items)
                 projectDetails: JSON.stringify({ // Stringify to handle complex nested objects for saving
