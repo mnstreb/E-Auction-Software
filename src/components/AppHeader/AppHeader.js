@@ -115,7 +115,7 @@ window.AppHeader = (function() {
         }
         if (exportCsvBtnElem) {
             exportCsvBtnElem.addEventListener('click', (event) => {
-                onExportCsvCallback();
+                onCsvCallback();
                 hideDropdown(exportDropdownMenuElem);
             });
         }
