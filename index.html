@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
     <!-- NEW: Link to SavedProjects specific CSS -->
     <link rel="stylesheet" href="src/sections/SavedProjects/SavedProjects.css">
+    <!-- NEW: Link to SaveProjectModal specific CSS (IMPORTANT: This must load after other general styles for specificity) -->
+    <link rel="stylesheet" href="src/components/SaveProjectModal/SaveProjectModal.css"> 
     <style>
         /* Base styles and UI improvements (General styles remain here) */
         body {
@@ -181,7 +183,7 @@
             tr {
                 border: 1px solid #ccc;
                 margin-bottom: 10px;
-                border-radius: 8px;
+                border-radius: 8品种;
                 overflow: hidden;
                 transition: border-color 0.3s;
             }
@@ -1083,12 +1085,12 @@
                 })
             };
 
-            // Call a function in SavedProjects module to add this project
+            // Ensure SavedProjects module is loaded and its addProject method is available
             if (window.SavedProjects && typeof window.SavedProjects.addProject === 'function') {
                 window.SavedProjects.addProject(newSavedProject);
                 renderMessageBox(`Project "${projectName}" saved successfully!`);
             } else {
-                renderMessageBox('Error: SavedProjects module not fully loaded or missing addProject function.');
+                renderMessageBox('Error: SavedProjects module not fully loaded or missing addProject function. Make sure SavedProjects.js is correctly loaded and exposed.');
             }
 
             closeSaveProjectModal(); // Close the modal after saving
