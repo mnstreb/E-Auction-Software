@@ -118,6 +118,7 @@ window.SavedProjects = (function() {
             goToCalculatorBtn.addEventListener('click', onGoToCalculatorCallback);
         }
         if (customerFilterInput) {
+            // Use the isDarkTheme from the config passed during init
             customerFilterInput.addEventListener('input', () => filterAndRenderProjects(config.isDarkTheme));
         }
 
