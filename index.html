@@ -450,22 +450,20 @@
         }
 
         /* NEW: Styles for the global trade selector */
-        .trade-selector-container {
+        .trade-selector-group { /* NEW: Class for the group containing label, select, and add button */
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 20px; /* Space below the selector */
-            width: 100%;
-            justify-content: flex-end; /* Align to the right, near Add Item */
         }
 
-        .trade-selector-container .label {
+        .trade-selector-group .label {
             margin-bottom: 0; /* Override default label margin */
             flex-shrink: 0;
+            white-space: nowrap; /* Prevent label from wrapping */
         }
 
-        .trade-selector-container .input-field {
-            max-width: 200px; /* Limit width of the dropdown */
+        .trade-selector-group .input-field {
+            max-width: 150px; /* Adjust width of the dropdown to be more compact */
             flex-grow: 0; /* Prevent it from growing too much */
         }
     </style>
@@ -482,15 +480,13 @@
         <div class="card overflow-x-auto" id="estimateLineItemsTableContainer">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-semibold text-gray-800">Estimate Line Items</h3>
-                <button id="addItemBtn" class="btn btn-green">➕ Add Item</button>
-            </div>
-
-            <!-- NEW: Global Trade Selector for Line Items -->
-            <div class="trade-selector-container">
-                <label for="defaultTradeSelector" class="label">Default Trade for New Items:</label>
-                <select id="defaultTradeSelector" class="input-field">
-                    <!-- Options will be populated by JavaScript -->
-                </select>
+                <div class="trade-selector-group"> <!-- NEW: Group for trade selector and add button -->
+                    <label for="defaultTradeSelector" class="label">Default Trade for New Items:</label>
+                    <select id="defaultTradeSelector" class="input-field">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <button id="addItemBtn" class="btn btn-green">➕ Add Item</button>
+                </div>
             </div>
 
             <table class="min-w-full">
@@ -1530,7 +1526,7 @@
 
 
         function setupInitialEventListeners() {
-            document.getElementById('addItemBtn').addEventListener('click', addItem);
+            // Moved addItemBtn listener inside the trade-selector-group
             
             document.querySelectorAll('.collapsible-header').forEach(header => {
                 header.addEventListener('click', function() {
@@ -1557,6 +1553,8 @@
                     currentlySelectedTradeForLineItems = event.target.value;
                 });
             }
+            // NEW: Event listener for Add Item button (now inside trade-selector-group)
+            document.getElementById('addItemBtn').addEventListener('click', addItem);
         }
 
 
