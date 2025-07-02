@@ -12,9 +12,9 @@
     /* Removed border-radius: 50%; for square/rectangular shape */
     /* Removed background-color: #e0f2fe; as it's no longer a solid background circle */
     
-    max-width: 180px; /* NEW: Max width for the logo container */
-    max-height: 60px; /* NEW: Max height for the logo container */
-    overflow: hidden; /* NEW: Hide any overflow if logo is too big for container */
+    max-width: 240px; /* UPDATED: Increased max width for the logo container */
+    max-height: 80px; /* UPDATED: Increased max height for the logo container */
+    overflow: hidden; /* Hide any overflow if logo is too big for container */
     
     display: flex;
     align-items: center;
@@ -22,7 +22,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Keep shadow for a subtle lift */
     transition: background-color 0.3s;
     padding: 5px; /* Keep padding for internal spacing around the logo */
-    border-radius: 8px; /* NEW: Add a slight border-radius for a softer rectangular look */
+    border-radius: 8px; /* Add a slight border-radius for a softer rectangular look */
 }
 
 .header-logo-img {
@@ -94,7 +94,7 @@
 
 /* Dark Theme specific header styles */
 body.dark-theme .header-icon-box {
-    background-color: transparent; /* NEW: Make background transparent in dark mode */
+    background-color: transparent; /* Make background transparent in dark mode */
 }
 
 body.dark-theme .default-icon {
