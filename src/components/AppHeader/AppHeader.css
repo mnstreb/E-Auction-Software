@@ -12,9 +12,13 @@
     /* Removed border-radius: 50%; for square/rectangular shape */
     /* Removed background-color: #e0f2fe; as it's no longer a solid background circle */
     
-    max-width: 240px; /* UPDATED: Increased max width for the logo container */
-    max-height: 80px; /* UPDATED: Increased max height for the logo container */
-    overflow: hidden; /* Hide any overflow if logo is too big for container */
+    max-width: 280px; /* UPDATED: Increased max width to give more room for wider logos */
+    max-height: 100px; /* UPDATED: Increased max height to give more room for taller logos */
+    min-height: 50px; /* NEW: Ensure a minimum height so it doesn't collapse too small */
+    width: auto; /* Allow width to adjust based on content and max-width */
+    height: auto; /* Allow height to adjust based on content and max-height */
+
+    overflow: hidden; /* Hide any overflow if logo is too big for container (shouldn't happen with contain) */
     
     display: flex;
     align-items: center;
@@ -26,10 +30,11 @@
 }
 
 .header-logo-img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    /* Removed border-radius: 50%; for square/rectangular shape */
+    /* Removed width: 100%; and height: 100%; to let object-fit: contain work more freely */
+    max-width: 100%; /* Ensures the image doesn't exceed the parent's width */
+    max-height: 100%; /* Ensures the image doesn't exceed the parent's height */
+    object-fit: contain; /* This is crucial: scales the image to fit without cropping, preserving aspect ratio */
+    display: block; /* Ensures no extra space below the image */
 }
 
 .default-icon {
