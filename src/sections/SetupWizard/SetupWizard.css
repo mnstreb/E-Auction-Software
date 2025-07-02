@@ -230,7 +230,7 @@
     width: 100%;
     text-align: center;
     font-size: 1.1rem; /* Increased font size for better readability */
-    font-weight: 600; /* Make it bold */
+    font-weight: 500; /* Adjusted to NOT be bold */
     color: #6b7280; /* Default color for light theme */
     margin-bottom: 30px; /* Space below this paragraph */
 }
