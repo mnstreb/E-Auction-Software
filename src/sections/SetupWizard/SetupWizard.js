@@ -19,6 +19,7 @@ window.SetupWizard = (function() {
     let wizardLogoPreview;
     let defaultLogoIcon;
     let uploadText;
+    let clearLogoBtn; // NEW: Reference for the clear logo button
 
     let projectNameInput;
     let clientNameInput;
@@ -97,6 +98,7 @@ window.SetupWizard = (function() {
         wizardLogoPreview = document.getElementById('wizardLogoPreview');
         defaultLogoIcon = document.getElementById('defaultLogoIcon');
         uploadText = document.getElementById('uploadText');
+        clearLogoBtn = document.getElementById('clearLogoBtn'); // NEW: Get reference to the clear button
 
         projectNameInput = document.getElementById('projectName');
         clientNameInput = document.getElementById('clientName');
@@ -128,7 +130,18 @@ window.SetupWizard = (function() {
         logoUploadArea.addEventListener('dragover', (event) => { event.preventDefault(); logoUploadArea.classList.add('drag-over'); });
         logoUploadArea.addEventListener('dragleave', () => { logoUploadArea.classList.remove('drag-over'); });
         logoUploadArea.addEventListener('drop', handleLogoDrop);
-        logoUploadArea.addEventListener('click', () => logoUploadInput.click());
+        logoUploadArea.addEventListener('click', (event) => {
+            // Only trigger file input if the click is not on the clear button
+            if (event.target !== clearLogoBtn) {
+                logoUploadInput.click();
+            }
+        });
+        
+        // NEW: Event listener for the clear logo button
+        if (clearLogoBtn) {
+            clearLogoBtn.addEventListener('click', clearLogo);
+        }
+
 
         projectStateSelect.addEventListener('change', (event) => {
             updateSalesTaxForState(event.target.value);
@@ -372,11 +385,28 @@ window.SetupWizard = (function() {
             wizardLogoPreview.classList.remove('hidden');
             defaultLogoIcon.classList.add('hidden');
             uploadText.classList.add('hidden');
+            clearLogoBtn.classList.remove('hidden'); // Show clear button if logo is present
         } else {
+            wizardLogoPreview.src = ''; // Clear the image source
             wizardLogoPreview.classList.add('hidden');
             defaultLogoIcon.classList.remove('hidden');
             uploadText.classList.remove('hidden');
+            clearLogoBtn.classList.add('hidden'); // Hide clear button if no logo
         }
+    }
+
+    // NEW: Function to clear the logo
+    function clearLogo(event) {
+        event.stopPropagation(); // Prevent click from bubbling to logoUploadArea and opening file input
+        renderMessageBoxCallback('Are you sure you want to clear the logo?', () => {
+            projectSettings.contractorLogo = ''; // Clear the logo data
+            loadSavedLogo(); // Update the UI to show default state
+            // Also update the logo in the AppHeader if it's currently displayed
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo('');
+            }
+            closeMessageBoxCallback();
+        }, true); // Pass true for isConfirm
     }
 
 
