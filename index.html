@@ -448,6 +448,26 @@
             background-color: #4299e1;
             color: white;
         }
+
+        /* NEW: Styles for the global trade selector */
+        .trade-selector-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px; /* Space below the selector */
+            width: 100%;
+            justify-content: flex-end; /* Align to the right, near Add Item */
+        }
+
+        .trade-selector-container .label {
+            margin-bottom: 0; /* Override default label margin */
+            flex-shrink: 0;
+        }
+
+        .trade-selector-container .input-field {
+            max-width: 200px; /* Limit width of the dropdown */
+            flex-grow: 0; /* Prevent it from growing too much */
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
@@ -464,6 +484,15 @@
                 <h3 class="text-2xl font-semibold text-gray-800">Estimate Line Items</h3>
                 <button id="addItemBtn" class="btn btn-green">➕ Add Item</button>
             </div>
+
+            <!-- NEW: Global Trade Selector for Line Items -->
+            <div class="trade-selector-container">
+                <label for="defaultTradeSelector" class="label">Default Trade for New Items:</label>
+                <select id="defaultTradeSelector" class="input-field">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+
             <table class="min-w-full">
                 <thead>
                     <tr>
@@ -498,7 +527,6 @@
                         <th class="border-b" data-col-group="labor-details">OT/DT</th>
                         <th class="border-b" data-col-group="labor-details">Skill</th>
                         <th class="border-b" data-col-group="labor-details">$/hr</th>
-                        <th class="border-b" data-col-group="labor-details"># hrs</th>
                         <th class="border-b labor-total-col">Labor Total</th>
 
                         <th class="border-b" data-col-group="materials-details">QTY / UNIT</th>
@@ -861,6 +889,10 @@
         const cancelSaveProjectBtn = document.getElementById('cancelSaveProjectBtn');
         const confirmSaveProjectBtn = document.getElementById('confirmSaveProjectBtn');
 
+        // NEW: References for the global trade selector
+        let defaultTradeSelectorElem; // Reference for the new trade selector dropdown
+        let currentlySelectedTradeForLineItems = "General"; // Default active trade for new line items
+
 
         // State for theme - will be initialized in DOMContentLoaded
         let isDarkTheme = false;
@@ -988,6 +1020,9 @@
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo(projectSettings.contractorLogo);
             }
+
+            // NEW: Populate the default trade selector after wizard completion
+            populateDefaultTradeSelector();
 
 
             // Ensure default trade/role is set for the single item if it's new or needs update
@@ -1146,15 +1181,16 @@
         // --- Estimate Item Management ---
 
         function addItem() {
-            const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
-            const defaultRole = projectSettings.allTradeLaborRates[defaultTrade] && Object.keys(projectSettings.allTradeLaborRates[defaultTrade]).length > 0 ? Object.keys(projectSettings.allTradeLaborRates[defaultTrade])[0] : "Journeyman";
+            // Use the currently selected trade from the new dropdown as the default
+            const defaultTradeForNewItem = currentlySelectedTradeForLineItems;
+            const defaultRoleForNewItem = projectSettings.allTradeLaborRates[defaultTradeForNewItem] && Object.keys(projectSettings.allTradeLaborRates[defaultTradeForNewItem]).length > 0 ? Object.keys(projectSettings.allTradeLaborRates[defaultTradeForNewItem])[0] : "Journeyman";
 
             const newItem = {
                 id: Date.now(), // Ensures a unique ID for the first item
                 taskName: 'New Task', // A more generic default name
                 description: 'Detail your first project task here.',
-                trade: defaultTrade,
-                rateRole: defaultRole,
+                trade: defaultTradeForNewItem, // Use the selected default trade
+                rateRole: defaultRoleForNewItem, // Use the corresponding default role
                 hours: 0,
                 otDtMultiplier: 1.0,
                 materialQuantity: 0, // was materialUnits
@@ -1211,10 +1247,15 @@
             if (item) {
                 if (['hours', 'materialQuantity', 'materialUnitCost', 'equipmentRentalCost', 'subcontractorCostLineItem', 'miscLineItem', 'otDtMultiplier'].includes(field)) {
                     item[field] = parseFloat(value) || 0;
+                } else if (field === 'trade') { // NEW: Handle trade change
+                    item.trade = value;
+                    // When trade changes, reset skill to a default for that trade
+                    const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
+                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
                 } else {
                     item[field] = value;
                 }
-                renderItems();
+                renderItems(); // Re-render the table to reflect changes and update dropdowns
             }
         }
 
@@ -1222,13 +1263,17 @@
             estimateTableBody.innerHTML = '';
             let totalLaborHoursVal = 0; 
 
+            // Get active trades for dropdown population
+            const activeTrades = projectSettings.activeTrades;
+
             estimateItems.forEach(item => {
-                if (!projectSettings.activeTrades.includes(item.trade)) {
-                    item.trade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
+                // Ensure the item's trade and role are still valid after wizard changes
+                if (!activeTrades.includes(item.trade)) {
+                    item.trade = activeTrades.length > 0 ? activeTrades[0] : "General";
                 }
                 if (!projectSettings.allTradeLaborRates[item.trade] || !projectSettings.allTradeLaborRates[item.trade][item.rateRole]) {
                     const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
-                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman"; // Fallback to Journeyman if no other roles
+                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
                 }
 
                 const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
@@ -1252,6 +1297,16 @@
                             <option value="1.0" ${item.otDtMultiplier === 1.0 ? 'selected' : ''}>1.0</option>
                             <option value="1.5" ${item.otDtMultiplier === 1.5 ? 'selected' : ''}>1.5</option>
                             <option value="2.0" ${item.otDtMultiplier === 2.0 ? 'selected' : ''}>2.0</option>
+                        </select>
+                    </td>
+                    <td data-label="Trade" class="${collapsedState.labor ? 'column-hidden' : ''}">
+                        <select onchange="updateItem(${item.id}, 'trade', this.value)" class="input-field">
+                            ${activeTrades.map(tradeOption => {
+                                return `<option value="${tradeOption}" ${item.trade === tradeOption ? 'selected' : ''}>
+                                            ${tradeOption}
+                                        </option>`;
+                            }).join('')}
+                            ${activeTrades.length === 0 ? '<option value="" selected>No Trades</option>' : ''}
                         </select>
                     </td>
                     <td data-label="Skill" class="${collapsedState.labor ? 'column-hidden' : ''}">
@@ -1444,6 +1499,35 @@
             renderMessageBox('Your email client should open with a pre-filled estimate. Please remember to add a recipient and send it!');
         }
 
+        // NEW: Function to populate the new global trade selector
+        function populateDefaultTradeSelector() {
+            defaultTradeSelectorElem = document.getElementById('defaultTradeSelector');
+            if (!defaultTradeSelectorElem) return; // Exit if element not found
+
+            defaultTradeSelectorElem.innerHTML = ''; // Clear existing options
+
+            if (projectSettings.activeTrades.length === 0) {
+                defaultTradeSelectorElem.innerHTML = '<option value="">No Trades Selected</option>';
+                defaultTradeSelectorElem.disabled = true;
+                currentlySelectedTradeForLineItems = "";
+            } else {
+                defaultTradeSelectorElem.disabled = false;
+                projectSettings.activeTrades.forEach(trade => {
+                    const option = document.createElement('option');
+                    option.value = trade;
+                    option.textContent = trade;
+                    defaultTradeSelectorElem.appendChild(option);
+                });
+                // Set the default selection to the first active trade or the previously selected one
+                if (projectSettings.activeTrades.includes(currentlySelectedTradeForLineItems)) {
+                    defaultTradeSelectorElem.value = currentlySelectedTradeForLineItems;
+                } else {
+                    defaultTradeSelectorElem.value = projectSettings.activeTrades[0];
+                    currentlySelectedTradeForLineItems = projectSettings.activeTrades[0];
+                }
+            }
+        }
+
 
         function setupInitialEventListeners() {
             document.getElementById('addItemBtn').addEventListener('click', addItem);
@@ -1465,6 +1549,14 @@
             // NEW: Event listeners for Save Project modal buttons
             cancelSaveProjectBtn.addEventListener('click', closeSaveProjectModal);
             confirmSaveProjectBtn.addEventListener('click', confirmSaveProject);
+
+            // NEW: Event listener for the global trade selector
+            defaultTradeSelectorElem = document.getElementById('defaultTradeSelector'); // Get reference here too
+            if (defaultTradeSelectorElem) {
+                defaultTradeSelectorElem.addEventListener('change', (event) => {
+                    currentlySelectedTradeForLineItems = event.target.value;
+                });
+            }
         }
 
 
