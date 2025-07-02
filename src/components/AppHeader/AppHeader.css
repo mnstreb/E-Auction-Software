@@ -8,17 +8,17 @@
 }
 
 .header-icon-box {
-    /* Removed fixed width, height, min-width for flexibility */
+    /* Removed fixed width, height, min-width for flexibility - now using max/min on the img itself */
     /* Removed border-radius: 50%; for square/rectangular shape */
     /* Removed background-color: #e0f2fe; as it's no longer a solid background circle */
     
-    max-width: 280px; /* UPDATED: Increased max width to give more room for wider logos */
-    max-height: 100px; /* UPDATED: Increased max height to give more room for taller logos */
-    min-height: 50px; /* NEW: Ensure a minimum height so it doesn't collapse too small */
-    width: auto; /* Allow width to adjust based on content and max-width */
-    height: auto; /* Allow height to adjust based on content and max-height */
+    /* Allow the box to size based on its content (the image) */
+    width: auto; 
+    height: auto;
+    min-width: 60px; /* NEW: Ensure a minimum width for the box, even if no logo or small logo */
+    min-height: 60px; /* NEW: Ensure a minimum height for the box, to contain default icon and small logos */
 
-    overflow: hidden; /* Hide any overflow if logo is too big for container (shouldn't happen with contain) */
+    overflow: hidden; /* Keep overflow hidden just in case, though object-fit should prevent it */
     
     display: flex;
     align-items: center;
@@ -30,9 +30,11 @@
 }
 
 .header-logo-img {
-    /* Removed width: 100%; and height: 100%; to let object-fit: contain work more freely */
-    max-width: 100%; /* Ensures the image doesn't exceed the parent's width */
-    max-height: 100%; /* Ensures the image doesn't exceed the parent's height */
+    /* NEW: Set max dimensions directly on the image to control its size */
+    max-width: 200px; /* Allow the logo to be wider */
+    max-height: 70px; /* Allow the logo to be taller */
+    width: 100%; /* Ensures it scales down within its parent's width */
+    height: 100%; /* Ensures it scales down within its parent's height */
     object-fit: contain; /* This is crucial: scales the image to fit without cropping, preserving aspect ratio */
     display: block; /* Ensures no extra space below the image */
 }
