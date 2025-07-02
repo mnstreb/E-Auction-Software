@@ -466,6 +466,11 @@
             max-width: 150px; /* Adjust width of the dropdown to be more compact */
             flex-grow: 0; /* Prevent it from growing too much */
         }
+
+        /* Ensure the Add Item button doesn't squish */
+        .trade-selector-group .btn-green {
+            flex-shrink: 0; /* Prevent the button from shrinking */
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
