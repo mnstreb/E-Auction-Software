@@ -31,6 +31,13 @@
     overflow-y: auto;
 }
 
+/* NEW: Styles for the intro section containing logo, h1, p */
+.wizard-intro-section {
+    text-align: center;
+    margin-bottom: 40px; /* Increased space below the intro section */
+    width: 100%; /* Ensure it takes full width for centering */
+}
+
 /* New: Progress Bar Container */
 .progress-container {
     width: 90%; /* Wider to accommodate labels */
@@ -210,14 +217,19 @@
     width: 100%;
     text-align: left;
 }
-.wizard-content h1 {
-    text-align: center;
+/* Adjust margin for h1 specifically within the wizard intro */
+.wizard-intro-section h1 {
+    margin-top: 25px !important; /* More space above h1 */
+    margin-bottom: 10px !important; /* Less space below h1, more for p */
+    text-align: center; /* Ensure it remains centered */
 }
-/* Increased margin-bottom for p tags (intro text) */
-.wizard-content p {
+/* Increased font-size and margin-bottom for p tags (intro text) */
+.wizard-intro-section p {
     width: 100%;
     text-align: center;
-    margin-bottom: 30px; /* Increased from 20px */
+    font-size: 1.1rem; /* Increased font size for better readability */
+    color: #6b7280; /* Default color for light theme */
+    margin-bottom: 30px; /* Increased from 20px, but now controlled by wizard-intro-section p */
 }
 
 /* Styles for the logo upload area */
@@ -239,6 +251,7 @@
     overflow: hidden;
     width: 100%;
     box-sizing: border-box;
+    margin-bottom: 30px; /* Increased space below logo upload area */
 }
 .logo-upload-area:hover {
     background: #e0f2fe;
@@ -495,9 +508,11 @@ body.dark-theme .wizard-content h4,
 body.dark-theme .wizard-content .label {
     color: #e2e8f0;
 }
-body.dark-theme .wizard-content p {
-    color: #a0aec0;
+/* NEW: Dark theme for the intro section paragraph */
+body.dark-theme .wizard-intro-section p {
+    color: #a0aec0; /* Lighter grey for dark theme intro text */
 }
+
 body.dark-theme .wizard-content .input-field {
     background-color: #4a5568;
     border-color: #4a5568;
