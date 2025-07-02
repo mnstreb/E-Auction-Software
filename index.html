@@ -164,7 +164,7 @@
         }
         h3 {
             font-size: 22px;
-            color: #1f2937;
+            color: #1f2937; /* Default light theme color */
             margin-bottom: 20px !important;
             transition: color 0.3s;
         }
@@ -400,6 +400,11 @@
             color: #e2e8f0;
         }
         
+        /* NEW: Dark theme rule for h3 inside the card */
+        body.dark-theme .card h3 {
+            color: #e2e8f0; /* White text for h3 in dark theme */
+        }
+
         .dark-theme .header-subtitle, /* Keep this here as a general style for subtitles if not specific to header */
         .dark-theme .summary-item,
         .dark-theme .multi-select-dropdown p,
@@ -1081,7 +1086,7 @@
                 projectType: projectSettings.projectType, // From global settings
                 projectState: projectState, // From global settings
                 totalProposal: totalProposalRaw, // Numerical value
-                lastSavedDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
+                lastSavedDate: new Date().toISOString().split('T')[0], //YYYY-MM-DD format
                 status: 'Draft', // Default status for new saves
                 // Store a copy of the current project's full state (settings and items)
                 projectDetails: JSON.stringify({ // Stringify to handle complex nested objects for saving
@@ -1271,7 +1276,7 @@
                     <td class="actions-cell"> 
                         <div class="flex items-center justify-end gap-2 h-full w-full"> <!-- NEW wrapper div with flex, height, width -->
                             <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 0 0 1 2-2h9a2 0 0 1 2 2v1"></path></svg>
                             </button>
                             <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
