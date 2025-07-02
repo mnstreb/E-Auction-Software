@@ -1,16 +1,20 @@
 <div id="setupWizard" class="setup-wizard-container">
     <div class="wizard-content">
-        <div class="wizard-intro-section"> <!-- NEW CLASS ADDED HERE -->
+        <div class="wizard-intro-section">
             <!-- Logo Upload Area -->
             <input type="file" id="logoUploadInput" accept="image/*" style="display: none;">
             <div id="logoUploadArea" class="logo-upload-area">
                 <img id="wizardLogoPreview" class="uploaded-logo hidden" src="" alt="Contractor Logo">
                 <span id="defaultLogoIcon" class="default-icon">🏗️</span>
-                <p id="uploadText" class="upload-text">Drag & drop your logo here, or click to upload</p> <!-- INLINE STYLE REMOVED -->
+                <p id="uploadText" class="upload-text">Drag & drop your logo here, or click to upload</p>
+                <!-- NEW: Clear Logo Button -->
+                <div id="clearLogoBtn" class="clear-logo-btn hidden">
+                    &times;
+                </div>
             </div>
 
             <h1>Project Setup</h1>
-            <p>Let's configure your estimate for accuracy</p> <!-- INLINE STYLE REMOVED -->
+            <p>Let's configure your estimate for accuracy</p>
         </div>
 
         <!-- Updated Step Indicator with Progress Bar and Labels -->
