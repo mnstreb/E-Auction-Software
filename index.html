@@ -1312,7 +1312,7 @@
                             ${!projectSettings.allTradeLaborRates[item.trade] || Object.keys(projectSettings.allTradeLaborRates[item.trade]).length === 0 ? '<option value="" selected>No Skills</option>' : ''}
                         </select>
                     </td>
-                    <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(laborRate)}</td> <!-- Display base rate, not effective rate here -->
+                    <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(effectiveLaborRate)}</td> <!-- UPDATED: Display effectiveLaborRate here -->
                     <td data-label="# hrs" class="${collapsedState.labor ? 'column-hidden' : ''}"><input type="number" value="${item.hours}" onchange="updateItem(${item.id}, 'hours', this.value)" class="input-field"></td>
                     <td data-label="Labor Total">${formatCurrency(laborTotal)}</td>
                     
@@ -1387,7 +1387,6 @@
             estimateItems.forEach(item => {
                 const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
                 const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
-                const laborTotal = item.hours * effectiveLaborRate;
                 const materialsTotal = item.materialQuantity * item.materialUnitCost;
                 
                 totalLaborCost += laborTotal;
