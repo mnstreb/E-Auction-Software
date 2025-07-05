@@ -470,6 +470,7 @@
         /* Ensure the Add Item button doesn't squish */
         .trade-selector-group .btn-green {
             flex-shrink: 0; /* Prevent the button from shrinking */
+            min-width: 100px; /* Give it a minimum width to prevent squishing */
         }
     </style>
 </head>
@@ -499,8 +500,8 @@
                     <tr>
                         <th rowspan="2" class="task-name-col">Task Name</th>
                         <th rowspan="2" class="description-col">Description</th>
-                        <!-- Initial colspan="5" for LABOR (4 detail + 1 total) -->
-                        <th colspan="5" class="text-center labor-col" id="thLaborHeader">
+                        <!-- Initial colspan="4" for LABOR (3 detail + 1 total) - MODIFIED FROM 5 TO 4 -->
+                        <th colspan="4" class="text-center labor-col" id="thLaborHeader">
                             <div class="collapsible-header" data-group="labor">
                                 <span>LABOR</span>
                                 <span class="collapse-toggle-icon">▼</span>
@@ -513,7 +514,7 @@
                                 <span class="collapse-toggle-icon">▼</span>
                             </div>
                         </th>
-                        <!-- Initial colspan="4" for OTHER (3 detail + 1 total) - Corrected from 3 to 4 -->
+                        <!-- Initial colspan="4" for OTHER (3 detail + 1 total) -->
                         <th colspan="4" class="text-center other-col" id="thOtherHeader">
                             <div class="collapsible-header" data-group="other">
                                 <span>OTHER</span>
@@ -938,7 +939,7 @@
                 headerElement.classList.remove('collapsed');
                 // Restore original colspan when expanded
                 if (group === 'labor') {
-                    mainThElement.colSpan = 5;
+                    mainThElement.colSpan = 4; // Corrected from 5 to 4
                 } else if (group === 'materials') {
                     mainThElement.colSpan = 3;
                 } else if (group === 'other') {
@@ -953,7 +954,7 @@
                 estimateTableBody.querySelectorAll('tr').forEach(row => {
                     const cells = row.querySelectorAll('td');
                     if (group === 'labor') {
-                        [2, 3, 4, 5].forEach(index => {
+                        [2, 3, 4, 5].forEach(index => { // These indices correspond to OT/DT, Skill, $/hr, #hrs
                             if (cells[index]) cells[index].classList.remove('column-hidden');
                         });
                     } else if (group === 'materials') {
@@ -1062,7 +1063,8 @@
                                 th.classList.add('column-hidden');
                             });
                         } else {
-                            mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); // Fixed to use direct values
+                            // Corrected colspan for labor to 4
+                            mainThElement.colSpan = (group === 'labor' ? 4 : group === 'materials' ? 3 : 4); 
                             document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
                                 th.classList.remove('column-hidden');
                             });
@@ -1248,7 +1250,7 @@
             if (item) {
                 if (['hours', 'materialQuantity', 'materialUnitCost', 'equipmentRentalCost', 'subcontractorCostLineItem', 'miscLineItem', 'otDtMultiplier'].includes(field)) {
                     item[field] = parseFloat(value) || 0;
-                } else if (field === 'trade') { // NEW: Handle trade change
+                } else if (field === 'trade') { // Handle trade change for an existing item
                     item.trade = value;
                     // When trade changes, reset skill to a default for that trade
                     const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
@@ -1300,16 +1302,6 @@
                             <option value="2.0" ${item.otDtMultiplier === 2.0 ? 'selected' : ''}>2.0</option>
                         </select>
                     </td>
-                    <td data-label="Trade" class="${collapsedState.labor ? 'column-hidden' : ''}">
-                        <select onchange="updateItem(${item.id}, 'trade', this.value)" class="input-field">
-                            ${activeTrades.map(tradeOption => {
-                                return `<option value="${tradeOption}" ${item.trade === tradeOption ? 'selected' : ''}>
-                                            ${tradeOption}
-                                        </option>`;
-                            }).join('')}
-                            ${activeTrades.length === 0 ? '<option value="" selected>No Trades</option>' : ''}
-                        </select>
-                    </td>
                     <td data-label="Skill" class="${collapsedState.labor ? 'column-hidden' : ''}">
                         <select onchange="updateItem(${item.id}, 'rateRole', this.value)" class="input-field">
                             ${(projectSettings.allTradeLaborRates[item.trade] ? Object.keys(projectSettings.allTradeLaborRates[item.trade]) : []).map(role => {
@@ -1320,7 +1312,7 @@
                             ${!projectSettings.allTradeLaborRates[item.trade] || Object.keys(projectSettings.allTradeLaborRates[item.trade]).length === 0 ? '<option value="" selected>No Skills</option>' : ''}
                         </select>
                     </td>
-                    <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(effectiveLaborRate)}</td>
+                    <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(laborRate)}</td> <!-- Display base rate, not effective rate here -->
                     <td data-label="# hrs" class="${collapsedState.labor ? 'column-hidden' : ''}"><input type="number" value="${item.hours}" onchange="updateItem(${item.id}, 'hours', this.value)" class="input-field"></td>
                     <td data-label="Labor Total">${formatCurrency(laborTotal)}</td>
                     
@@ -1352,17 +1344,19 @@
 
         function adjustTableMinWidth() {
             const table = document.querySelector('.min-w-full');
-            let currentMinWidth = 150 + 200 + 100 + 80; 
-
-            currentMinWidth += (100 + 100 + 100);
+            // Base width for fixed columns (Task Name, Description, Labor Total, Materials Total, Other Total, Total, Actions)
+            let currentMinWidth = 150 + 200 + 100 + 100 + 100 + 100 + 80; 
 
             if (!collapsedState.labor) {
+                // Add width for OT/DT, Skill, $/hr, #hrs
                 currentMinWidth += (90 + 90 + 70 + 70); 
             }
             if (!collapsedState.materials) {
+                // Add width for QTY / UNIT, $ / UNIT
                 currentMinWidth += (70 + 70); 
             }
             if (!collapsedState.other) {
+                // Add width for Equipment / Rental, Subcontractor, Misc.
                 currentMinWidth += (70 + 70 + 70); 
             }
             
@@ -1579,7 +1573,8 @@
                                 th.classList.add('column-hidden');
                             });
                         } else {
-                            mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); // Fixed to use direct values
+                            // Corrected colspan for labor to 4
+                            mainThElement.colSpan = (group === 'labor' ? 4 : group === 'materials' ? 3 : 4); 
                             document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
                                 th.classList.remove('column-hidden');
                             });
