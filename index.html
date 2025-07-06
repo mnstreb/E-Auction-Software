@@ -4,19 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Construction Estimate Calculator</title>
-    <!-- Link to Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Link to Chart.js for the pie chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Link to AppHeader specific CSS -->
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
-    <!-- Link to SummaryOverview specific CSS -->
     <link rel="stylesheet" href="src/sections/SummaryOverview/SummaryOverview.css">
-    <!-- Link to SetupWizard specific CSS -->
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
-    <!-- NEW: Link to SavedProjects specific CSS -->
     <link rel="stylesheet" href="src/sections/SavedProjects/SavedProjects.css">
-    <!-- NEW: Link to SaveProjectModal specific CSS (IMPORTANT: This must load after other general styles for specificity) -->
     <link rel="stylesheet" href="src/components/SaveProjectModal/SaveProjectModal.css"> 
     <style>
         /* Base styles and UI improvements (General styles remain here) */
@@ -191,7 +184,7 @@
                 border: none;
                 position: relative;
                 padding-left: 50%;
-                text-align: right;
+                text-align: right; /* Default for most td in responsive view */
                 font-size: 14px;
             }
             td:before {
@@ -209,20 +202,37 @@
             td:nth-of-type(1):before { content: "Task Name:"; }
             td:nth-of-type(2):before { content: "Description:"; }
             td:nth-of-type(3):before { content: "OT/DT Multiplier:"; }
-            td:nth-of-type(4):before { content: "Skill:"; }
-            td:nth-of-type(5):before { content: "Rate:"; }
-            td:nth-of-type(6):before { content: "# hrs:"; }
-            td:nth-of-type(7):before { content: "Labor Total:"; }
-            td:nth-of-type(8):before { content: "QTY / UNIT:"; }
-            td:nth-of-type(9):before { content: "$ / UNIT:"; }
-            td:nth-of-type(10):before { content: "Materials Total:"; }
-            td:nth-of-type(11):before { content: "Equipment / Rental:"; }
-            td:nth-of-type(12):before { content: "Subcontractor:"; }
-            td:nth-of-type(13):before { content: "Misc.:"; }
-            td:nth-of-type(14):before { content: "Other Total:"; }
-            td:nth-of-type(15):before { content: "TOTAL:"; }
-            td:nth-of-type(16):before { content: "Actions:"; }
+            td:nth-of-type(4):before { content: "Trade:"; } /* Reverted to 4th column */
+            td:nth-of-type(5):before { content: "Skill:"; } /* Reverted to 5th column */
+            td:nth-of-type(6):before { content: "Rate:"; } /* Reverted to 6th column */
+            td:nth-of-type(7):before { content: "# hrs:"; } /* Reverted to 7th column */
+            td:nth-of-type(8):before { content: "Labor Total:"; } /* Reverted to 8th column */
+            td:nth-of-type(9):before { content: "QTY / UNIT:"; } /* Reverted to 9th column */
+            td:nth-of-type(10):before { content: "$ / UNIT:"; } /* Reverted to 10th column */
+            td:nth-of-type(11):before { content: "Materials Total:"; } /* Reverted to 11th column */
+            td:nth-of-type(12):before { content: "Equipment / Rental:"; } /* Reverted to 12th column */
+            td:nth-of-type(13):before { content: "Subcontractor:"; } /* Reverted to 13th column */
+            td:nth-of-type(14):before { content: "Misc.:"; } /* Reverted to 14th column */
+            td:nth-of-type(15):before { content: "Other Total:"; } /* Reverted to 15th column */
+            td:nth-of-type(16):before { content: "TOTAL:"; } /* Reverted to 16th column */
+            td:nth-of-type(17):before { content: "Actions:"; } /* Reverted to 17th column */
 
+
+            /* Re-apply center alignment for total columns specifically (content) */
+            /* Adjusted nth-of-type to match new column indices after Trade column re-addition */
+            td:nth-of-type(8),  /* Labor Total (now 8th column) */
+            td:nth-of-type(11), /* Materials Total (now 11th column) */
+            td:nth-of-type(15), /* Other Total (now 15th column) */
+            td:nth-of-type(16) { /* Line Total (now 16th column) */
+                text-align: center; /* Override the general 'text-align: right' for these specific columns */
+            }
+
+            /* Ensure headers of total columns are also centered in responsive view */
+            th.labor-total-col,
+            th.materials-total-col,
+            th.other-total-col {
+                text-align: center;
+            }
         }
 
         @media (max-width: 768px) {
@@ -287,14 +297,16 @@
             transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
 
-        #estimateTableBody td:nth-child(3) select,
-        #estimateTableBody td:nth-child(4) select {
+        /* Adjusted nth-child for select elements due to Trade column re-addition */
+        #estimateTableBody td:nth-child(3) select, /* OT/DT */
+        #estimateTableBody td:nth-child(4) select { /* Trade */
             width: 90px;
             text-align: left;
         }
 
-        #estimateTableBody td:nth-child(5),
-        #estimateTableBody td:nth-child(15) {
+        /* Adjusted nth-child for specific text alignment due to Trade column re-addition */
+        #estimateTableBody td:nth-child(6), /* $/hr */
+        #estimateTableBody td:nth-child(17) { /* Total */
             white-space: nowrap;
             font-weight: bold;
             color: #1f2937;
@@ -302,9 +314,10 @@
             transition: color 0.3s;
         }
 
-        #estimateTableBody td:nth-child(7),
-        #estimateTableBody td:nth-child(10),
-        #estimateTableBody td:nth-child(14) {
+        /* Adjusted nth-child for centered totals due to Trade column re-addition */
+        #estimateTableBody td:nth-child(8), /* Labor Total */
+        #estimateTableBody td:nth-child(11), /* Materials Total */
+        #estimateTableBody td:nth-child(15) { /* Other Total */
             white-space: nowrap;
             font-weight: bold;
             color: #1f2937;
@@ -413,11 +426,12 @@
         .dark-theme .rate-label {
             color: #a0aec0;
         }
-        .dark-theme #estimateTableBody td:nth-child(5),
-        .dark-theme #estimateTableBody td:nth-child(7),
-        .dark-theme #estimateTableBody td:nth-child(10),
-        .dark-theme #estimateTableBody td:nth-child(14),
-        .dark-theme #estimateTableBody td:nth-child(15) {
+        /* Adjusted nth-child for dark theme text color due to Trade column re-addition */
+        .dark-theme #estimateTableBody td:nth-child(6), /* $/hr */
+        .dark-theme #estimateTableBody td:nth-child(8), /* Labor Total */
+        .dark-theme #estimateTableBody td:nth-child(11), /* Materials Total */
+        .dark-theme #estimateTableBody td:nth-child(15), /* Other Total */
+        .dark-theme #estimateTableBody td:nth-child(16) { /* Line Total */
             color: #e2e8f0;
         }
         .dark-theme td:before {
@@ -476,21 +490,16 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-    <!-- Main Application Interface -->
     <div id="mainApp" class="container hidden">
-        <!-- Placeholder for AppHeader component -->
         <div id="appHeaderPlaceholder"></div>
-        <!-- Placeholder for SummaryOverview component -->
         <div id="summaryOverviewPlaceholder"></div>
 
         <div class="card overflow-x-auto" id="estimateLineItemsTableContainer">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-semibold text-gray-800">Estimate Line Items</h3>
-                <div class="trade-selector-group"> <!-- NEW: Group for trade selector and add button -->
-                    <label for="defaultTradeSelector" class="label">Default Trade for New Items:</label>
+                <div class="trade-selector-group"> <label for="defaultTradeSelector" class="label">Default Trade for New Items:</label>
                     <select id="defaultTradeSelector" class="input-field">
-                        <!-- Options will be populated by JavaScript -->
-                    </select>
+                        </select>
                     <button id="addItemBtn" class="btn btn-green">➕ Add Item</button>
                 </div>
             </div>
@@ -500,21 +509,18 @@
                     <tr>
                         <th rowspan="2" class="task-name-col">Task Name</th>
                         <th rowspan="2" class="description-col">Description</th>
-                        <!-- Reverted colspan to 5 and added Trade column -->
                         <th colspan="5" class="text-center labor-col" id="thLaborHeader">
                             <div class="collapsible-header" data-group="labor">
                                 <span>LABOR</span>
                                 <span class="collapse-toggle-icon">▼</span>
                             </div>
                         </th>
-                        <!-- Initial colspan="3" for MATERIALS (2 detail + 1 total) -->
                         <th colspan="3" class="text-center materials-col" id="thMaterialsHeader">
                             <div class="collapsible-header" data-group="materials">
                                 <span>MATERIALS</span>
                                 <span class="collapse-toggle-icon">▼</span>
                             </div>
                         </th>
-                        <!-- Initial colspan="4" for OTHER (3 detail + 1 total) -->
                         <th colspan="4" class="text-center other-col" id="thOtherHeader">
                             <div class="collapsible-header" data-group="other">
                                 <span>OTHER</span>
@@ -525,10 +531,8 @@
                         <th rowspan="2" class="actions-col">Actions</th>
                     </tr>
                     <tr>
-                        <!-- These THs will be hidden/shown by JS and are targeted by data-col-group -->
                         <th class="border-b" data-col-group="labor-details">OT/DT</th>
-                        <th class="border-b" data-col-group="labor-details">Trade</th> <!-- NEW: Trade column header -->
-                        <th class="border-b" data-col-group="labor-details">Skill</th>
+                        <th class="border-b" data-col-group="labor-details">Trade</th> <th class="border-b" data-col-group="labor-details">Skill</th>
                         <th class="border-b" data-col-group="labor-details">$/hr</th>
                         <th class="border-b labor-total-col">Labor Total</th>
 
@@ -539,8 +543,7 @@
                         <th class="border-b" data-col-group="other-details">Equipment / Rental</th>
                         <th class="border-b" data-col-group="other-details">Subcontractor</th>
                         <th class="border-b" data-col-group="other-details">Misc.</th>
-                        <th class="border-b other-total-col">Other Total</th> <!-- Added this header -->
-                    </tr>
+                        <th class="border-b other-total-col">Other Total</th> </tr>
                 </thead>
                 <tbody id="estimateTableBody">
                     </tbody>
@@ -548,13 +551,10 @@
         </div>
     </div>
 
-    <!-- Placeholder for SetupWizard component -->
     <div id="setupWizardPlaceholder"></div>
 
-    <!-- NEW: Placeholder for SavedProjects component -->
     <div id="savedProjectsPlaceholder"></div>
 
-    <!-- NEW: Save Project Confirmation Modal -->
     <div id="saveProjectModal" class="save-project-modal">
         <div class="save-project-modal-content">
             <h3>Save Project</h3>
@@ -920,18 +920,18 @@
                 estimateTableBody.querySelectorAll('tr').forEach(row => {
                     const cells = row.querySelectorAll('td');
                     if (group === 'labor') {
-                        // Original indices for labor details: 2(OT/DT), 3(Trade), 4(Skill), 5($/hr), 6(#hrs)
-                        [2, 3, 4, 5, 6].forEach(index => { // Adjusted indices for new Trade column
+                        // Indices: OT/DT (2), Trade (3), Skill (4), $/hr (5), #hrs (6)
+                        [2, 3, 4, 5, 6].forEach(index => { 
                             if (cells[index]) cells[index].classList.add('column-hidden');
                         });
                     } else if (group === 'materials') {
-                        // Original indices for materials details: 8(QTY/UNIT), 9($/UNIT)
-                        [8, 9].forEach(index => { // Adjusted indices
+                        // Indices: QTY/UNIT (8), $/UNIT (9)
+                        [8, 9].forEach(index => { 
                             if (cells[index]) cells[index].classList.add('column-hidden');
                         });
                     } else if (group === 'other') {
-                        // Original indices for other details: 11(Equipment), 12(Subcontractor), 13(Misc.)
-                        [11, 12, 13].forEach(index => { // Adjusted indices
+                        // Indices: Equipment (11), Subcontractor (12), Misc (13)
+                        [11, 12, 13].forEach(index => { 
                             if (cells[index]) cells[index].classList.add('column-hidden');
                         });
                     }
@@ -940,7 +940,7 @@
                 headerElement.classList.remove('collapsed');
                 // Restore original colspan when expanded
                 if (group === 'labor') {
-                    mainThElement.colSpan = 5; // Reverted to 5 for OT/DT, Trade, Skill, $/hr, #hrs
+                    mainThElement.colSpan = 5; // Reverted to 5
                 } else if (group === 'materials') {
                     mainThElement.colSpan = 3;
                 } else if (group === 'other') {
@@ -955,7 +955,7 @@
                 estimateTableBody.querySelectorAll('tr').forEach(row => {
                     const cells = row.querySelectorAll('td');
                     if (group === 'labor') {
-                        [2, 3, 4, 5, 6].forEach(index => { // Adjusted indices
+                        [2, 3, 4, 5, 6].forEach(index => { 
                             if (cells[index]) cells[index].classList.remove('column-hidden');
                         });
                     } else if (group === 'materials') {
@@ -1019,31 +1019,22 @@
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
                 window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.projectState);
             }
-            // NEW: Update AppHeader's logo after wizard completion
+            // Update AppHeader's logo after wizard completion
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo(projectSettings.contractorLogo);
             }
 
-            // NEW: Populate the default trade selector after wizard completion
+            // Populate the default trade selector after wizard completion
             populateDefaultTradeSelector();
-            // NEW: Immediately update all line items to the default trade from the wizard
-            updateAllLineItemsToGlobalTrade();
-
-
-            // Ensure default trade/role is set for the single item if it's new or needs update
-            if (estimateItems.length === 1) { // Only update the first item if it's the default one
+            
+            // Ensure initial line item's trade is set to the default from the wizard
+            if (estimateItems.length > 0) {
                 const firstItem = estimateItems[0];
                 const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
-                const defaultRole = projectSettings.allTradeLaborRates[defaultTrade] && Object.keys(projectSettings.allTradeLaborRates[defaultTrade]).length > 0 ? Object.keys(projectSettings.allTradeLaborRates[defaultTrade])[0] : "Journeyman";
-                
-                // Only set if the item still has the initial generic names or trade/role are invalid
-                if (firstItem.taskName === 'First Task' && firstItem.description === 'Detail your first project task here.' ||
-                    !projectSettings.activeTrades.includes(firstItem.trade) ||
-                    !projectSettings.allTradeLaborRates[firstItem.trade]?.[firstItem.rateRole]
-                ) {
-                    firstItem.trade = defaultTrade;
-                    firstItem.rateRole = defaultRole;
-                }
+                firstItem.trade = defaultTrade;
+                // Also set default role for the first item based on its new trade
+                const availableRoles = Object.keys(projectSettings.allTradeLaborRates[firstItem.trade] || {});
+                firstItem.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
             }
             
             renderItems(); // This will now render based on the (single) item and collapsedState for TDs.
@@ -1066,7 +1057,7 @@
                                 th.classList.add('column-hidden');
                             });
                         } else {
-                            // Corrected colspan for labor to 5 (OT/DT, Trade, Skill, $/hr, #hrs)
+                            // Reverted colspan for labor to 5
                             mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
                             document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
                                 th.classList.remove('column-hidden');
@@ -1260,7 +1251,7 @@
             if (item) {
                 if (['hours', 'materialQuantity', 'materialUnitCost', 'equipmentRentalCost', 'subcontractorCostLineItem', 'miscLineItem', 'otDtMultiplier'].includes(field)) {
                     item[field] = parseFloat(value) || 0;
-                } else if (field === 'trade') { // Handle trade change for an existing item
+                } else if (field === 'trade') { // RE-ENABLED and CORRECTED: Handle trade change for an existing item
                     item.trade = value;
                     // When trade changes, reset skill to a default for that trade
                     const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
@@ -1270,21 +1261,6 @@
                 }
                 renderItems(); // Re-render the table to reflect changes and update dropdowns
             }
-        }
-
-        /**
-         * Updates all existing line items to the currently selected global trade.
-         * This function is triggered when the global "Default Trade for New Items" selector changes.
-         */
-        function updateAllLineItemsToGlobalTrade() {
-            const newGlobalTrade = currentlySelectedTradeForLineItems;
-            estimateItems.forEach(item => {
-                item.trade = newGlobalTrade; // Assign the global trade to each item
-                // Reset skill to a default for the new trade if the old one isn't available
-                const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
-                item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
-            });
-            renderItems(); // Re-render the entire table to reflect these mass changes
         }
 
 
@@ -1363,8 +1339,7 @@
                     
                     <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
                     <td class="actions-cell"> 
-                        <div class="flex items-center justify-end gap-2 h-full w-full"> <!-- NEW wrapper div with flex, height, width -->
-                            <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
+                        <div class="flex items-center justify-end gap-2 h-full w-full"> <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 0 0 1-2-2V4a2 0 0 1 2-2h9a2 0 0 1 2 2v1"></path></svg>
                             </button>
                             <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
@@ -1381,11 +1356,12 @@
         function adjustTableMinWidth() {
             const table = document.querySelector('.min-w-full');
             // Base width for fixed columns (Task Name, Description, Labor Total, Materials Total, Other Total, Total, Actions)
-            let currentMinWidth = 150 + 200 + 100 + 100 + 100 + 100 + 80; 
+            // Adjusted for 3 extra cols (OT/DT, Trade, Skill) + $/hr + #hrs + Labor Total + Mtrls Total + Other Total + Total + Actions
+            let currentMinWidth = 150 + 200 + 90 + 90 + 90 + 70 + 70 + 100 + 70 + 70 + 100 + 70 + 70 + 70 + 100 + 80; /* REVERTED values, assuming all columns are visible for min-width calculation */
 
             if (!collapsedState.labor) {
-                // Add width for OT/DT, Trade, Skill, $/hr, #hrs
-                currentMinWidth += (90 + 90 + 90 + 70 + 70); // Adjusted for new Trade column
+                // Add width for OT/DT, Trade, Skill, $/hr, #hrs (5 columns)
+                currentMinWidth += (90 + 90 + 90 + 70 + 70); 
             }
             if (!collapsedState.materials) {
                 // Add width for QTY / UNIT, $ / UNIT
@@ -1586,7 +1562,7 @@
             if (defaultTradeSelectorElem) {
                 defaultTradeSelectorElem.addEventListener('change', (event) => {
                     currentlySelectedTradeForLineItems = event.target.value;
-                    updateAllLineItemsToGlobalTrade(); // Trigger mass update
+                    // Removed the call to updateAllLineItemsToGlobalTrade() here
                 });
             }
             // NEW: Event listener for Add Item button (now inside trade-selector-group)
@@ -1610,7 +1586,7 @@
                                 th.classList.add('column-hidden');
                             });
                         } else {
-                            // Corrected colspan for labor to 5 (OT/DT, Trade, Skill, $/hr, #hrs)
+                            // Reverted colspan for labor to 5
                             mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
                             document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
                                 th.classList.remove('column-hidden');
