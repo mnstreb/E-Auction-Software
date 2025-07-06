@@ -165,29 +165,34 @@
 
         /* Responsive adjustments */
         @media (max-width: 1024px) {
-            table, thead, tbody, th, td, tr {
+            .estimate-table {
+                display: block;
+                width: 100% !important; /* Override any other width settings on mobile */
+                min-width: 0 !important;
+            }
+            .estimate-table thead, .estimate-table tbody, .estimate-table tr, .estimate-table th, .estimate-table td {
                 display: block;
             }
-            thead tr {
+            .estimate-table thead tr {
                 position: absolute;
                 top: -9999px;
                 left: -9999px;
             }
-            tr {
+            .estimate-table tr {
                 border: 1px solid #ccc;
                 margin-bottom: 10px;
                 border-radius: 8px;
                 overflow: hidden;
                 transition: border-color 0.3s;
             }
-            td {
+            .estimate-table td {
                 border: none;
                 position: relative;
                 padding-left: 50%;
                 text-align: right; /* Default for most td in responsive view */
                 font-size: 14px;
             }
-            td:before {
+            .estimate-table td:before {
                 content: attr(data-label);
                 position: absolute;
                 left: 6px;
@@ -199,40 +204,23 @@
                 color: #4b5563;
                 transition: color 0.3s;
             }
-            td:nth-of-type(1):before { content: "Task Name:"; }
-            td:nth-of-type(2):before { content: "Description:"; }
-            td:nth-of-type(3):before { content: "OT/DT Multiplier:"; }
-            td:nth-of-type(4):before { content: "Trade:"; } /* Reverted to 4th column */
-            td:nth-of-type(5):before { content: "Skill:"; } /* Reverted to 5th column */
-            td:nth-of-type(6):before { content: "Rate:"; } /* Reverted to 6th column */
-            td:nth-of-type(7):before { content: "# hrs:"; } /* Reverted to 7th column */
-            td:nth-of-type(8):before { content: "Labor Total:"; } /* Reverted to 8th column */
-            td:nth-of-type(9):before { content: "QTY / UNIT:"; } /* Reverted to 9th column */
-            td:nth-of-type(10):before { content: "$ / UNIT:"; } /* Reverted to 10th column */
-            td:nth-of-type(11):before { content: "Materials Total:"; } /* Reverted to 11th column */
-            td:nth-of-type(12):before { content: "Equipment / Rental:"; } /* Reverted to 12th column */
-            td:nth-of-type(13):before { content: "Subcontractor:"; } /* Reverted to 13th column */
-            td:nth-of-type(14):before { content: "Misc.:"; } /* Reverted to 14th column */
-            td:nth-of-type(15):before { content: "Other Total:"; } /* Reverted to 15th column */
-            td:nth-of-type(16):before { content: "TOTAL:"; } /* Reverted to 16th column */
-            td:nth-of-type(17):before { content: "Actions:"; } /* Reverted to 17th column */
-
-
-            /* Re-apply center alignment for total columns specifically (content) */
-            /* Adjusted nth-of-type to match new column indices after Trade column re-addition */
-            td:nth-of-type(8),  /* Labor Total (now 8th column) */
-            td:nth-of-type(11), /* Materials Total (now 11th column) */
-            td:nth-of-type(15), /* Other Total (now 15th column) */
-            td:nth-of-type(16) { /* Line Total (now 16th column) */
-                text-align: center; /* Override the general 'text-align: right' for these specific columns */
-            }
-
-            /* Ensure headers of total columns are also centered in responsive view */
-            th.labor-total-col,
-            th.materials-total-col,
-            th.other-total-col {
-                text-align: center;
-            }
+            .estimate-table td:nth-of-type(1):before { content: "Task Name:"; }
+            .estimate-table td:nth-of-type(2):before { content: "Description:"; }
+            .estimate-table td:nth-of-type(3):before { content: "OT/DT Multiplier:"; }
+            .estimate-table td:nth-of-type(4):before { content: "Trade:"; }
+            .estimate-table td:nth-of-type(5):before { content: "Skill:"; }
+            .estimate-table td:nth-of-type(6):before { content: "Rate:"; }
+            .estimate-table td:nth-of-type(7):before { content: "# hrs:"; }
+            .estimate-table td:nth-of-type(8):before { content: "Labor Total:"; }
+            .estimate-table td:nth-of-type(9):before { content: "QTY / UNIT:"; }
+            .estimate-table td:nth-of-type(10):before { content: "$ / UNIT:"; }
+            .estimate-table td:nth-of-type(11):before { content: "Materials Total:"; }
+            .estimate-table td:nth-of-type(12):before { content: "Equipment / Rental:"; }
+            .estimate-table td:nth-of-type(13):before { content: "Subcontractor:"; }
+            .estimate-table td:nth-of-type(14):before { content: "Misc.:"; }
+            .estimate-table td:nth-of-type(15):before { content: "Other Total:"; }
+            .estimate-table td:nth-of-type(16):before { content: "TOTAL:"; }
+            .estimate-table td:nth-of-type(17):before { content: "Actions:"; }
         }
 
         @media (max-width: 768px) {
@@ -244,10 +232,10 @@
                 padding: 10px 20px;
                 font-size: 14px;
             }
-            .header-title { /* Kept here as it's a general heading style now */
+            .header-title {
                 font-size: 24px;
             }
-            .header-subtitle { /* Kept here as it's a general subheading style now */
+            .header-subtitle {
                 font-size: 15px;
             }
         }
@@ -262,16 +250,15 @@
             -moz-appearance: textfield;
         }
 
-        /* --- CORRECTED CSS FOR DYNAMIC TABLE LAYOUT --- */
+        /* --- FINAL CORRECTED CSS FOR DYNAMIC TABLE LAYOUT --- */
         .estimate-table {
-            table-layout: auto; /* Use auto layout for collapsed state to fit container */
-            width: 100%;
+            table-layout: fixed;
+            width: 100%; /* Default state fits the container */
         }
-
         .estimate-table.table-expanded {
-            width: 1800px; /* Force a wide width for expanded state to enable scrolling */
+            width: 1800px; /* Expanded state forces a scrollbar */
         }
-        /* --- END CORRECTED BLOCK --- */
+        /* --- END FINAL CORRECTED BLOCK --- */
 
         #estimateTableBody td {
             padding: 8px 10px;
@@ -316,14 +303,6 @@
             transition: color 0.3s;
         }
 
-        #estimateTableBody td:nth-child(16) { /* Total cell */
-            white-space: nowrap;
-            font-weight: bold;
-            color: #1f2937;
-            text-align: center;
-            transition: color 0.3s;
-        }
-
         #estimateTableBody td:nth-child(8),
         #estimateTableBody td:nth-child(11),
         #estimateTableBody td:nth-child(15) {
@@ -334,13 +313,18 @@
             transition: color 0.3s;
         }
         
-        .actions-col, th.total-col {
-            text-align: center !important;
-        }
-
         #estimateTableBody td.actions-cell {
             text-align: center;
             white-space: nowrap;
+        }
+        
+        th.total-col,
+        #estimateTableBody td:nth-child(16) {
+            text-align: center !important;
+        }
+
+        th.actions-col {
+            text-align: center !important;
         }
 
         #estimateTableBody td button.btn-red,
@@ -356,10 +340,7 @@
             width: 16px; 
             height: 16px; 
             stroke: currentColor; 
-            stroke-width: 2;
-        }
-        #estimateTableBody td button.btn-red svg {
-             stroke-width: 3; 
+            stroke-width: 2.5; /* Made icons slightly bolder */
         }
 
         .collapsible-header {
@@ -1105,7 +1086,7 @@
                     <td data-label="Subcontractor" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.subcontractorCostLineItem}" onchange="updateItem(${item.id}, 'subcontractorCostLineItem', this.value)" class="input-field"></td>
                     <td data-label="Misc. Cost" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.miscLineItem}" onchange="updateItem(${item.id}, 'miscLineItem', this.value)" class="input-field"></td>
                     <td data-label="Other Total">${formatCurrency(otherCategoryTotal)}</td>
-                    <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
+                    <td data-label="Line Total" class="font-bold">${formatCurrency(lineTotal)}</td>
                     <td class="actions-cell"><div class="flex items-center justify-center gap-2 h-full w-full"><button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></button></div></td>
                 `;
                 estimateTableBody.appendChild(row);
@@ -1227,7 +1208,7 @@
                     }
                 }
             }
-            // REMOVED adjustTableMinWidth() call
+            updateTableExpandState(); // Set initial state on load
         });
 
         function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
