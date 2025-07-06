@@ -167,7 +167,7 @@
         @media (max-width: 1024px) {
             .estimate-table {
                 display: block;
-                width: 100% !important; /* Override any other width settings on mobile */
+                width: auto !important; /* Override any other width settings on mobile */
                 min-width: 0 !important;
             }
             .estimate-table thead, .estimate-table tbody, .estimate-table tr, .estimate-table th, .estimate-table td {
@@ -204,23 +204,23 @@
                 color: #4b5563;
                 transition: color 0.3s;
             }
-            .estimate-table td:nth-of-type(1):before { content: "Task Name:"; }
-            .estimate-table td:nth-of-type(2):before { content: "Description:"; }
-            .estimate-table td:nth-of-type(3):before { content: "OT/DT Multiplier:"; }
-            .estimate-table td:nth-of-type(4):before { content: "Trade:"; }
-            .estimate-table td:nth-of-type(5):before { content: "Skill:"; }
-            .estimate-table td:nth-of-type(6):before { content: "Rate:"; }
-            .estimate-table td:nth-of-type(7):before { content: "# hrs:"; }
-            .estimate-table td:nth-of-type(8):before { content: "Labor Total:"; }
-            .estimate-table td:nth-of-type(9):before { content: "QTY / UNIT:"; }
-            .estimate-table td:nth-of-type(10):before { content: "$ / UNIT:"; }
-            .estimate-table td:nth-of-type(11):before { content: "Materials Total:"; }
-            .estimate-table td:nth-of-type(12):before { content: "Equipment / Rental:"; }
-            .estimate-table td:nth-of-type(13):before { content: "Subcontractor:"; }
-            .estimate-table td:nth-of-type(14):before { content: "Misc.:"; }
-            .estimate-table td:nth-of-type(15):before { content: "Other Total:"; }
-            .estimate-table td:nth-of-type(16):before { content: "TOTAL:"; }
-            .estimate-table td:nth-of-type(17):before { content: "Actions:"; }
+            td:nth-of-type(1):before { content: "Task Name:"; }
+            td:nth-of-type(2):before { content: "Description:"; }
+            td:nth-of-type(3):before { content: "OT/DT Multiplier:"; }
+            td:nth-of-type(4):before { content: "Trade:"; }
+            td:nth-of-type(5):before { content: "Skill:"; }
+            td:nth-of-type(6):before { content: "Rate:"; }
+            td:nth-of-type(7):before { content: "# hrs:"; }
+            td:nth-of-type(8):before { content: "Labor Total:"; }
+            td:nth-of-type(9):before { content: "QTY / UNIT:"; }
+            td:nth-of-type(10):before { content: "$ / UNIT:"; }
+            td:nth-of-type(11):before { content: "Materials Total:"; }
+            td:nth-of-type(12):before { content: "Equipment / Rental:"; }
+            td:nth-of-type(13):before { content: "Subcontractor:"; }
+            td:nth-of-type(14):before { content: "Misc.:"; }
+            td:nth-of-type(15):before { content: "Other Total:"; }
+            td:nth-of-type(16):before { content: "TOTAL:"; }
+            td:nth-of-type(17):before { content: "Actions:"; }
         }
 
         @media (max-width: 768px) {
@@ -250,18 +250,21 @@
             -moz-appearance: textfield;
         }
 
+
         /* --- FINAL CORRECTED CSS FOR DYNAMIC TABLE LAYOUT --- */
         .estimate-table {
             table-layout: fixed;
-            width: 100%; /* Default state fits the container */
+            /* When not expanded, table will adhere to container width */
         }
         .estimate-table.table-expanded {
-            width: 1800px; /* Expanded state forces a scrollbar */
+            /* When expanded, this class is added via JS, forcing a wide width to enable scrolling */
+            width: 1800px; 
         }
         /* --- END FINAL CORRECTED BLOCK --- */
 
         #estimateTableBody td {
             padding: 8px 10px;
+            word-wrap: break-word; /* Allow long text in cells to wrap */
         }
 
         #estimateTableBody td:nth-child(1) textarea,
@@ -272,45 +275,18 @@
             box-sizing: border-box;
             resize: vertical;
             overflow-y: auto;
-        }
-        #estimateTableBody td:nth-child(1) textarea,
-        #estimateTableBody td:nth-child(2) textarea {
             width: 100%;
-            max-width: none;
         }
 
         #estimateTableBody input[type="number"],
         #estimateTableBody select {
-            width: 70px;
+            width: 100%; /* Allow inputs to fill their cell */
+            min-width: 70px; /* But don't let them get too small */
             font-size: 0.9em;
             padding: 6px 8px;
             box-sizing: border-box;
             text-align: right;
             transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-        }
-
-        #estimateTableBody td:nth-child(3) select,
-        #estimateTableBody td:nth-child(4) select {
-            width: 90px;
-            text-align: left;
-        }
-
-        #estimateTableBody td:nth-child(6) {
-            white-space: nowrap;
-            font-weight: bold;
-            color: #1f2937;
-            text-align: right;
-            transition: color 0.3s;
-        }
-
-        #estimateTableBody td:nth-child(8),
-        #estimateTableBody td:nth-child(11),
-        #estimateTableBody td:nth-child(15) {
-            white-space: nowrap;
-            font-weight: bold;
-            color: #1f2937;
-            text-align: center;
-            transition: color 0.3s;
         }
         
         #estimateTableBody td.actions-cell {
@@ -318,12 +294,20 @@
             white-space: nowrap;
         }
         
+        /* Centering for TOTAL and Actions Columns */
         th.total-col,
-        #estimateTableBody td:nth-child(16) {
+        td.total-cell,
+        th.actions-col,
+        td.actions-cell {
             text-align: center !important;
         }
-
-        th.actions-col {
+        
+        td.total-cell, 
+        td.labor-total-cell, 
+        td.materials-total-cell, 
+        td.other-total-cell {
+            font-weight: bold;
+            color: #1f2937;
             text-align: center !important;
         }
 
@@ -340,8 +324,9 @@
             width: 16px; 
             height: 16px; 
             stroke: currentColor; 
-            stroke-width: 2.5; /* Made icons slightly bolder */
+            stroke-width: 2.5;
         }
+
 
         .collapsible-header {
             display: flex;
@@ -413,13 +398,14 @@
         .dark-theme .rate-label {
             color: #a0aec0;
         }
-        .dark-theme #estimateTableBody td:nth-child(6),
-        .dark-theme #estimateTableBody td:nth-child(8),
-        .dark-theme #estimateTableBody td:nth-child(11),
-        .dark-theme #estimateTableBody td:nth-child(15),
-        .dark-theme #estimateTableBody td:nth-child(16) {
+
+        .dark-theme td.total-cell, 
+        .dark-theme td.labor-total-cell, 
+        .dark-theme td.materials-total-cell, 
+        .dark-theme td.other-total-cell {
             color: #e2e8f0;
         }
+
         .dark-theme td:before {
             color: #a0aec0;
         }
@@ -822,39 +808,18 @@
         function updateTableExpandState() {
             const table = document.querySelector('.estimate-table');
             if (!table) return;
-
-            // The table is considered "expanded" if any of the collapsible groups are open.
             const isExpanded = !collapsedState.labor || !collapsedState.materials || !collapsedState.other;
-
-            if (isExpanded) {
-                table.classList.add('table-expanded');
-            } else {
-                table.classList.remove('table-expanded');
-            }
+            table.classList.toggle('table-expanded', isExpanded);
         }
 
         function toggleColumnVisibility(group) {
             collapsedState[group] = !collapsedState[group];
-            const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
-            const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
             
-            headerElement.classList.toggle('collapsed', collapsedState[group]);
-            
-            if (collapsedState[group]) {
-                mainThElement.colSpan = 1;
-            } else {
-                if (group === 'labor') { mainThElement.colSpan = 5; }
-                else if (group === 'materials') { mainThElement.colSpan = 3; }
-                else if (group === 'other') { mainThElement.colSpan = 4; }
-            }
-
-            // Toggle visibility of all elements in this group (headers and cells)
             document.querySelectorAll(`[data-col-group="${group}-details"]`).forEach(el => {
                 el.classList.toggle('column-hidden', collapsedState[group]);
             });
-            
-            // This is now handled by the renderItems function which calls calculateTotals, which calls this.
-            // Let's call it explicitly to be safe.
+            document.querySelector(`.collapsible-header[data-group="${group}"]`).classList.toggle('collapsed', collapsedState[group]);
+
             updateTableExpandState();
         }
         // --- END CORRECTED JAVASCRIPT ---
@@ -906,28 +871,7 @@
             if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
             }
-
-            for (const group in collapsedState) {
-                if (collapsedState.hasOwnProperty(group)) {
-                    const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
-                    const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
-                    if (headerElement && mainThElement) {
-                        if (collapsedState[group]) {
-                            headerElement.classList.add('collapsed');
-                            mainThElement.colSpan = 1;
-                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                th.classList.add('column-hidden');
-                            });
-                        } else {
-                            mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
-                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                th.classList.remove('column-hidden');
-                            });
-                        }
-                    }
-                }
-            }
-            updateTableExpandState(); // Also update state here
+            updateTableExpandState();
         }
 
         function showSetupWizard() {
@@ -1071,22 +1015,26 @@
                 const row = document.createElement('tr');
                 row.setAttribute('data-id', item.id);
                 row.innerHTML = `
-                    <td data-label="Task Name"><textarea rows="2" onchange="updateItem(${item.id}, 'taskName', this.value)" class="input-field">${item.taskName}</textarea></td>
-                    <td data-label="Description"><textarea rows="2" onchange="updateItem(${item.id}, 'description', this.value)" class="input-field">${item.description}</textarea></td>
-                    <td data-label="OT/DT Multiplier" class="${collapsedState.labor ? 'column-hidden' : ''}"><select onchange="updateItem(${item.id}, 'otDtMultiplier', this.value)" class="input-field"><option value="1.0" ${item.otDtMultiplier === 1.0 ? 'selected' : ''}>1.0</option><option value="1.5" ${item.otDtMultiplier === 1.5 ? 'selected' : ''}>1.5</option><option value="2.0" ${item.otDtMultiplier === 2.0 ? 'selected' : ''}>2.0</option></select></td>
-                    <td data-label="Trade" class="${collapsedState.labor ? 'column-hidden' : ''}"><select onchange="updateItem(${item.id}, 'trade', this.value)" class="input-field">${activeTrades.map(tradeOption => `<option value="${tradeOption}" ${item.trade === tradeOption ? 'selected' : ''}>${tradeOption}</option>`).join('')}${activeTrades.length === 0 ? '<option value="" selected>No Trades</option>' : ''}</select></td>
-                    <td data-label="Skill" class="${collapsedState.labor ? 'column-hidden' : ''}"><select onchange="updateItem(${item.id}, 'rateRole', this.value)" class="input-field">${(projectSettings.allTradeLaborRates[item.trade] ? Object.keys(projectSettings.allTradeLaborRates[item.trade]) : []).map(role => `<option value="${role}" ${item.rateRole === role ? 'selected' : ''}>${role}</option>`).join('')}${!projectSettings.allTradeLaborRates[item.trade] || Object.keys(projectSettings.allTradeLaborRates[item.trade]).length === 0 ? '<option value="" selected>No Skills</option>' : ''}</select></td>
-                    <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(laborRate)}</td>
-                    <td data-label="# hrs" class="${collapsedState.labor ? 'column-hidden' : ''}"><input type="number" value="${item.hours}" onchange="updateItem(${item.id}, 'hours', this.value)" class="input-field"></td>
-                    <td data-label="Labor Total">${formatCurrency(laborTotal)}</td>
-                    <td data-label="Material Qty" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialQuantity}" onchange="updateItem(${item.id}, 'materialQuantity', this.value)" class="input-field"></td>
-                    <td data-label="Material $/Unit" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialUnitCost}" onchange="updateItem(${item.id}, 'materialUnitCost', this.value)" class="input-field"></td>
-                    <td data-label="Materials Total">${formatCurrency(materialsTotal)}</td>
-                    <td data-label="Equipment/Rental" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.equipmentRentalCost}" onchange="updateItem(${item.id}, 'equipmentRentalCost', this.value)" class="input-field"></td>
-                    <td data-label="Subcontractor" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.subcontractorCostLineItem}" onchange="updateItem(${item.id}, 'subcontractorCostLineItem', this.value)" class="input-field"></td>
-                    <td data-label="Misc. Cost" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.miscLineItem}" onchange="updateItem(${item.id}, 'miscLineItem', this.value)" class="input-field"></td>
-                    <td data-label="Other Total">${formatCurrency(otherCategoryTotal)}</td>
-                    <td data-label="Line Total" class="font-bold">${formatCurrency(lineTotal)}</td>
+                    <td class="task-name-cell" data-label="Task Name"><textarea rows="2" onchange="updateItem(${item.id}, 'taskName', this.value)" class="input-field">${item.taskName}</textarea></td>
+                    <td class="description-cell" data-label="Description"><textarea rows="2" onchange="updateItem(${item.id}, 'description', this.value)" class="input-field">${item.description}</textarea></td>
+                    
+                    <td data-col-group="labor-details" data-label="OT/DT Multiplier" class="${collapsedState.labor ? 'column-hidden' : ''}"><select onchange="updateItem(${item.id}, 'otDtMultiplier', this.value)" class="input-field"><option value="1.0" ${item.otDtMultiplier === 1.0 ? 'selected' : ''}>1.0</option><option value="1.5" ${item.otDtMultiplier === 1.5 ? 'selected' : ''}>1.5</option><option value="2.0" ${item.otDtMultiplier === 2.0 ? 'selected' : ''}>2.0</option></select></td>
+                    <td data-col-group="labor-details" data-label="Trade" class="${collapsedState.labor ? 'column-hidden' : ''}"><select onchange="updateItem(${item.id}, 'trade', this.value)" class="input-field">${activeTrades.map(tradeOption => `<option value="${tradeOption}" ${item.trade === tradeOption ? 'selected' : ''}>${tradeOption}</option>`).join('')}${activeTrades.length === 0 ? '<option value="" selected>No Trades</option>' : ''}</select></td>
+                    <td data-col-group="labor-details" data-label="Skill" class="${collapsedState.labor ? 'column-hidden' : ''}"><select onchange="updateItem(${item.id}, 'rateRole', this.value)" class="input-field">${(projectSettings.allTradeLaborRates[item.trade] ? Object.keys(projectSettings.allTradeLaborRates[item.trade]) : []).map(role => `<option value="${role}" ${item.rateRole === role ? 'selected' : ''}>${role}</option>`).join('')}${!projectSettings.allTradeLaborRates[item.trade] || Object.keys(projectSettings.allTradeLaborRates[item.trade]).length === 0 ? '<option value="" selected>No Skills</option>' : ''}</select></td>
+                    <td data-col-group="labor-details" data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(laborRate)}</td>
+                    <td data-col-group="labor-details" data-label="# hrs" class="${collapsedState.labor ? 'column-hidden' : ''}"><input type="number" value="${item.hours}" onchange="updateItem(${item.id}, 'hours', this.value)" class="input-field"></td>
+                    <td data-col-group="labor-details" class="labor-total-cell ${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(laborTotal)}</td>
+
+                    <td data-col-group="materials-details" data-label="Material Qty" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialQuantity}" onchange="updateItem(${item.id}, 'materialQuantity', this.value)" class="input-field"></td>
+                    <td data-col-group="materials-details" data-label="Material $/Unit" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialUnitCost}" onchange="updateItem(${item.id}, 'materialUnitCost', this.value)" class="input-field"></td>
+                    <td data-col-group="materials-details" class="materials-total-cell ${collapsedState.materials ? 'column-hidden' : ''}">${formatCurrency(materialsTotal)}</td>
+
+                    <td data-col-group="other-details" data-label="Equipment/Rental" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.equipmentRentalCost}" onchange="updateItem(${item.id}, 'equipmentRentalCost', this.value)" class="input-field"></td>
+                    <td data-col-group="other-details" data-label="Subcontractor" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.subcontractorCostLineItem}" onchange="updateItem(${item.id}, 'subcontractorCostLineItem', this.value)" class="input-field"></td>
+                    <td data-col-group="other-details" data-label="Misc. Cost" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.miscLineItem}" onchange="updateItem(${item.id}, 'miscLineItem', this.value)" class="input-field"></td>
+                    <td data-col-group="other-details" class="other-total-cell ${collapsedState.other ? 'column-hidden' : ''}">${formatCurrency(otherCategoryTotal)}</td>
+                    
+                    <td class="total-cell" data-label="Line Total">${formatCurrency(lineTotal)}</td>
                     <td class="actions-cell"><div class="flex items-center justify-center gap-2 h-full w-full"><button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button><button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></button></div></td>
                 `;
                 estimateTableBody.appendChild(row);
