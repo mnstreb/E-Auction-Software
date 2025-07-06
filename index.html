@@ -500,8 +500,8 @@
                     <tr>
                         <th rowspan="2" class="task-name-col">Task Name</th>
                         <th rowspan="2" class="description-col">Description</th>
-                        <!-- Initial colspan="4" for LABOR (3 detail + 1 total) - MODIFIED FROM 5 TO 4 -->
-                        <th colspan="4" class="text-center labor-col" id="thLaborHeader">
+                        <!-- Reverted colspan to 5 and added Trade column -->
+                        <th colspan="5" class="text-center labor-col" id="thLaborHeader">
                             <div class="collapsible-header" data-group="labor">
                                 <span>LABOR</span>
                                 <span class="collapse-toggle-icon">▼</span>
@@ -527,6 +527,7 @@
                     <tr>
                         <!-- These THs will be hidden/shown by JS and are targeted by data-col-group -->
                         <th class="border-b" data-col-group="labor-details">OT/DT</th>
+                        <th class="border-b" data-col-group="labor-details">Trade</th> <!-- NEW: Trade column header -->
                         <th class="border-b" data-col-group="labor-details">Skill</th>
                         <th class="border-b" data-col-group="labor-details">$/hr</th>
                         <th class="border-b labor-total-col">Labor Total</th>
@@ -919,18 +920,18 @@
                 estimateTableBody.querySelectorAll('tr').forEach(row => {
                     const cells = row.querySelectorAll('td');
                     if (group === 'labor') {
-                        // Original indices for labor details: 2(OT/DT), 3(Skill), 4($/hr), 5(#hrs)
-                        [2, 3, 4, 5].forEach(index => {
+                        // Original indices for labor details: 2(OT/DT), 3(Trade), 4(Skill), 5($/hr), 6(#hrs)
+                        [2, 3, 4, 5, 6].forEach(index => { // Adjusted indices for new Trade column
                             if (cells[index]) cells[index].classList.add('column-hidden');
                         });
                     } else if (group === 'materials') {
-                        // Original indices for materials details: 7(QTY/UNIT), 8($/UNIT)
-                        [7, 8].forEach(index => {
+                        // Original indices for materials details: 8(QTY/UNIT), 9($/UNIT)
+                        [8, 9].forEach(index => { // Adjusted indices
                             if (cells[index]) cells[index].classList.add('column-hidden');
                         });
                     } else if (group === 'other') {
-                        // Original indices for other details: 10(Equipment), 11(Subcontractor), 12(Misc.)
-                        [10, 11, 12].forEach(index => {
+                        // Original indices for other details: 11(Equipment), 12(Subcontractor), 13(Misc.)
+                        [11, 12, 13].forEach(index => { // Adjusted indices
                             if (cells[index]) cells[index].classList.add('column-hidden');
                         });
                     }
@@ -939,7 +940,7 @@
                 headerElement.classList.remove('collapsed');
                 // Restore original colspan when expanded
                 if (group === 'labor') {
-                    mainThElement.colSpan = 4; // Corrected from 5 to 4
+                    mainThElement.colSpan = 5; // Reverted to 5 for OT/DT, Trade, Skill, $/hr, #hrs
                 } else if (group === 'materials') {
                     mainThElement.colSpan = 3;
                 } else if (group === 'other') {
@@ -954,15 +955,15 @@
                 estimateTableBody.querySelectorAll('tr').forEach(row => {
                     const cells = row.querySelectorAll('td');
                     if (group === 'labor') {
-                        [2, 3, 4, 5].forEach(index => { // These indices correspond to OT/DT, Skill, $/hr, #hrs
+                        [2, 3, 4, 5, 6].forEach(index => { // Adjusted indices
                             if (cells[index]) cells[index].classList.remove('column-hidden');
                         });
                     } else if (group === 'materials') {
-                        [7, 8].forEach(index => {
+                        [8, 9].forEach(index => {
                             if (cells[index]) cells[index].classList.remove('column-hidden');
                         });
                     } else if (group === 'other') {
-                        [10, 11, 12].forEach(index => {
+                        [11, 12, 13].forEach(index => {
                             if (cells[index]) cells[index].classList.remove('column-hidden');
                         });
                     }
@@ -1025,6 +1026,8 @@
 
             // NEW: Populate the default trade selector after wizard completion
             populateDefaultTradeSelector();
+            // NEW: Immediately update all line items to the default trade from the wizard
+            updateAllLineItemsToGlobalTrade();
 
 
             // Ensure default trade/role is set for the single item if it's new or needs update
@@ -1063,8 +1066,8 @@
                                 th.classList.add('column-hidden');
                             });
                         } else {
-                            // Corrected colspan for labor to 4
-                            mainThElement.colSpan = (group === 'labor' ? 4 : group === 'materials' ? 3 : 4); 
+                            // Corrected colspan for labor to 5 (OT/DT, Trade, Skill, $/hr, #hrs)
+                            mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
                             document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
                                 th.classList.remove('column-hidden');
                             });
@@ -1245,6 +1248,13 @@
         }
 
 
+        /**
+         * Updates a specific field for an estimate item.
+         * If 'trade' is updated, it also resets the 'rateRole' to a default for the new trade.
+         * @param {number} id - The ID of the item to update.
+         * @param {string} field - The field to update (e.g., 'taskName', 'hours', 'trade', 'rateRole').
+         * @param {*} value - The new value for the field.
+         */
         function updateItem(id, field, value) {
             const item = estimateItems.find(item => item.id === id);
             if (item) {
@@ -1261,6 +1271,22 @@
                 renderItems(); // Re-render the table to reflect changes and update dropdowns
             }
         }
+
+        /**
+         * Updates all existing line items to the currently selected global trade.
+         * This function is triggered when the global "Default Trade for New Items" selector changes.
+         */
+        function updateAllLineItemsToGlobalTrade() {
+            const newGlobalTrade = currentlySelectedTradeForLineItems;
+            estimateItems.forEach(item => {
+                item.trade = newGlobalTrade; // Assign the global trade to each item
+                // Reset skill to a default for the new trade if the old one isn't available
+                const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
+                item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+            });
+            renderItems(); // Re-render the entire table to reflect these mass changes
+        }
+
 
         function renderItems() {
             estimateTableBody.innerHTML = '';
@@ -1302,6 +1328,16 @@
                             <option value="2.0" ${item.otDtMultiplier === 2.0 ? 'selected' : ''}>2.0</option>
                         </select>
                     </td>
+                    <td data-label="Trade" class="${collapsedState.labor ? 'column-hidden' : ''}">
+                        <select onchange="updateItem(${item.id}, 'trade', this.value)" class="input-field">
+                            ${activeTrades.map(tradeOption => {
+                                return `<option value="${tradeOption}" ${item.trade === tradeOption ? 'selected' : ''}>
+                                            ${tradeOption}
+                                        </option>`;
+                            }).join('')}
+                            ${activeTrades.length === 0 ? '<option value="" selected>No Trades</option>' : ''}
+                        </select>
+                    </td>
                     <td data-label="Skill" class="${collapsedState.labor ? 'column-hidden' : ''}">
                         <select onchange="updateItem(${item.id}, 'rateRole', this.value)" class="input-field">
                             ${(projectSettings.allTradeLaborRates[item.trade] ? Object.keys(projectSettings.allTradeLaborRates[item.trade]) : []).map(role => {
@@ -1312,7 +1348,7 @@
                             ${!projectSettings.allTradeLaborRates[item.trade] || Object.keys(projectSettings.allTradeLaborRates[item.trade]).length === 0 ? '<option value="" selected>No Skills</option>' : ''}
                         </select>
                     </td>
-                    <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(effectiveLaborRate)}</td> <!-- UPDATED: Display effectiveLaborRate here -->
+                    <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(laborRate)}</td>
                     <td data-label="# hrs" class="${collapsedState.labor ? 'column-hidden' : ''}"><input type="number" value="${item.hours}" onchange="updateItem(${item.id}, 'hours', this.value)" class="input-field"></td>
                     <td data-label="Labor Total">${formatCurrency(laborTotal)}</td>
                     
@@ -1348,8 +1384,8 @@
             let currentMinWidth = 150 + 200 + 100 + 100 + 100 + 100 + 80; 
 
             if (!collapsedState.labor) {
-                // Add width for OT/DT, Skill, $/hr, #hrs
-                currentMinWidth += (90 + 90 + 70 + 70); 
+                // Add width for OT/DT, Trade, Skill, $/hr, #hrs
+                currentMinWidth += (90 + 90 + 90 + 70 + 70); // Adjusted for new Trade column
             }
             if (!collapsedState.materials) {
                 // Add width for QTY / UNIT, $ / UNIT
@@ -1387,6 +1423,7 @@
             estimateItems.forEach(item => {
                 const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
                 const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                const laborTotal = item.hours * effectiveLaborRate;
                 const materialsTotal = item.materialQuantity * item.materialUnitCost;
                 
                 totalLaborCost += laborTotal;
@@ -1549,6 +1586,7 @@
             if (defaultTradeSelectorElem) {
                 defaultTradeSelectorElem.addEventListener('change', (event) => {
                     currentlySelectedTradeForLineItems = event.target.value;
+                    updateAllLineItemsToGlobalTrade(); // Trigger mass update
                 });
             }
             // NEW: Event listener for Add Item button (now inside trade-selector-group)
@@ -1572,8 +1610,8 @@
                                 th.classList.add('column-hidden');
                             });
                         } else {
-                            // Corrected colspan for labor to 4
-                            mainThElement.colSpan = (group === 'labor' ? 4 : group === 'materials' ? 3 : 4); 
+                            // Corrected colspan for labor to 5 (OT/DT, Trade, Skill, $/hr, #hrs)
+                            mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
                             document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
                                 th.classList.remove('column-hidden');
                             });
