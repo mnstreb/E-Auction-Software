@@ -1251,7 +1251,7 @@
             if (item) {
                 if (['hours', 'materialQuantity', 'materialUnitCost', 'equipmentRentalCost', 'subcontractorCostLineItem', 'miscLineItem', 'otDtMultiplier'].includes(field)) {
                     item[field] = parseFloat(value) || 0;
-                } else if (field === 'trade') { // RE-ENABLED and CORRECTED: Handle trade change for an existing item
+                } else if (field === 'trade') { // Handle trade change for an existing item
                     item.trade = value;
                     // When trade changes, reset skill to a default for that trade
                     const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
@@ -1448,6 +1448,9 @@
             }
 
             const grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
+
+            // NEW: Assign grandTotal to projectSettings
+            projectSettings.grandTotal = grandTotal; 
 
             const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
 
