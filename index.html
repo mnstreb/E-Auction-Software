@@ -262,11 +262,27 @@
             -moz-appearance: textfield;
         }
 
-        /* Custom styles for Task Name and Description fields to make them wider */
-        table.min-w-full {
-            min-width: 1400px;
+        /* --- CHANGED BLOCK: NEW CSS FOR FLEXIBLE TABLE COLUMNS --- */
+        /* Use table-layout: fixed for predictable column widths */
+        .estimate-table {
+            table-layout: fixed;
             width: 100%;
         }
+
+        /* Define column widths. Task/Description are flexible, others are fixed. */
+        .estimate-table .task-name-col { width: 20%; }
+        .estimate-table .description-col { width: 30%; }
+        .estimate-table .labor-col,
+        .estimate-table .materials-col,
+        .estimate-table .other-col,
+        .estimate-table .total-col {
+            width: 110px; /* Fixed width for total columns */
+        }
+        .estimate-table .actions-col {
+            width: 120px; /* Fixed width to ensure buttons are visible */
+        }
+        /* --- END CHANGED BLOCK --- */
+
 
         #estimateTableBody td {
             padding: 8px 10px;
@@ -504,7 +520,8 @@
                 </div>
             </div>
 
-            <table class="min-w-full">
+            <!-- CHANGED: Added 'estimate-table' class to the table -->
+            <table class="estimate-table">
                 <thead>
                     <tr>
                         <th rowspan="2" class="task-name-col">Task Name</th>
@@ -969,7 +986,7 @@
                     }
                 });
             }
-            adjustTableMinWidth();
+            // REMOVED: The call to adjustTableMinWidth() is no longer needed.
         }
 
 
@@ -1066,7 +1083,7 @@
                     }
                 }
             }
-            adjustTableMinWidth();
+            // REMOVED: The call to adjustTableMinWidth() is no longer needed.
         }
 
         // This function is called by the AppHeader when the 'Reconfigure' button is clicked
@@ -1353,28 +1370,7 @@
             calculateTotals();
         }
 
-        function adjustTableMinWidth() {
-            const table = document.querySelector('.min-w-full');
-            // Base width for fixed columns (Task Name, Description, Labor Total, Materials Total, Other Total, Total, Actions)
-            // Adjusted for 3 extra cols (OT/DT, Trade, Skill) + $/hr + #hrs + Labor Total + Mtrls Total + Other Total + Total + Actions
-            let currentMinWidth = 150 + 200 + 90 + 90 + 90 + 70 + 70 + 100 + 70 + 70 + 100 + 70 + 70 + 70 + 100 + 80; /* REVERTED values, assuming all columns are visible for min-width calculation */
-
-            if (!collapsedState.labor) {
-                // Add width for OT/DT, Trade, Skill, $/hr, #hrs (5 columns)
-                currentMinWidth += (90 + 90 + 90 + 70 + 70); 
-            }
-            if (!collapsedState.materials) {
-                // Add width for QTY / UNIT, $ / UNIT
-                currentMinWidth += (70 + 70); 
-            }
-            if (!collapsedState.other) {
-                // Add width for Equipment / Rental, Subcontractor, Misc.
-                currentMinWidth += (70 + 70 + 70); 
-            }
-            
-            table.style.minWidth = `${currentMinWidth}px`;
-        }
-
+        // REMOVED: The adjustTableMinWidth function has been removed entirely.
 
         function calculateTotals() {
             let totalLaborCost = 0;
@@ -1598,7 +1594,7 @@
                     }
                 }
             }
-            adjustTableMinWidth();
+            // REMOVED: The call to adjustTableMinWidth() is no longer needed.
         });
 
         function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
