@@ -1,6 +1,5 @@
 <div class="card flex items-center justify-between p-4 mb-6">
     <div class="header-info-container">
-        <!-- Logo and Project Info -->
         <div class="header-icon-box">
             <img id="mainAppLogo" src="" alt="Contractor Logo" class="header-logo-img hidden">
             <span id="mainAppDefaultIcon" class="default-icon">App</span>
@@ -11,32 +10,31 @@
         </div>
     </div>
 
-    <!-- Action Buttons -->
     <div class="header-buttons">
         <button id="reconfigureBtn" class="btn btn-primary">⚙️ Reconfigure</button>
         
-        <!-- Save Project Button (standalone) -->
         <button id="saveProjectBtn" class="btn btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-save mr-1"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
             Save Project
         </button>
 
-        <!-- NEW: Export Dropdown (combines Report and Quote) -->
         <div class="dropdown-container relative">
             <button id="exportDropdownBtn" class="btn btn-green">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download mr-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 Export ▼
             </button>
             <div id="exportDropdownMenu" class="dropdown-menu"> 
+                <div class="dropdown-header">Internal Export</div>
                 <button id="exportPdfReportBtn" class="dropdown-item">Export as PDF (Detailed Report)</button>
                 <button id="exportCsvBtn" class="dropdown-item">Export as CSV/XLX</button>
-                <div class="dropdown-divider"></div> <!-- Optional visual separator -->
+                <div class="dropdown-divider"></div>
+
+                <div class="dropdown-header">Client Export</div>
                 <button id="exportPdfQuoteBtn" class="dropdown-item">Export as PDF (Client Quote)</button>
                 <button id="emailClientBtn" class="dropdown-item">Email Client Quote</button>
             </div>
         </div>
 
-        <!-- NEW: User Profile Icon/Button (placeholder for dropdown) -->
         <div class="dropdown-container relative">
             <button id="userProfileBtn" class="btn btn-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -51,9 +49,7 @@
                         <div class="slider-icon sun-icon">☀️</div>
                     </label>
                 </div>
-                <div class="dropdown-divider"></div> <!-- Divider for new item -->
-                <button id="savedProjectsMenuItem" class="dropdown-item">Saved Projects</button> <!-- NEW menu item -->
-            </div>
+                <div class="dropdown-divider"></div> <button id="savedProjectsMenuItem" class="dropdown-item">Saved Projects</button> </div>
         </div>
     </div>
 </div>
