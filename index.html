@@ -325,20 +325,23 @@
             transition: color 0.3s;
         }
         
-        /* Simpler style for actions-cell, relying on inner div for flex */
-        #estimateTableBody td.actions-cell {
-            /* Padding already handled by general td rule */
-            /* Do not set display: flex here */
-            text-align: right; /* Ensure content is right-aligned initially */
-            white-space: nowrap; /* Prevent buttons from wrapping */
+        /* --- CHANGED BLOCK: Styles for centering the Actions column --- */
+        .actions-col {
+            text-align: center !important;
         }
+
+        #estimateTableBody td.actions-cell {
+            text-align: center;
+            white-space: nowrap;
+        }
+        /* --- END CHANGED BLOCK --- */
 
         /* Styles for the buttons and their SVG icons */
         #estimateTableBody td button.btn-red,
         #estimateTableBody td button.btn-orange { 
             padding: 6px 10px;
             font-size: 0.85em;
-            display: flex; /* Make buttons themselves flex for icon centering */
+            display: inline-flex; /* Changed to inline-flex for centering */
             align-items: center;
             justify-content: center;
         }
@@ -528,7 +531,8 @@
                             </div>
                         </th>
                         <th rowspan="2" class="total-col">TOTAL</th>
-                        <th rowspan="2" class="actions-col">Actions</th>
+                        <!-- CHANGED: Centered the Actions header -->
+                        <th rowspan="2" class="actions-col text-center">Actions</th>
                     </tr>
                     <tr>
                         <th class="border-b" data-col-group="labor-details">OT/DT</th>
@@ -1293,6 +1297,7 @@
 
                 const row = document.createElement('tr');
                 row.setAttribute('data-id', item.id); // Add data-id for easy selection after duplication
+                // --- CHANGED BLOCK: Updated SVG for duplicate button and centered the actions div ---
                 row.innerHTML = `
                     <td data-label="Task Name"><textarea rows="2" onchange="updateItem(${item.id}, 'taskName', this.value)" class="input-field">${item.taskName}</textarea></td>
                     <td data-label="Description"><textarea rows="2" onchange="updateItem(${item.id}, 'description', this.value)" class="input-field">${item.description}</textarea></td>
@@ -1339,8 +1344,9 @@
                     
                     <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
                     <td class="actions-cell"> 
-                        <div class="flex items-center justify-end gap-2 h-full w-full"> <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 0 0 1-2-2V4a2 0 0 1 2-2h9a2 0 0 1 2 2v1"></path></svg>
+                        <div class="flex items-center justify-center gap-2 h-full w-full"> 
+                            <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 0 0 1-2-2V4a2 0 0 1 2-2h9a2 0 0 1 2 2v1"></path></svg>
                             </button>
                             <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
@@ -1348,6 +1354,7 @@
                         </div>
                     </td>
                 `;
+                // --- END CHANGED BLOCK ---
                 estimateTableBody.appendChild(row);
             });
             calculateTotals();
