@@ -305,12 +305,20 @@
         }
 
         /* Adjusted nth-child for specific text alignment due to Trade column re-addition */
-        #estimateTableBody td:nth-child(6), /* $/hr */
-        #estimateTableBody td:nth-child(17) { /* Total */
+        #estimateTableBody td:nth-child(6) { /* $/hr */
             white-space: nowrap;
             font-weight: bold;
             color: #1f2937;
             text-align: right;
+            transition: color 0.3s;
+        }
+
+        /* --- CHANGED: Centered the TOTAL column (nth-child 17) --- */
+        #estimateTableBody td:nth-child(17) { /* Total */
+            white-space: nowrap;
+            font-weight: bold;
+            color: #1f2937;
+            text-align: center;
             transition: color 0.3s;
         }
 
@@ -325,7 +333,7 @@
             transition: color 0.3s;
         }
         
-        /* --- CHANGED BLOCK: Styles for centering the Actions column --- */
+        /* Styles for centering the Actions column */
         .actions-col {
             text-align: center !important;
         }
@@ -334,7 +342,6 @@
             text-align: center;
             white-space: nowrap;
         }
-        /* --- END CHANGED BLOCK --- */
 
         /* Styles for the buttons and their SVG icons */
         #estimateTableBody td button.btn-red,
@@ -387,6 +394,11 @@
         th.labor-total-col,
         th.materials-total-col,
         th.other-total-col {
+            text-align: center;
+        }
+        
+        /* --- CHANGED: Centered the TOTAL header --- */
+        th.total-col {
             text-align: center;
         }
 
@@ -531,8 +543,7 @@
                             </div>
                         </th>
                         <th rowspan="2" class="total-col">TOTAL</th>
-                        <!-- CHANGED: Centered the Actions header -->
-                        <th rowspan="2" class="actions-col text-center">Actions</th>
+                        <th rowspan="2" class="actions-col">Actions</th>
                     </tr>
                     <tr>
                         <th class="border-b" data-col-group="labor-details">OT/DT</th>
@@ -1346,7 +1357,7 @@
                     <td class="actions-cell"> 
                         <div class="flex items-center justify-center gap-2 h-full w-full"> 
                             <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 0 0 1-2-2V4a2 0 0 1 2-2h9a2 0 0 1 2 2v1"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 0 0 1 2-2h11a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
                             <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
