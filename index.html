@@ -257,10 +257,15 @@
             -moz-appearance: textfield;
         }
 
-        /* --- CORRECTED CSS FOR FLEXIBLE TABLE COLUMNS --- */
+        /* --- CORRECTED CSS FOR DYNAMIC TABLE LAYOUT --- */
         .estimate-table {
             table-layout: fixed;
-            width: 100%;
+            width: 100%; /* Default to 100% width for the collapsed state (no scroll) */
+        }
+
+        /* When expanded via JS, give it a large min-width to force scrolling */
+        .estimate-table.table-expanded {
+            min-width: 1600px; 
         }
 
         /* Set fixed widths for columns that should not shrink.
@@ -828,6 +833,21 @@
 
         let isDarkTheme = false;
 
+        // --- CORRECTED JAVASCRIPT FOR DYNAMIC TABLE LAYOUT ---
+        function updateTableExpandState() {
+            const table = document.querySelector('.estimate-table');
+            if (!table) return;
+
+            // If any group is NOT collapsed, the table is considered expanded
+            const isExpanded = !collapsedState.labor || !collapsedState.materials || !collapsedState.other;
+
+            if (isExpanded) {
+                table.classList.add('table-expanded');
+            } else {
+                table.classList.remove('table-expanded');
+            }
+        }
+
         function toggleColumnVisibility(group) {
             collapsedState[group] = !collapsedState[group];
             const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
@@ -882,7 +902,10 @@
                     }
                 });
             }
+            // After toggling visibility, update the table's expand state
+            updateTableExpandState();
         }
+        // --- END CORRECTED JAVASCRIPT ---
 
         function toggleTheme() {
             isDarkTheme = !isDarkTheme;
@@ -952,6 +975,7 @@
                     }
                 }
             }
+            updateTableExpandState(); // Also update state here
         }
 
         function showSetupWizard() {
@@ -1232,6 +1256,7 @@
                     }
                 }
             }
+            updateTableExpandState(); // Set initial state on load
         });
 
         function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
