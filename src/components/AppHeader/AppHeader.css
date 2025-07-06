@@ -169,12 +169,24 @@ body.dark-theme .header-subtitle {
     color: #2563eb;
 }
 
-/* NEW: Styles for the dropdown divider */
+/* Styles for the dropdown divider */
 .dropdown-divider {
     height: 1px;
     background-color: #e5e7eb;
     margin: 8px 0; /* Vertical spacing for the divider */
 }
+
+/* --- CHANGED: Added styling for the new dropdown headers --- */
+.dropdown-header {
+    padding: 8px 20px 4px; /* Padding to align with items */
+    font-size: 0.75rem;     /* Smaller font */
+    font-weight: 700;         /* Bold */
+    color: #6b7280;          /* Muted grey color */
+    text-transform: uppercase;/* Uppercase to look like a title */
+    letter-spacing: 0.05em;   /* A bit of letter spacing */
+    pointer-events: none;     /* Make it non-interactive */
+}
+/* --- END CHANGED BLOCK --- */
 
 
 /* Dark Theme Dropdown Styles */
@@ -195,6 +207,12 @@ body.dark-theme .dropdown-item:hover {
 body.dark-theme .dropdown-divider {
     background-color: #4a5568; /* Darker divider in dark theme */
 }
+
+/* --- CHANGED: Added dark theme style for dropdown headers --- */
+body.dark-theme .dropdown-header {
+    color: #a0aec0; /* Lighter grey for dark mode */
+}
+/* --- END CHANGED BLOCK --- */
 
 /* Theme Toggle Slider Styles (Based on your provided image) */
 .theme-switch {
