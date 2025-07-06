@@ -94,7 +94,7 @@ window.SummaryOverview = (function() {
         breakdownMaterialTotalElem = document.getElementById('breakdownMaterialTotal');
         breakdownEquipmentTotalElem = document.getElementById('breakdownEquipmentTotal');
         breakdownSubcontractorTotalElem = document.getElementById('breakdownSubcontractorTotal');
-        breakdownMiscCostLineItemsElem = document.getElementById('breakdownMiscCostLineItems');
+        breakdownMiscCostLineItemsElem = document.getElementById('breakdownMiscCostLineItemsElem');
         breakdownProjectTotalElem = document.getElementById('breakdownProjectTotal');
 
         laborMaterialPieChartCanvas = document.getElementById('laborMaterialPieChart');
@@ -182,19 +182,34 @@ window.SummaryOverview = (function() {
         
         // Project Costs Summary
         if (summaryProjectCostElem) summaryProjectCostElem.textContent = formatCurrency(totalProjectCostDirect);
-        if (summaryMaterialMarkupElem) summaryMaterialMarkupElem.textContent = projectSettings.materialMarkup;
-        if (summaryMaterialMarkupAmountElem) summaryMaterialMarkupAmountElem.textContent = formatCurrency(materialMarkupAmount);
-        if (summaryOverheadElem) summaryOverheadElem.textContent = projectSettings.overhead;
-        if (summaryOverheadAmountElem) summaryOverheadAmountElem.textContent = formatCurrency(totalOverheadCost);
-        if (summaryMiscPercentElem) summaryMiscPercentElem.textContent = projectSettings.miscellaneous;
         if (summaryMiscCostElem) summaryMiscCostElem.textContent = formatCurrency(totalMiscCostAmount);
+        
+        // --- CHANGED BLOCK: All percentage values are now formatted with a '%' symbol ---
+        if (summaryOverheadElem) summaryOverheadElem.textContent = `${projectSettings.overhead}%`;
+        if (summaryMaterialMarkupElem) summaryMaterialMarkupElem.textContent = `${projectSettings.materialMarkup}%`;
+        if (summaryProfitMarginElem) summaryProfitMarginElem.textContent = `${projectSettings.profitMargin}%`;
+        if (summarySalesTaxElem) summarySalesTaxElem.textContent = `${projectSettings.salesTax}%`;
+        if (summaryMiscPercentElem) summaryMiscPercentElem.textContent = `${projectSettings.miscellaneous}%`;
+        // --- END CHANGED BLOCK ---
+
+        if (summaryMaterialMarkupAmountElem) summaryMaterialMarkupAmountElem.textContent = formatCurrency(materialMarkupAmount);
+        if (summaryOverheadAmountElem) summaryOverheadAmountElem.textContent = formatCurrency(totalOverheadCost);
         if (summaryEstimateSubtotalElem) summaryEstimateSubtotalElem.textContent = formatCurrency(estimateSubtotalAmount);
-        if (summaryProfitMarginElem) summaryProfitMarginElem.textContent = projectSettings.profitMargin;
         if (summaryProfitMarginAmountElem) summaryProfitMarginAmountElem.textContent = formatCurrency(totalProfitMarginAmount);
-        if (summarySalesTaxElem) summarySalesTaxElem.textContent = projectSettings.salesTax;
         if (summarySalesTaxAmountElem) summarySalesTaxAmountElem.textContent = formatCurrency(salesTaxAmount);
-        if (summaryAdditionalConsiderationsElem) summaryAdditionalConsiderationsElem.textContent = formatCurrency(additionalConsiderationAmount);
-        if (summaryAdditionalConsiderationsUnitElem) summaryAdditionalConsiderationsUnitElem.textContent = projectSettings.additionalConsiderationsType; // Update unit
+        
+        // --- CHANGED: Logic for Additional Considerations to display the correct unit ---
+        if (summaryAdditionalConsiderationsElem) {
+             if (projectSettings.additionalConsiderationsType === '%') {
+                // If it's a percentage, show the input value with a '%'
+                summaryAdditionalConsiderationsElem.textContent = `${projectSettings.additionalConsiderationsValue}%`;
+            } else {
+                // If it's a dollar amount, show the formatted currency value
+                summaryAdditionalConsiderationsElem.textContent = formatCurrency(additionalConsiderationAmount);
+            }
+        }
+        // --- END CHANGED ---
+
         if (summaryTotalProposalFinalElem) summaryTotalProposalFinalElem.textContent = formatCurrency(grandTotal);
 
 
