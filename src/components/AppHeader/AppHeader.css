@@ -176,7 +176,7 @@ body.dark-theme .header-subtitle {
     margin: 8px 0; /* Vertical spacing for the divider */
 }
 
-/* --- CHANGED: Added styling for the new dropdown headers --- */
+/* --- CHANGED: Added background color to dropdown headers --- */
 .dropdown-header {
     padding: 8px 20px 4px; /* Padding to align with items */
     font-size: 0.75rem;     /* Smaller font */
@@ -185,6 +185,7 @@ body.dark-theme .header-subtitle {
     text-transform: uppercase;/* Uppercase to look like a title */
     letter-spacing: 0.05em;   /* A bit of letter spacing */
     pointer-events: none;     /* Make it non-interactive */
+    background-color: #f9fafb; /* Subtle background shade */
 }
 /* --- END CHANGED BLOCK --- */
 
@@ -211,6 +212,7 @@ body.dark-theme .dropdown-divider {
 /* --- CHANGED: Added dark theme style for dropdown headers --- */
 body.dark-theme .dropdown-header {
     color: #a0aec0; /* Lighter grey for dark mode */
+    background-color: #4a5568; /* Darker background for dark mode */
 }
 /* --- END CHANGED BLOCK --- */
 
@@ -318,3 +320,4 @@ body.dark-theme .theme-switch .sun-icon {
     justify-content: space-between;
     align-items: center;
 }
+
