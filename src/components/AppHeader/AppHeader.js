@@ -114,8 +114,9 @@ window.AppHeader = (function() {
             });
         }
         if (exportCsvBtnElem) {
+            // ✨ CHANGED: Corrected the callback function name
             exportCsvBtnElem.addEventListener('click', (event) => {
-                onCsvCallback();
+                onExportCsvCallback();
                 hideDropdown(exportDropdownMenuElem);
             });
         }
