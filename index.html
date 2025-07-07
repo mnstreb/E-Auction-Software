@@ -6,6 +6,8 @@
     <title>Construction Estimate Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- ✨ ADDED: Papa Parse library for CSV export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.4.1/papaparse.min.js"></script>
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
     <link rel="stylesheet" href="src/sections/SummaryOverview/SummaryOverview.css">
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
@@ -632,9 +634,8 @@
                             onExportPdfReport: () => {
                                 renderMessageBox('Exporting Detailed Report to PDF...');
                             },
-                            onExportCsv: () => {
-                                renderMessageBox('Exporting to CSV/XLX...');
-                            },
+                            // ✨ CHANGED: Pass the new export function as the callback
+                            onExportCsv: exportEstimateToCsv,
                             onExportPdfQuote: () => {
                                 renderMessageBox('Exporting Client Quote to PDF...');
                             },
@@ -1192,6 +1193,63 @@
 
         // --- Estimate Item Management ---
 
+        /**
+         * ✨ NEW: Exports the current estimate line items to a CSV file.
+         */
+        function exportEstimateToCsv() {
+            if (estimateItems.length === 0) {
+                renderMessageBox('There are no line items to export.');
+                return;
+            }
+
+            // 1. Prepare the data for export, including calculated totals for each row
+            const dataForExport = estimateItems.map(item => {
+                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
+                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                const laborTotal = item.hours * effectiveLaborRate;
+                const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
+                const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
+
+                return {
+                    "Task Name": item.taskName,
+                    "Description": item.description,
+                    "Trade": item.trade,
+                    "Skill": item.rateRole,
+                    "OT/DT Multiplier": item.otDtMultiplier,
+                    "Hours": item.hours,
+                    "Labor Rate ($)": laborRate.toFixed(2),
+                    "Labor Total ($)": laborTotal.toFixed(2),
+                    "Material Quantity": item.materialQuantity,
+                    "Material Unit Cost ($)": item.materialUnitCost.toFixed(2),
+                    "Materials Total ($)": materialsTotal.toFixed(2),
+                    "Equipment/Rental ($)": item.equipmentRentalCost.toFixed(2),
+                    "Subcontractor ($)": item.subcontractorCostLineItem.toFixed(2),
+                    "Misc Line Item ($)": item.miscLineItem.toFixed(2),
+                    "Other Total ($)": otherCategoryTotal.toFixed(2),
+                    "Line Total ($)": lineTotal.toFixed(2)
+                };
+            });
+
+            // 2. Use Papa Parse to convert the JSON data to a CSV string
+            const csv = Papa.unparse(dataForExport);
+
+            // 3. Create a blob and trigger the download
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            
+            const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'estimate'}-export.csv`;
+            link.setAttribute('download', exportFileName);
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            renderMessageBox('Estimate has been exported to CSV.');
+        }
+
         function addItem() {
             // Use the currently selected trade from the new dropdown as the default
             const defaultTradeForNewItem = currentlySelectedTradeForLineItems;
@@ -1357,7 +1415,7 @@
                     <td class="actions-cell"> 
                         <div class="flex items-center justify-center gap-2 h-full w-full"> 
                             <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
                             <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
