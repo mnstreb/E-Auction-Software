@@ -87,9 +87,6 @@ window.AppHeader = (function() {
         onUserProfileClickCallback = config.onUserProfileClick;
 
         // Set up event listeners
-        // if (themeToggleBtnElem) { // Removed old theme toggle button listener
-        //     themeToggleBtnElem.addEventListener('click', onThemeToggleCallback);
-        // }
         if (reconfigureBtnElem) {
             reconfigureBtnElem.addEventListener('click', onReconfigureCallback);
         }
@@ -97,7 +94,7 @@ window.AppHeader = (function() {
             saveProjectBtnElem.addEventListener('click', onSaveProjectCallback);
         }
         
-        // Export Dropdown button listener
+        // ✨ RESTORED: This is the event listener that opens the dropdown menu.
         if (exportDropdownBtnElem) {
             exportDropdownBtnElem.addEventListener('click', (event) => {
                 event.stopPropagation(); // Prevent document click listener from immediately closing
@@ -114,7 +111,6 @@ window.AppHeader = (function() {
             });
         }
         if (exportCsvBtnElem) {
-            // ✨ BUG FIX: The original code called onCsvCallback(), but the correct name is onExportCsvCallback
             exportCsvBtnElem.addEventListener('click', (event) => {
                 onExportCsvCallback();
                 hideDropdown(exportDropdownMenuElem);
@@ -249,6 +245,3 @@ window.AppHeader = (function() {
         updateThemeToggleSlider: updateThemeToggleSlider // NEW exposed function
     };
 })();
-```
-
-Once you replace the content of your `AppHeader.js` file with this corrected version, the button should work as expect
