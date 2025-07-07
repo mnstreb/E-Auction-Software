@@ -6,7 +6,7 @@
     <title>Construction Estimate Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- ✨ ADDED: Papa Parse library for CSV export -->
+    <!-- ✨ THIS LINE IS THE FIX: Papa Parse library for CSV export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.4.1/papaparse.min.js"></script>
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
     <link rel="stylesheet" href="src/sections/SummaryOverview/SummaryOverview.css">
@@ -634,7 +634,6 @@
                             onExportPdfReport: () => {
                                 renderMessageBox('Exporting Detailed Report to PDF...');
                             },
-                            // ✨ CHANGED: Pass the new export function as the callback
                             onExportCsv: exportEstimateToCsv,
                             onExportPdfQuote: () => {
                                 renderMessageBox('Exporting Client Quote to PDF...');
@@ -1194,7 +1193,7 @@
         // --- Estimate Item Management ---
 
         /**
-         * ✨ NEW: Exports the current estimate line items to a CSV file.
+         * Exports the current estimate line items to a CSV file.
          */
         function exportEstimateToCsv() {
             if (estimateItems.length === 0) {
