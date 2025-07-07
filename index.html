@@ -7,9 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <!-- ✨ CHANGED: Switched to more reliable unpkg CDN links for jsPDF libraries -->
-    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
-    <script src="https://unpkg.com/jspdf-autotable@latest/dist/jspdf.plugin.autotable.min.js"></script>
+    <!-- ✨ CHANGED: Switched to reliable, version-locked cdnjs links for jsPDF libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
     <link rel="stylesheet" href="src/sections/SummaryOverview/SummaryOverview.css">
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
@@ -1192,7 +1192,7 @@
         // --- Estimate Item Management & Exporting ---
 
         /**
-         * ✨ NEW: Exports the detailed project report to a PDF document.
+         * Exports the detailed project report to a PDF document.
          */
         function exportDetailedReportToPdf() {
             // ✨ CHANGED: Improved check for PDF libraries
