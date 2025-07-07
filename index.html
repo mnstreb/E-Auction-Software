@@ -7,9 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <!-- ✨ CHANGED: Switched to reliable CDN links for jsPDF libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+    <!-- ✨ CHANGED: Switched to more reliable unpkg CDN links for jsPDF libraries -->
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable@latest/dist/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
     <link rel="stylesheet" href="src/sections/SummaryOverview/SummaryOverview.css">
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
@@ -1195,14 +1195,19 @@
          * ✨ NEW: Exports the detailed project report to a PDF document.
          */
         function exportDetailedReportToPdf() {
-            // Ensure jsPDF and autoTable are loaded
-            if (typeof jspdf === 'undefined' || typeof jspdf.jsPDF.autoTable === 'undefined') {
-                renderMessageBox('Error: PDF generation library not loaded.');
-                console.error('jsPDF or jsPDF-AutoTable is not loaded.');
+            // ✨ CHANGED: Improved check for PDF libraries
+            if (typeof window.jspdf === 'undefined') {
+                renderMessageBox('Error: The core PDF library (jsPDF) is not loaded.');
+                console.error('window.jspdf is undefined. The script might be blocked or failed to load.');
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            if (typeof jsPDF.autoTable === 'undefined') {
+                renderMessageBox('Error: The PDF table plugin (jsPDF-AutoTable) is not loaded.');
+                console.error('jsPDF.autoTable is undefined. The plugin might be blocked or failed to load after the core library.');
                 return;
             }
             
-            const { jsPDF } = window.jspdf;
             // Create a new PDF document in LANDSCAPE orientation
             const doc = new jsPDF({ orientation: 'landscape' });
 
