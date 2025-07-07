@@ -7,9 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <!-- ✨ ADDED: jsPDF and jsPDF-AutoTable libraries for PDF export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <!-- ✨ CHANGED: Switched to reliable CDN links for jsPDF libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
     <link rel="stylesheet" href="src/sections/SummaryOverview/SummaryOverview.css">
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
@@ -632,7 +632,6 @@
                             onThemeToggle: toggleTheme,
                             onReconfigure: showSetupWizard,
                             onSaveProject: handleSaveProject,
-                            // ✨ CHANGED: Hooked up the PDF export callback
                             onExportPdfReport: exportDetailedReportToPdf,
                             onExportCsv: exportEstimateToCsv,
                             onExportPdfQuote: () => {
