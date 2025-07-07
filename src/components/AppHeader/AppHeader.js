@@ -114,7 +114,7 @@ window.AppHeader = (function() {
             });
         }
         if (exportCsvBtnElem) {
-            // ✨ CHANGED: Corrected the callback function name
+            // ✨ BUG FIX: The original code called onCsvCallback(), but the correct name is onExportCsvCallback
             exportCsvBtnElem.addEventListener('click', (event) => {
                 onExportCsvCallback();
                 hideDropdown(exportDropdownMenuElem);
@@ -249,3 +249,6 @@ window.AppHeader = (function() {
         updateThemeToggleSlider: updateThemeToggleSlider // NEW exposed function
     };
 })();
+```
+
+Once you replace the content of your `AppHeader.js` file with this corrected version, the button should work as expect
