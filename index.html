@@ -6,8 +6,10 @@
     <title>Construction Estimate Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- ✨ CHANGED: Switched to a reliable CDN for Papa Parse -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <!-- ✨ ADDED: jsPDF and jsPDF-AutoTable libraries for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
     <link rel="stylesheet" href="src/sections/SummaryOverview/SummaryOverview.css">
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
@@ -629,11 +631,9 @@
                             emailClientBtnId: 'emailClientBtn',
                             onThemeToggle: toggleTheme,
                             onReconfigure: showSetupWizard,
-                            onSaveProject: handleSaveProject, // This will trigger the new modal
-                            // Callbacks for Export Dropdown
-                            onExportPdfReport: () => {
-                                renderMessageBox('Exporting Detailed Report to PDF...');
-                            },
+                            onSaveProject: handleSaveProject,
+                            // ✨ CHANGED: Hooked up the PDF export callback
+                            onExportPdfReport: exportDetailedReportToPdf,
                             onExportCsv: exportEstimateToCsv,
                             onExportPdfQuote: () => {
                                 renderMessageBox('Exporting Client Quote to PDF...');
@@ -1190,7 +1190,149 @@
             'WI': 5.0, 'WY': 4.0
         };
 
-        // --- Estimate Item Management ---
+        // --- Estimate Item Management & Exporting ---
+
+        /**
+         * ✨ NEW: Exports the detailed project report to a PDF document.
+         */
+        function exportDetailedReportToPdf() {
+            // Ensure jsPDF and autoTable are loaded
+            if (typeof jspdf === 'undefined' || typeof jspdf.jsPDF.autoTable === 'undefined') {
+                renderMessageBox('Error: PDF generation library not loaded.');
+                console.error('jsPDF or jsPDF-AutoTable is not loaded.');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            // Create a new PDF document in LANDSCAPE orientation
+            const doc = new jsPDF({ orientation: 'landscape' });
+
+            // --- 1. ADD HEADER ---
+            // Add contractor logo if it exists
+            if (projectSettings.contractorLogo) {
+                try {
+                    doc.addImage(projectSettings.contractorLogo, 'PNG', 15, 10, 40, 15); // Adjust x,y,w,h as needed
+                } catch (e) {
+                    console.error("Error adding logo to PDF:", e);
+                }
+            }
+            
+            // Add main title
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Detailed Project Estimate', 148, 15, { align: 'center' });
+            
+            // Add project details
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Project: ${projectSettings.projectName}`, 148, 22, { align: 'center' });
+            doc.text(`Client: ${projectSettings.clientName}`, 148, 27, { align: 'center' });
+            
+            // --- 2. ADD SUMMARY TABLES ---
+            // Create two columns for the summary data
+            const summaryBody = [
+                ['Total Proposal:', formatCurrency(projectSettings.grandTotal)],
+                ['Total Labor Hours:', formatHours(projectSettings.overallLaborHoursSum)],
+                ['Total Direct Cost:', formatCurrency(projectSettings.totalProjectCostDirect)],
+                ['Material Markup:', `${projectSettings.materialMarkup.toFixed(2)}% (${formatCurrency(projectSettings.materialMarkupAmount)})`],
+                ['Overhead:', `${projectSettings.overhead.toFixed(2)}% (${formatCurrency(projectSettings.totalOverheadCost)})`],
+            ];
+            const summaryBody2 = [
+                ['Miscellaneous:', `${projectSettings.miscellaneous.toFixed(2)}% (${formatCurrency(projectSettings.totalMiscCostAmount)})`],
+                ['Subtotal:', formatCurrency(projectSettings.estimateSubtotalAmount)],
+                ['Profit Margin:', `${projectSettings.profitMargin.toFixed(2)}% (${formatCurrency(projectSettings.totalProfitMarginAmount)})`],
+                ['Sales Tax:', `${projectSettings.salesTax.toFixed(2)}% (${formatCurrency(projectSettings.salesTaxAmount)})`],
+                ['Addt\'l Considerations:', formatCurrency(projectSettings.additionalConsiderationAmount)],
+            ];
+
+            doc.autoTable({
+                startY: 40,
+                body: summaryBody,
+                theme: 'striped',
+                styles: { fontSize: 9 },
+                columnStyles: { 1: { halign: 'right' } },
+                margin: { left: 15 }
+            });
+
+            doc.autoTable({
+                startY: 40,
+                body: summaryBody2,
+                theme: 'striped',
+                styles: { fontSize: 9 },
+                columnStyles: { 1: { halign: 'right' } },
+                margin: { left: 157 } // Start the second table to the right
+            });
+            
+            // --- 3. ADD LINE ITEMS TABLE ---
+            const lineItemsHead = [
+                // First header row with merged columns
+                [
+                    { content: 'Task', rowSpan: 2, styles: { valign: 'middle' } },
+                    { content: 'Description', rowSpan: 2, styles: { valign: 'middle' } },
+                    { content: 'Labor', colSpan: 5, styles: { halign: 'center' } },
+                    { content: 'Materials', colSpan: 3, styles: { halign: 'center' } },
+                    { content: 'Other Costs', colSpan: 4, styles: { halign: 'center' } },
+                    { content: 'Line Total', rowSpan: 2, styles: { valign: 'middle', halign: 'center' } },
+                ],
+                // Second header row for details
+                ['OT/DT', 'Trade', 'Skill', '$/hr', 'Labor Total', 'Qty/Unit', '$/Unit', 'Mat. Total', 'Equip.', 'Sub', 'Misc.', 'Other Total']
+            ];
+
+            const lineItemsBody = estimateItems.map(item => {
+                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
+                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                const laborTotal = item.hours * effectiveLaborRate;
+                const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
+                const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
+
+                return [
+                    item.taskName,
+                    item.description,
+                    item.otDtMultiplier.toFixed(1),
+                    item.trade,
+                    item.rateRole,
+                    formatCurrency(laborRate),
+                    formatCurrency(laborTotal),
+                    `${item.materialQuantity} / unit`,
+                    formatCurrency(item.materialUnitCost),
+                    formatCurrency(materialsTotal),
+                    formatCurrency(item.equipmentRentalCost),
+                    formatCurrency(item.subcontractorCostLineItem),
+                    formatCurrency(item.miscLineItem),
+                    formatCurrency(otherCategoryTotal),
+                    formatCurrency(lineTotal)
+                ];
+            });
+
+            doc.autoTable({
+                head: lineItemsHead,
+                body: lineItemsBody,
+                startY: doc.autoTable.previous.finalY + 10, // Start after the summary tables
+                theme: 'grid',
+                headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+                styles: { fontSize: 7, cellPadding: 1.5 },
+                columnStyles: {
+                    // Align currency columns to the right
+                    5: { halign: 'right' }, 6: { halign: 'right' }, 8: { halign: 'right' }, 9: { halign: 'right' },
+                    10: { halign: 'right' }, 11: { halign: 'right' }, 12: { halign: 'right' }, 13: { halign: 'right' },
+                    14: { halign: 'right' }
+                }
+            });
+
+            // --- 4. ADD FOOTER WITH PAGE NUMBERS ---
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width / 2, 200, { align: 'center' });
+            }
+
+            // --- 5. SAVE THE PDF ---
+            const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'estimate'}-detailed-report.pdf`;
+            doc.save(exportFileName);
+            renderMessageBox('Detailed report has been exported to PDF.');
+        }
 
         /**
          * Exports the current estimate line items to a CSV file.
@@ -1532,26 +1674,17 @@
             const totalOtherCostsForPieChart = totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
 
 
+            // Pass all calculated values to SummaryOverview
             if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
                 window.SummaryOverview.updateSummaries({
-                    ...projectSettings,
-                    totalLaborCost,
-                    totalMaterialCostRaw,
-                    totalEquipmentCost,
-                    totalSubcontractorCost,
-                    totalMiscLineItemCosts,
-                    laborHoursBreakdown,
-                    totalProjectCostDirect,
-                    materialMarkupAmount,
-                    totalOverheadCost,
-                    totalMiscCostAmount,
-                    estimateSubtotalAmount,
-                    totalProfitMarginAmount,
-                    salesTaxAmount,
-                    additionalConsiderationAmount,
-                    grandTotal,
-                    overallLaborHoursSum,
-                    totalOtherCostsForPieChart
+                    ...projectSettings, // Pass original settings
+                    // Pass all calculated values
+                    totalLaborCost, totalMaterialCostRaw, totalEquipmentCost,
+                    totalSubcontractorCost, totalMiscLineItemCosts, laborHoursBreakdown,
+                    totalProjectCostDirect, materialMarkupAmount, totalOverheadCost,
+                    totalMiscCostAmount, estimateSubtotalAmount, totalProfitMarginAmount,
+                    salesTaxAmount, additionalConsiderationAmount, grandTotal,
+                    overallLaborHoursSum, totalOtherCostsForPieChart
                 }, estimateItems, isDarkTheme);
             }
         }
