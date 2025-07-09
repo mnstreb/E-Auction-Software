@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-    <!-- Using reliable, version-locked cdnjs links for jsPDF libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
@@ -165,7 +164,114 @@
             margin-bottom: 20px !important;
             transition: color 0.3s;
         }
-        /* AppHeader, SummaryOverview, and SetupWizard specific styles are now in their respective .css files */
+
+        /* ✨ NEW: AI Chat Styles */
+        .ai-chat-button {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background-color: #2563eb;
+            color: white;
+            width: 150px; /* Wider button */
+            height: 60px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+        .ai-chat-button:hover {
+            background-color: #1D4ED8;
+            transform: translateY(-2px);
+        }
+        .ai-chat-modal {
+            position: fixed;
+            bottom: 100px;
+            right: 25px;
+            width: 400px;
+            height: 500px;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .ai-chat-modal.show {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+        .ai-chat-header {
+            padding: 15px;
+            background-color: #f3f4f6;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ai-chat-header h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+        .ai-chat-close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        .ai-chat-history {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chat-bubble {
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+        .chat-bubble.user {
+            background-color: #2563eb;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-bubble.ai {
+            background-color: #e5e7eb;
+            color: #1f2937;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .chat-bubble.loading {
+            align-self: flex-start;
+            color: #6b7280;
+        }
+        .ai-chat-input-area {
+            padding: 15px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+        .ai-chat-input-area input {
+            flex-grow: 1;
+        }
 
         /* Responsive adjustments */
         @media (max-width: 1024px) {
@@ -600,6 +706,25 @@
         </div>
     </div>
 
+    <!-- ✨ NEW: AI Chat Assistant HTML -->
+    <button id="aiChatButton" class="ai-chat-button">AI Estimating</button>
+
+    <div id="aiChatModal" class="ai-chat-modal">
+        <div class="ai-chat-header">
+            <h4>AI Estimating Assistant</h4>
+            <button id="aiChatCloseBtn" class="ai-chat-close-btn">&times;</button>
+        </div>
+        <div id="aiChatHistory" class="ai-chat-history">
+            <div class="chat-bubble ai">
+                Hello! How can I help you with your estimate today?
+            </div>
+        </div>
+        <div class="ai-chat-input-area">
+            <input type="text" id="aiChatInput" class="input-field" placeholder="Ask a question...">
+            <button id="aiChatSendBtn" class="btn btn-primary">Send</button>
+        </div>
+    </div>
+
     <script>
         // --- Core Application Functions (Defined at the top to ensure hoisting) ---
         async function loadAppHeader() {
@@ -897,7 +1022,6 @@
         // UI Element references
         const mainApp = document.getElementById('mainApp');
         const estimateTableBody = document.getElementById('estimateTableBody');
-        // NEW: References for the Save Project modal elements
         const saveProjectModal = document.getElementById('saveProjectModal');
         const saveProjectNameInput = document.getElementById('saveProjectName');
         const saveCustomerNameInput = document.getElementById('saveCustomerName');
@@ -906,9 +1030,18 @@
         const cancelSaveProjectBtn = document.getElementById('cancelSaveProjectBtn');
         const confirmSaveProjectBtn = document.getElementById('confirmSaveProjectBtn');
 
-        // NEW: References for the global trade selector
-        let defaultTradeSelectorElem; // Reference for the new trade selector dropdown
-        let currentlySelectedTradeForLineItems = "General"; // Default active trade for new line items
+        // References for the global trade selector
+        let defaultTradeSelectorElem; 
+        let currentlySelectedTradeForLineItems = "General"; 
+
+        // ✨ NEW: AI Chat UI Element References
+        let aiChatButton;
+        let aiChatModal;
+        let aiChatCloseBtn;
+        let aiChatHistory;
+        let aiChatInput;
+        let aiChatSendBtn;
+        let chatHistory = []; // To store the conversation
 
 
         // State for theme - will be initialized in DOMContentLoaded
@@ -992,23 +1125,18 @@
             isDarkTheme = !isDarkTheme;
             if (isDarkTheme) {
                 document.body.classList.add('dark-theme');
-                // Call AppHeader's exposed function to update its slider
                 if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
                     window.AppHeader.updateThemeToggleSlider(isDarkTheme);
                 }
             } else {
                 document.body.classList.remove('dark-theme');
-                // Call AppHeader's exposed function to update its slider
                 if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
                     window.AppHeader.updateThemeToggleSlider(isDarkTheme);
                 }
             }
-            // Trigger SummaryOverview to update its chart based on new theme
             if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
-                // Pass current projectSettings and estimateItems for full re-calculation if needed
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
             }
-            // Trigger SavedProjects to update its chart based on new theme
             if (window.SavedProjects && typeof window.SavedProjects.updateCustomerTotalsChart === 'function') {
                 window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
             }
@@ -1016,49 +1144,40 @@
 
         // --- View Management Functions (Show/Hide Sections) ---
 
-        // This function is called by the SetupWizard module when it successfully completes.
         function handleWizardCompletion(updatedSettings) {
-            projectSettings = { ...updatedSettings }; // Update global settings with wizard data
+            projectSettings = { ...updatedSettings }; 
             
-            // Hide wizard, show main app
             const setupWizardPlaceholder = document.getElementById('setupWizardPlaceholder');
             if (setupWizardPlaceholder) {
-                setupWizardPlaceholder.classList.add('hidden'); // Hide the entire wizard container
-                setupWizardPlaceholder.innerHTML = ''; // Clear its content
+                setupWizardPlaceholder.classList.add('hidden');
+                setupWizardPlaceholder.innerHTML = ''; 
             }
             mainApp.classList.remove('hidden');
-            document.getElementById('savedProjectsPlaceholder').classList.add('hidden'); // Ensure saved projects is hidden
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
             
-            // Update AppHeader's project info via its exposed function
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
                 window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.projectState);
             }
-            // Update AppHeader's logo after wizard completion
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo(projectSettings.contractorLogo);
             }
 
-            // Populate the default trade selector after wizard completion
             populateDefaultTradeSelector();
             
-            // Ensure initial line item's trade is set to the default from the wizard
             if (estimateItems.length > 0) {
                 const firstItem = estimateItems[0];
                 const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
                 firstItem.trade = defaultTrade;
-                // Also set default role for the first item based on its new trade
                 const availableRoles = Object.keys(projectSettings.allTradeLaborRates[firstItem.trade] || {});
                 firstItem.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
             }
             
-            renderItems(); // This will now render based on the (single) item and collapsedState for TDs.
+            renderItems(); 
             
-            // Trigger SummaryOverview to update after data changes
             if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
             }
 
-            // Re-apply column visual states (colspans, icons, column-hidden class on second row THs)
             for (const group in collapsedState) {
                 if (collapsedState.hasOwnProperty(group)) {
                     const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
@@ -1071,7 +1190,6 @@
                                 th.classList.add('column-hidden');
                             });
                         } else {
-                            // Reverted colspan for labor to 5
                             mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
                             document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
                                 th.classList.remove('column-hidden');
@@ -1083,47 +1201,36 @@
             adjustTableMinWidth();
         }
 
-        // This function is called by the AppHeader when the 'Reconfigure' button is clicked
         function showSetupWizard() {
             mainApp.classList.add('hidden');
-            document.getElementById('savedProjectsPlaceholder').classList.add('hidden'); // Ensure saved projects is hidden
-            // Re-render the wizard by reloading its components
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden'); 
             loadSetupWizard();
         }
 
-        // NEW: Function to show the main calculator view
         function showMainApp() {
             mainApp.classList.remove('hidden');
             document.getElementById('setupWizardPlaceholder').classList.add('hidden');
-            document.getElementById('savedProjectsPlaceholder').classList.add('hidden'); // Ensure saved projects is hidden
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
         }
 
-        // NEW: Handler for the "Save Project" button click - NOW OPENS A MODAL
         function handleSaveProject() {
-            // First, ensure all calculations are up-to-date to get the grandTotal
             calculateTotals(); 
-
-            // Pre-fill the modal fields
             saveProjectNameInput.value = projectSettings.projectName;
-            saveCustomerNameInput.value = projectSettings.clientName; // Use clientName from projectSettings
-            saveLocationInput.value = projectSettings.projectState; // Use projectState from projectSettings
-            saveProjectCostInput.value = formatCurrency(projectSettings.grandTotal || 0); // Use the grandTotal property
-
-            // Show the modal
+            saveCustomerNameInput.value = projectSettings.clientName;
+            saveLocationInput.value = projectSettings.projectState;
+            saveProjectCostInput.value = formatCurrency(projectSettings.grandTotal || 0);
             saveProjectModal.classList.add('show');
         }
 
-        // NEW: Function to close the Save Project modal
         function closeSaveProjectModal() {
             saveProjectModal.classList.remove('show');
         }
 
-        // NEW: Function to confirm saving the project
         function confirmSaveProject() {
             const projectName = saveProjectNameInput.value.trim();
             const customerName = saveCustomerNameInput.value.trim();
-            const projectState = saveLocationInput.value.trim(); // This is read-only, but important for save data
-            const totalProposalRaw = projectSettings.grandTotal || 0; // Use the actual number
+            const projectState = saveLocationInput.value.trim();
+            const totalProposalRaw = projectSettings.grandTotal || 0;
 
             if (!projectName || !customerName) {
                 renderMessageBox('Project Name and Customer Name are required.');
@@ -1131,46 +1238,41 @@
             }
 
             const newSavedProject = {
-                id: `proj_${Date.now()}`, // Unique ID for the saved project
+                id: `proj_${Date.now()}`,
                 projectName: projectName,
                 customerName: customerName,
-                projectType: projectSettings.projectType, // From global settings
-                projectState: projectState, // From global settings
-                totalProposal: totalProposalRaw, // Numerical value
-                lastSavedDate: new Date().toISOString().split('T')[0], //YYYY-MM-DD format
-                status: 'Draft', // Default status for new saves
-                // Store a copy of the current project's full state (settings and items)
-                projectDetails: JSON.stringify({ // Stringify to handle complex nested objects for saving
+                projectType: projectSettings.projectType,
+                projectState: projectState,
+                totalProposal: totalProposalRaw,
+                lastSavedDate: new Date().toISOString().split('T')[0],
+                status: 'Draft',
+                projectDetails: JSON.stringify({
                     settings: { ...projectSettings },
                     items: [...estimateItems]
                 })
             };
 
-            // Ensure SavedProjects module is loaded and its addProject method is available
             if (window.SavedProjects && typeof window.SavedProjects.addProject === 'function') {
                 window.SavedProjects.addProject(newSavedProject);
                 renderMessageBox(`Project "${projectName}" saved successfully!`);
             } else {
-                renderMessageBox('Error: SavedProjects module not fully loaded or missing addProject function. Make sure SavedProjects.js is correctly loaded and exposed.');
+                renderMessageBox('Error: SavedProjects module not fully loaded or missing addProject function.');
             }
 
-            closeSaveProjectModal(); // Close the modal after saving
+            closeSaveProjectModal();
         }
 
-        // NEW: Function to handle user profile button click and show Saved Projects view
         function showSavedProjects() {
             mainApp.classList.add('hidden');
             document.getElementById('setupWizardPlaceholder').classList.add('hidden');
-            // Check if SavedProjects is already loaded, if not, load it
             const savedProjectsPlaceholder = document.getElementById('savedProjectsPlaceholder');
-            if (savedProjectsPlaceholder.innerHTML === '') { // Only load if empty
+            if (savedProjectsPlaceholder.innerHTML === '') {
                 loadSavedProjects();
             } else {
                 savedProjectsPlaceholder.classList.remove('hidden');
-                // If it was already loaded, make sure its contents are re-rendered/updated
                 if (window.SavedProjects && typeof window.SavedProjects.renderProjects === 'function') {
-                     window.SavedProjects.renderProjects(window.SavedProjects.getSavedProjectsData()); // Render with current data
-                     window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme); // Update chart
+                     window.SavedProjects.renderProjects(window.SavedProjects.getSavedProjectsData());
+                     window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
                 }
             }
             closeMessageBox(); 
@@ -1191,17 +1293,12 @@
 
         // --- Estimate Item Management & Exporting ---
 
-        /**
-         * Exports the detailed project report to a PDF document.
-         */
         function exportDetailedReportToPdf() {
-            // ✨ BUG FIX: Corrected the check for the jsPDF AutoTable plugin.
             if (typeof window.jspdf === 'undefined') {
                 renderMessageBox('Error: The core PDF library (jsPDF) is not loaded.');
                 console.error('window.jspdf is undefined. The script might be blocked or failed to load.');
                 return;
             }
-            // The autoTable plugin attaches itself to the API property of the jsPDF class.
             if (typeof window.jspdf.jsPDF.API.autoTable === 'undefined') {
                 renderMessageBox('Error: The PDF table plugin (jsPDF-AutoTable) is not loaded correctly.');
                 console.error('window.jspdf.jsPDF.API.autoTable is undefined. The plugin might be blocked or failed to load after the core library.');
@@ -1209,32 +1306,25 @@
             }
             
             const { jsPDF } = window.jspdf;
-            // Create a new PDF document in LANDSCAPE orientation
             const doc = new jsPDF({ orientation: 'landscape' });
 
-            // --- 1. ADD HEADER ---
-            // Add contractor logo if it exists
             if (projectSettings.contractorLogo) {
                 try {
-                    doc.addImage(projectSettings.contractorLogo, 'PNG', 15, 10, 40, 15); // Adjust x,y,w,h as needed
+                    doc.addImage(projectSettings.contractorLogo, 'PNG', 15, 10, 40, 15);
                 } catch (e) {
                     console.error("Error adding logo to PDF:", e);
                 }
             }
             
-            // Add main title
             doc.setFontSize(18);
             doc.setFont('helvetica', 'bold');
             doc.text('Detailed Project Estimate', 148, 15, { align: 'center' });
             
-            // Add project details
             doc.setFontSize(10);
             doc.setFont('helvetica', 'normal');
             doc.text(`Project: ${projectSettings.projectName}`, 148, 22, { align: 'center' });
             doc.text(`Client: ${projectSettings.clientName}`, 148, 27, { align: 'center' });
             
-            // --- 2. ADD SUMMARY TABLES ---
-            // Create two columns for the summary data
             const summaryBody = [
                 ['Total Proposal:', formatCurrency(projectSettings.grandTotal)],
                 ['Total Labor Hours:', formatHours(projectSettings.overallLaborHoursSum)],
@@ -1251,26 +1341,16 @@
             ];
 
             doc.autoTable({
-                startY: 40,
-                body: summaryBody,
-                theme: 'striped',
-                styles: { fontSize: 9 },
-                columnStyles: { 1: { halign: 'right' } },
-                margin: { left: 15 }
+                startY: 40, body: summaryBody, theme: 'striped', styles: { fontSize: 9 },
+                columnStyles: { 1: { halign: 'right' } }, margin: { left: 15 }
             });
 
             doc.autoTable({
-                startY: 40,
-                body: summaryBody2,
-                theme: 'striped',
-                styles: { fontSize: 9 },
-                columnStyles: { 1: { halign: 'right' } },
-                margin: { left: 157 } // Start the second table to the right
+                startY: 40, body: summaryBody2, theme: 'striped', styles: { fontSize: 9 },
+                columnStyles: { 1: { halign: 'right' } }, margin: { left: 157 }
             });
             
-            // --- 3. ADD LINE ITEMS TABLE ---
             const lineItemsHead = [
-                // First header row with merged columns
                 [
                     { content: 'Task', rowSpan: 2, styles: { valign: 'middle' } },
                     { content: 'Description', rowSpan: 2, styles: { valign: 'middle' } },
@@ -1279,7 +1359,6 @@
                     { content: 'Other Costs', colSpan: 4, styles: { halign: 'center' } },
                     { content: 'Line Total', rowSpan: 2, styles: { valign: 'middle', halign: 'center' } },
                 ],
-                // Second header row for details
                 ['OT/DT', 'Trade', 'Skill', '$/hr', 'Labor Total', 'Qty/Unit', '$/Unit', 'Mat. Total', 'Equip.', 'Sub', 'Misc.', 'Other Total']
             ];
 
@@ -1292,40 +1371,26 @@
                 const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
 
                 return [
-                    item.taskName,
-                    item.description,
-                    item.otDtMultiplier.toFixed(1),
-                    item.trade,
-                    item.rateRole,
-                    formatCurrency(laborRate),
-                    formatCurrency(laborTotal),
-                    `${item.materialQuantity} / unit`,
-                    formatCurrency(item.materialUnitCost),
-                    formatCurrency(materialsTotal),
-                    formatCurrency(item.equipmentRentalCost),
-                    formatCurrency(item.subcontractorCostLineItem),
-                    formatCurrency(item.miscLineItem),
-                    formatCurrency(otherCategoryTotal),
-                    formatCurrency(lineTotal)
+                    item.taskName, item.description, item.otDtMultiplier.toFixed(1), item.trade,
+                    item.rateRole, formatCurrency(laborRate), formatCurrency(laborTotal),
+                    `${item.materialQuantity} / unit`, formatCurrency(item.materialUnitCost),
+                    formatCurrency(materialsTotal), formatCurrency(item.equipmentRentalCost),
+                    formatCurrency(item.subcontractorCostLineItem), formatCurrency(item.miscLineItem),
+                    formatCurrency(otherCategoryTotal), formatCurrency(lineTotal)
                 ];
             });
 
             doc.autoTable({
-                head: lineItemsHead,
-                body: lineItemsBody,
-                startY: doc.autoTable.previous.finalY + 10, // Start after the summary tables
-                theme: 'grid',
-                headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+                head: lineItemsHead, body: lineItemsBody, startY: doc.autoTable.previous.finalY + 10,
+                theme: 'grid', headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
                 styles: { fontSize: 7, cellPadding: 1.5 },
                 columnStyles: {
-                    // Align currency columns to the right
                     5: { halign: 'right' }, 6: { halign: 'right' }, 8: { halign: 'right' }, 9: { halign: 'right' },
                     10: { halign: 'right' }, 11: { halign: 'right' }, 12: { halign: 'right' }, 13: { halign: 'right' },
                     14: { halign: 'right' }
                 }
             });
 
-            // --- 4. ADD FOOTER WITH PAGE NUMBERS ---
             const pageCount = doc.internal.getNumberOfPages();
             for(let i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
@@ -1333,22 +1398,17 @@
                 doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width / 2, 200, { align: 'center' });
             }
 
-            // --- 5. SAVE THE PDF ---
             const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'estimate'}-detailed-report.pdf`;
             doc.save(exportFileName);
             renderMessageBox('Detailed report has been exported to PDF.');
         }
 
-        /**
-         * Exports the current estimate line items to a CSV file.
-         */
         function exportEstimateToCsv() {
             if (estimateItems.length === 0) {
                 renderMessageBox('There are no line items to export.');
                 return;
             }
 
-            // 1. Prepare the data for export, including calculated totals for each row
             const dataForExport = estimateItems.map(item => {
                 const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
                 const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
@@ -1358,62 +1418,38 @@
                 const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
 
                 return {
-                    "Task Name": item.taskName,
-                    "Description": item.description,
-                    "Trade": item.trade,
-                    "Skill": item.rateRole,
-                    "OT/DT Multiplier": item.otDtMultiplier,
-                    "Hours": item.hours,
-                    "Labor Rate ($)": laborRate.toFixed(2),
-                    "Labor Total ($)": laborTotal.toFixed(2),
-                    "Material Quantity": item.materialQuantity,
-                    "Material Unit Cost ($)": item.materialUnitCost.toFixed(2),
-                    "Materials Total ($)": materialsTotal.toFixed(2),
-                    "Equipment/Rental ($)": item.equipmentRentalCost.toFixed(2),
-                    "Subcontractor ($)": item.subcontractorCostLineItem.toFixed(2),
-                    "Misc Line Item ($)": item.miscLineItem.toFixed(2),
-                    "Other Total ($)": otherCategoryTotal.toFixed(2),
-                    "Line Total ($)": lineTotal.toFixed(2)
+                    "Task Name": item.taskName, "Description": item.description, "Trade": item.trade,
+                    "Skill": item.rateRole, "OT/DT Multiplier": item.otDtMultiplier, "Hours": item.hours,
+                    "Labor Rate ($)": laborRate.toFixed(2), "Labor Total ($)": laborTotal.toFixed(2),
+                    "Material Quantity": item.materialQuantity, "Material Unit Cost ($)": item.materialUnitCost.toFixed(2),
+                    "Materials Total ($)": materialsTotal.toFixed(2), "Equipment/Rental ($)": item.equipmentRentalCost.toFixed(2),
+                    "Subcontractor ($)": item.subcontractorCostLineItem.toFixed(2), "Misc Line Item ($)": item.miscLineItem.toFixed(2),
+                    "Other Total ($)": otherCategoryTotal.toFixed(2), "Line Total ($)": lineTotal.toFixed(2)
                 };
             });
 
-            // 2. Use Papa Parse to convert the JSON data to a CSV string
             const csv = Papa.unparse(dataForExport);
-
-            // 3. Create a blob and trigger the download
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            
             const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'estimate'}-export.csv`;
             link.setAttribute('download', exportFileName);
-            
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
             renderMessageBox('Estimate has been exported to CSV.');
         }
 
         function addItem() {
-            // Use the currently selected trade from the new dropdown as the default
             const defaultTradeForNewItem = currentlySelectedTradeForLineItems;
             const defaultRoleForNewItem = projectSettings.allTradeLaborRates[defaultTradeForNewItem] && Object.keys(projectSettings.allTradeLaborRates[defaultTradeForNewItem]).length > 0 ? Object.keys(projectSettings.allTradeLaborRates[defaultTradeForNewItem])[0] : "Journeyman";
 
             const newItem = {
-                id: Date.now(), // Ensures a unique ID for the first item
-                taskName: 'New Task', // A more generic default name
-                description: 'Detail your first project task here.',
-                trade: defaultTradeForNewItem, // Use the selected default trade
-                rateRole: defaultRoleForNewItem, // Use the corresponding default role
-                hours: 0,
-                otDtMultiplier: 1.0,
-                materialQuantity: 0, // was materialUnits
-                materialUnitCost: 0, // was materialPerUnit
-                equipmentRentalCost: 0,
-                subcontractorCostLineItem: 0,
-                miscLineItem: 0
+                id: Date.now(), taskName: 'New Task', description: 'Detail your first project task here.',
+                trade: defaultTradeForNewItem, rateRole: defaultRoleForNewItem, hours: 0,
+                otDtMultiplier: 1.0, materialQuantity: 0, materialUnitCost: 0,
+                equipmentRentalCost: 0, subcontractorCostLineItem: 0, miscLineItem: 0
             };
             estimateItems.push(newItem);
             renderItems();
@@ -1424,61 +1460,43 @@
             renderItems();
         }
 
-        /**
-         * Duplicates an existing item and inserts it directly after the original.
-         * @param {number} id - The ID of the item to duplicate.
-         */
         function duplicateItem(id) {
             const itemToDuplicateIndex = estimateItems.findIndex(item => item.id === id);
 
             if (itemToDuplicateIndex !== -1) {
                 const originalItem = estimateItems[itemToDuplicateIndex];
-                // Create a deep copy to ensure independence
                 const duplicatedItem = JSON.parse(JSON.stringify(originalItem));
-                duplicatedItem.id = Date.now(); // Assign a new unique ID
-
-                // Insert the duplicated item right after the original
+                duplicatedItem.id = Date.now();
                 estimateItems.splice(itemToDuplicateIndex + 1, 0, duplicatedItem);
                 renderItems();
 
-                // Optional: Scroll to the new item and/or highlight it briefly
-                // This requires a slight delay to allow rendering
                 setTimeout(() => {
                     const newItemElement = document.querySelector(`tr[data-id="${duplicatedItem.id}"]`);
                     if (newItemElement) {
                         newItemElement.style.transition = 'background-color 0.5s ease-in-out';
-                        newItemElement.style.backgroundColor = 'rgba(144, 238, 144, 0.3)'; // Light green highlight
+                        newItemElement.style.backgroundColor = 'rgba(144, 238, 144, 0.3)';
                         setTimeout(() => {
-                            newItemElement.style.backgroundColor = ''; // Remove highlight
-                            newItemElement.style.transition = ''; // Remove transition
+                            newItemElement.style.backgroundColor = '';
+                            newItemElement.style.transition = '';
                         }, 1000);
                     }
                 }, 50);
             }
         }
 
-
-        /**
-         * Updates a specific field for an estimate item.
-         * If 'trade' is updated, it also resets the 'rateRole' to a default for the new trade.
-         * @param {number} id - The ID of the item to update.
-         * @param {string} field - The field to update (e.g., 'taskName', 'hours', 'trade', 'rateRole').
-         * @param {*} value - The new value for the field.
-         */
         function updateItem(id, field, value) {
             const item = estimateItems.find(item => item.id === id);
             if (item) {
                 if (['hours', 'materialQuantity', 'materialUnitCost', 'equipmentRentalCost', 'subcontractorCostLineItem', 'miscLineItem', 'otDtMultiplier'].includes(field)) {
                     item[field] = parseFloat(value) || 0;
-                } else if (field === 'trade') { // Handle trade change for an existing item
+                } else if (field === 'trade') {
                     item.trade = value;
-                    // When trade changes, reset skill to a default for that trade
                     const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
                     item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
                 } else {
                     item[field] = value;
                 }
-                renderItems(); // Re-render the table to reflect changes and update dropdowns
+                renderItems();
             }
         }
 
@@ -1487,11 +1505,9 @@
             estimateTableBody.innerHTML = '';
             let totalLaborHoursVal = 0; 
 
-            // Get active trades for dropdown population
             const activeTrades = projectSettings.activeTrades;
 
             estimateItems.forEach(item => {
-                // Ensure the item's trade and role are still valid after wizard changes
                 if (!activeTrades.includes(item.trade)) {
                     item.trade = activeTrades.length > 0 ? activeTrades[0] : "General";
                 }
@@ -1505,18 +1521,14 @@
                 const laborTotal = item.hours * effectiveLaborRate;
                 const materialsTotal = item.materialQuantity * item.materialUnitCost;
                 const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
-                
                 const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
-
                 totalLaborHoursVal += item.hours;
 
                 const row = document.createElement('tr');
-                row.setAttribute('data-id', item.id); // Add data-id for easy selection after duplication
-                // --- CHANGED BLOCK: Updated SVG for duplicate button and centered the actions div ---
+                row.setAttribute('data-id', item.id);
                 row.innerHTML = `
                     <td data-label="Task Name"><textarea rows="2" onchange="updateItem(${item.id}, 'taskName', this.value)" class="input-field">${item.taskName}</textarea></td>
                     <td data-label="Description"><textarea rows="2" onchange="updateItem(${item.id}, 'description', this.value)" class="input-field">${item.description}</textarea></td>
-                    
                     <td data-label="OT/DT Multiplier" class="${collapsedState.labor ? 'column-hidden' : ''}">
                         <select onchange="updateItem(${item.id}, 'otDtMultiplier', this.value)" class="input-field">
                             <option value="1.0" ${item.otDtMultiplier === 1.0 ? 'selected' : ''}>1.0</option>
@@ -1526,37 +1538,26 @@
                     </td>
                     <td data-label="Trade" class="${collapsedState.labor ? 'column-hidden' : ''}">
                         <select onchange="updateItem(${item.id}, 'trade', this.value)" class="input-field">
-                            ${activeTrades.map(tradeOption => {
-                                return `<option value="${tradeOption}" ${item.trade === tradeOption ? 'selected' : ''}>
-                                            ${tradeOption}
-                                        </option>`;
-                            }).join('')}
+                            ${activeTrades.map(tradeOption => `<option value="${tradeOption}" ${item.trade === tradeOption ? 'selected' : ''}>${tradeOption}</option>`).join('')}
                             ${activeTrades.length === 0 ? '<option value="" selected>No Trades</option>' : ''}
                         </select>
                     </td>
                     <td data-label="Skill" class="${collapsedState.labor ? 'column-hidden' : ''}">
                         <select onchange="updateItem(${item.id}, 'rateRole', this.value)" class="input-field">
-                            ${(projectSettings.allTradeLaborRates[item.trade] ? Object.keys(projectSettings.allTradeLaborRates[item.trade]) : []).map(role => {
-                                return `<option value="${role}" ${item.rateRole === role ? 'selected' : ''}>
-                                                ${role}
-                                            </option>`;
-                            }).join('')}
+                            ${(projectSettings.allTradeLaborRates[item.trade] ? Object.keys(projectSettings.allTradeLaborRates[item.trade]) : []).map(role => `<option value="${role}" ${item.rateRole === role ? 'selected' : ''}>${role}</option>`).join('')}
                             ${!projectSettings.allTradeLaborRates[item.trade] || Object.keys(projectSettings.allTradeLaborRates[item.trade]).length === 0 ? '<option value="" selected>No Skills</option>' : ''}
                         </select>
                     </td>
                     <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(laborRate)}</td>
                     <td data-label="# hrs" class="${collapsedState.labor ? 'column-hidden' : ''}"><input type="number" value="${item.hours}" onchange="updateItem(${item.id}, 'hours', this.value)" class="input-field"></td>
                     <td data-label="Labor Total">${formatCurrency(laborTotal)}</td>
-                    
                     <td data-label="Material Qty" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialQuantity}" onchange="updateItem(${item.id}, 'materialQuantity', this.value)" class="input-field"></td>
                     <td data-label="Material $/Unit" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialUnitCost}" onchange="updateItem(${item.id}, 'materialUnitCost', this.value)" class="input-field"></td>
                     <td data-label="Materials Total">${formatCurrency(materialsTotal)}</td>
-                    
                     <td data-label="Equipment/Rental" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.equipmentRentalCost}" onchange="updateItem(${item.id}, 'equipmentRentalCost', this.value)" class="input-field"></td>
                     <td data-label="Subcontractor" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.subcontractorCostLineItem}" onchange="updateItem(${item.id}, 'subcontractorCostLineItem', this.value)" class="input-field"></td>
                     <td data-label="Misc. Cost" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.miscLineItem}" onchange="updateItem(${item.id}, 'miscLineItem', this.value)" class="input-field"></td>
                     <td data-label="Other Total">${formatCurrency(otherCategoryTotal)}</td>
-                    
                     <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
                     <td class="actions-cell"> 
                         <div class="flex items-center justify-center gap-2 h-full w-full"> 
@@ -1569,7 +1570,6 @@
                         </div>
                     </td>
                 `;
-                // --- END CHANGED BLOCK ---
                 estimateTableBody.appendChild(row);
             });
             calculateTotals();
@@ -1577,114 +1577,76 @@
 
         function adjustTableMinWidth() {
             const table = document.querySelector('.min-w-full');
-            // Base width for fixed columns (Task Name, Description, Labor Total, Materials Total, Other Total, Total, Actions)
-            // Adjusted for 3 extra cols (OT/DT, Trade, Skill) + $/hr + #hrs + Labor Total + Mtrls Total + Other Total + Total + Actions
-            let currentMinWidth = 150 + 200 + 90 + 90 + 90 + 70 + 70 + 100 + 70 + 70 + 100 + 70 + 70 + 70 + 100 + 80; /* REVERTED values, assuming all columns are visible for min-width calculation */
-
+            let currentMinWidth = 150 + 200 + 90 + 90 + 90 + 70 + 70 + 100 + 70 + 70 + 100 + 70 + 70 + 70 + 100 + 80;
             if (!collapsedState.labor) {
-                // Add width for OT/DT, Trade, Skill, $/hr, #hrs (5 columns)
                 currentMinWidth += (90 + 90 + 90 + 70 + 70); 
             }
             if (!collapsedState.materials) {
-                // Add width for QTY / UNIT, $ / UNIT
                 currentMinWidth += (70 + 70); 
             }
             if (!collapsedState.other) {
-                // Add width for Equipment / Rental, Subcontractor, Misc.
                 currentMinWidth += (70 + 70 + 70); 
             }
-            
             table.style.minWidth = `${currentMinWidth}px`;
         }
 
 
         function calculateTotals() {
-            let totalLaborCost = 0;
-            let totalMaterialCostRaw = 0;
-            let totalEquipmentCost = 0;
-            let totalSubcontractorCost = 0;
-            let totalMiscLineItemCosts = 0;
-
+            let totalLaborCost = 0, totalMaterialCostRaw = 0, totalEquipmentCost = 0, totalSubcontractorCost = 0, totalMiscLineItemCosts = 0;
             let laborHoursBreakdown = {};
-
             const allPossibleRoles = new Set();
             Object.keys(projectSettings.allTradeLaborRates).forEach(trade => {
                 if (projectSettings.allTradeLaborRates[trade]) {
                     Object.keys(projectSettings.allTradeLaborRates[trade]).forEach(role => allPossibleRoles.add(role));
                 }
             });
-            allPossibleRoles.forEach(role => {
-                laborHoursBreakdown[role] = 0;
-            });
-
+            allPossibleRoles.forEach(role => { laborHoursBreakdown[role] = 0; });
 
             estimateItems.forEach(item => {
                 const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
                 const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
                 const laborTotal = item.hours * effectiveLaborRate;
                 const materialsTotal = item.materialQuantity * item.materialUnitCost;
-                
                 totalLaborCost += laborTotal;
                 totalMaterialCostRaw += materialsTotal;
                 totalEquipmentCost += item.equipmentRentalCost;
                 totalSubcontractorCost += item.subcontractorCostLineItem;
                 totalMiscLineItemCosts += item.miscLineItem;
-                
                 if (laborHoursBreakdown[item.rateRole] !== undefined) {
                     laborHoursBreakdown[item.rateRole] += item.hours;
                 }
             });
             
             const totalProjectCostDirect = totalLaborCost + totalMaterialCostRaw + totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
-
-            // Ensure projectSettings percentages are numbers (already done in SetupWizard, but good to reinforce)
             const materialMarkupPercent = parseFloat(projectSettings.materialMarkup) || 0;
             const overheadPercent = parseFloat(projectSettings.overhead) || 0;
             const miscellaneousPercent = parseFloat(projectSettings.miscellaneous) || 0;
             const profitMarginPercent = parseFloat(projectSettings.profitMargin) || 0;
             const salesTaxPercent = parseFloat(projectSettings.salesTax) || 0;
             const additionalConsiderationsValue = parseFloat(projectSettings.additionalConsiderationsValue) || 0;
-
             const materialMarkupAmount = totalMaterialCostRaw * (materialMarkupPercent / 100);
-
             const baseCostForOverheadMiscProfit = totalProjectCostDirect + materialMarkupAmount;
-
             const totalOverheadCost = baseCostForOverheadMiscProfit * (overheadPercent / 100);
-
             const totalMiscCostAmount = baseCostForOverheadMiscProfit * (miscellaneousPercent / 100);
-            
             const subtotalBeforeProfitTax = baseCostForOverheadMiscProfit + totalMiscCostAmount + totalOverheadCost;
-            
             const totalProfitMarginAmount = subtotalBeforeProfitTax * (profitMarginPercent / 100);
-            
             const estimateSubtotalAmount = subtotalBeforeProfitTax + totalProfitMarginAmount;
-
             const salesTaxApplicableBase = totalMaterialCostRaw + materialMarkupAmount;
             const salesTaxAmount = salesTaxApplicableBase * (salesTaxPercent / 100);
-            
             let additionalConsiderationAmount = 0;
             if (projectSettings.additionalConsiderationsType === '%') {
                 additionalConsiderationAmount = estimateSubtotalAmount * (additionalConsiderationsValue / 100);
             } else {
                 additionalConsiderationAmount = additionalConsiderationsValue;
             }
-
             const grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
-
-            // NEW: Assign grandTotal to projectSettings
             projectSettings.grandTotal = grandTotal; 
-
             const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
-
             const totalOtherCostsForPieChart = totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
 
-
-            // Pass all calculated values to SummaryOverview
             if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
                 window.SummaryOverview.updateSummaries({
-                    ...projectSettings, // Pass original settings
-                    // Pass all calculated values
-                    totalLaborCost, totalMaterialCostRaw, totalEquipmentCost,
+                    ...projectSettings, totalLaborCost, totalMaterialCostRaw, totalEquipmentCost,
                     totalSubcontractorCost, totalMiscLineItemCosts, laborHoursBreakdown,
                     totalProjectCostDirect, materialMarkupAmount, totalOverheadCost,
                     totalMiscCostAmount, estimateSubtotalAmount, totalProfitMarginAmount,
@@ -1694,18 +1656,11 @@
             }
         }
 
-
-        // NEW: Function to send estimate email (without pre-filled recipient)
         function sendEstimateEmailToClient() {
-            // First, ensure all calculations are up-to-date
             calculateTotals(); 
-
-            // Recipient email is intentionally left blank as per request
             const recipientEmail = ""; 
             const projectName = projectSettings.projectName;
             const clientName = projectSettings.clientName;
-            
-            // Removed grandTotal from here as per user request
             const subject = encodeURIComponent(`Estimate for Your Project: ${projectName}`);
             const body = encodeURIComponent(
                 `Dear ${clientName || 'Client'},\n\n` +
@@ -1714,21 +1669,15 @@
                 `Please let us know if you have any questions.\n\n` +
                 `Regards,\n${projectSettings.contractorName || 'Your Company'}` 
             );
-
             const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
-
-            // Open the mail client
             window.open(mailtoLink, '_blank');
             renderMessageBox('Your email client should open with a pre-filled estimate. Please remember to add a recipient and send it!');
         }
 
-        // NEW: Function to populate the new global trade selector
         function populateDefaultTradeSelector() {
             defaultTradeSelectorElem = document.getElementById('defaultTradeSelector');
-            if (!defaultTradeSelectorElem) return; // Exit if element not found
-
-            defaultTradeSelectorElem.innerHTML = ''; // Clear existing options
-
+            if (!defaultTradeSelectorElem) return;
+            defaultTradeSelectorElem.innerHTML = '';
             if (projectSettings.activeTrades.length === 0) {
                 defaultTradeSelectorElem.innerHTML = '<option value="">No Trades Selected</option>';
                 defaultTradeSelectorElem.disabled = true;
@@ -1741,7 +1690,6 @@
                     option.textContent = trade;
                     defaultTradeSelectorElem.appendChild(option);
                 });
-                // Set the default selection to the first active trade or the previously selected one
                 if (projectSettings.activeTrades.includes(currentlySelectedTradeForLineItems)) {
                     defaultTradeSelectorElem.value = currentlySelectedTradeForLineItems;
                 } else {
@@ -1751,45 +1699,131 @@
             }
         }
 
+        // ✨ NEW: AI Chat Functions
+        function setupAIChatListeners() {
+            aiChatButton = document.getElementById('aiChatButton');
+            aiChatModal = document.getElementById('aiChatModal');
+            aiChatCloseBtn = document.getElementById('aiChatCloseBtn');
+            aiChatHistory = document.getElementById('aiChatHistory');
+            aiChatInput = document.getElementById('aiChatInput');
+            aiChatSendBtn = document.getElementById('aiChatSendBtn');
+
+            aiChatButton.addEventListener('click', () => {
+                aiChatModal.classList.toggle('show');
+            });
+
+            aiChatCloseBtn.addEventListener('click', () => {
+                aiChatModal.classList.remove('show');
+            });
+
+            aiChatSendBtn.addEventListener('click', handleAIChatSend);
+            aiChatInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    handleAIChatSend();
+                }
+            });
+        }
+
+        function addMessageToChat(message, sender) {
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${sender}`;
+            bubble.textContent = message;
+            aiChatHistory.appendChild(bubble);
+            aiChatHistory.scrollTop = aiChatHistory.scrollHeight; // Auto-scroll to bottom
+        }
+
+        async function handleAIChatSend() {
+            const userMessage = aiChatInput.value.trim();
+            if (!userMessage) return;
+
+            addMessageToChat(userMessage, 'user');
+            chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
+            aiChatInput.value = '';
+            
+            const loadingBubble = document.createElement('div');
+            loadingBubble.className = 'chat-bubble loading';
+            loadingBubble.textContent = 'Thinking...';
+            aiChatHistory.appendChild(loadingBubble);
+            aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+
+            // Construct a detailed prompt for the AI
+            const prompt = `
+                You are an expert construction cost estimator. A user is working on an estimate for a 
+                '${projectSettings.projectType}' project in '${projectSettings.projectState}'. 
+                Provide helpful advice based on their question.
+                User's question: "${userMessage}"
+            `;
+
+            try {
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }]
+                };
+                const apiKey = ""; // Leave empty
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                aiChatHistory.removeChild(loadingBubble);
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const aiMessage = result.candidates[0].content.parts[0].text;
+                    addMessageToChat(aiMessage, 'ai');
+                    chatHistory.push({ role: "model", parts: [{ text: aiMessage }] });
+                } else {
+                    addMessageToChat('Sorry, I could not get a response. Please try again.', 'ai');
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                aiChatHistory.removeChild(loadingBubble);
+                addMessageToChat('Sorry, there was an error connecting to the AI service.', 'ai');
+            }
+        }
+
 
         function setupInitialEventListeners() {
-            // Moved addItemBtn listener inside the trade-selector-group
-            
             document.querySelectorAll('.collapsible-header').forEach(header => {
                 header.addEventListener('click', function() {
                     const group = this.dataset.group;
                     toggleColumnVisibility(group);
                 });
             });
-            // NEW: Add event listener for the "Back to Calculator" button in SavedProjects.html
-            // This button will only exist after SavedProjects.html is loaded
             document.addEventListener('click', function(event) {
                 if (event.target && event.target.id === 'goToCalculatorBtn') {
                     showMainApp();
                 }
             });
             
-            // NEW: Event listeners for Save Project modal buttons
             cancelSaveProjectBtn.addEventListener('click', closeSaveProjectModal);
             confirmSaveProjectBtn.addEventListener('click', confirmSaveProject);
 
-            // NEW: Event listener for the global trade selector
-            defaultTradeSelectorElem = document.getElementById('defaultTradeSelector'); // Get reference here too
+            defaultTradeSelectorElem = document.getElementById('defaultTradeSelector');
             if (defaultTradeSelectorElem) {
                 defaultTradeSelectorElem.addEventListener('change', (event) => {
                     currentlySelectedTradeForLineItems = event.target.value;
-                    // Removed the call to updateAllLineItemsToGlobalTrade() here
                 });
             }
-            // NEW: Event listener for Add Item button (now inside trade-selector-group)
             document.getElementById('addItemBtn').addEventListener('click', addItem);
+            
+            // ✨ NEW: Setup listeners for the AI chat
+            setupAIChatListeners();
         }
 
 
         document.addEventListener('DOMContentLoaded', () => {
             loadAppHeader();
             setupInitialEventListeners();
-            // Initial setup for column visibility (to match collapsedState)
             for (const group in collapsedState) {
                 if (collapsedState.hasOwnProperty(group)) {
                     const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
@@ -1802,7 +1836,6 @@
                                 th.classList.add('column-hidden');
                             });
                         } else {
-                            // Reverted colspan for labor to 5
                             mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
                             document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
                                 th.classList.remove('column-hidden');
