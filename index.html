@@ -1042,6 +1042,7 @@
         let aiChatInput;
         let aiChatSendBtn;
         let chatHistory = []; // To store the conversation
+        let lastUserMessage = ""; // To store the last user message for retries
 
 
         // State for theme - will be initialized in DOMContentLoaded
@@ -1724,21 +1725,42 @@
             });
         }
 
-        function addMessageToChat(message, sender) {
+        function addMessageToChat(message, sender, isError = false) {
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble ${sender}`;
-            bubble.textContent = message;
+            
+            // ✨ CHANGED: Allow HTML content for retry button
+            if (isError) {
+                bubble.innerHTML = message;
+            } else {
+                bubble.textContent = message;
+            }
+
             aiChatHistory.appendChild(bubble);
             aiChatHistory.scrollTop = aiChatHistory.scrollHeight; // Auto-scroll to bottom
         }
+        
+        // ✨ NEW: Function to retry the last message
+        function retryLastAIChatRequest() {
+            // Remove the previous error message before retrying
+            const errorBubbles = aiChatHistory.querySelectorAll('.ai.error');
+            errorBubbles.forEach(bubble => bubble.remove());
+            
+            // Resend the last user message
+            handleAIChatSend(true); // Pass a flag to indicate this is a retry
+        }
 
-        async function handleAIChatSend() {
-            const userMessage = aiChatInput.value.trim();
-            if (!userMessage) return;
-
-            addMessageToChat(userMessage, 'user');
-            chatHistory.push({ role: "user", parts: [{ text: userMessage }] });
-            aiChatInput.value = '';
+        async function handleAIChatSend(isRetry = false) {
+            let userMessage;
+            if (isRetry) {
+                userMessage = lastUserMessage;
+            } else {
+                userMessage = aiChatInput.value.trim();
+                if (!userMessage) return;
+                addMessageToChat(userMessage, 'user');
+                lastUserMessage = userMessage; // Save the last message
+                aiChatInput.value = '';
+            }
             
             const loadingBubble = document.createElement('div');
             loadingBubble.className = 'chat-bubble loading';
@@ -1746,19 +1768,19 @@
             aiChatHistory.appendChild(loadingBubble);
             aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
 
-            const apiKey = "AIzaSyBk0boOZgPcqpIAdPIBB3nMPJcv5UIRD1A"; // 👈 PASTE YOUR KEY HERE
+            const apiKey = "AIzaSyBk0boOZgPcqpIAdPIBB3nMPJcv5UIRD1A";
             
-            // ✨ CHANGED: Added specific check for placeholder key
             if (apiKey === "YOUR_API_KEY_HERE") {
                 aiChatHistory.removeChild(loadingBubble);
                 addMessageToChat("Configuration error: Please add your Gemini API key to the index.html file.", 'ai');
                 return;
             }
 
+            // ✨ CHANGED: Added instruction for concise answers
             const prompt = `
                 You are an expert construction cost estimator. A user is working on an estimate for a 
                 '${projectSettings.projectType}' project in '${projectSettings.projectState}'. 
-                Provide helpful advice based on their question.
+                Provide helpful advice based on their question. Keep your answer concise and to the point. Use bullet points for clarity if needed.
                 User's question: "${userMessage}"
             `;
 
@@ -1781,7 +1803,14 @@
 
                 if (result.error) {
                     console.error("Gemini API Error:", result.error);
-                    addMessageToChat(`Error from API: ${result.error.message}`, 'ai');
+                    // ✨ CHANGED: Add a retry button for specific errors
+                    let errorMessage = `Error from API: ${result.error.message}`;
+                    if (result.error.message.includes("overloaded")) {
+                        errorMessage += ` <button onclick="retryLastAIChatRequest()" class="btn btn-primary btn-sm" style="padding: 2px 8px; font-size: 12px; margin-left: 8px;">Retry</button>`;
+                        addMessageToChat(errorMessage, 'ai', true);
+                    } else {
+                        addMessageToChat(errorMessage, 'ai');
+                    }
                     return;
                 }
 
