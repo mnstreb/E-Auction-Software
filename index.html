@@ -165,20 +165,20 @@
             transition: color 0.3s;
         }
 
-        /* ✨ NEW: AI Chat Styles */
+        /* ✨ CHANGED: AI Chat Styles for a circular button */
         .ai-chat-button {
             position: fixed;
             bottom: 25px;
             right: 25px;
             background-color: #2563eb;
             color: white;
-            width: 150px; /* Wider button */
+            width: 60px; /* Make width equal to height */
             height: 60px;
-            border-radius: 30px;
+            border-radius: 50%; /* Make it a circle */
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 24px; /* Larger font for "AI" */
             font-weight: 600;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             cursor: pointer;
@@ -707,7 +707,7 @@
     </div>
 
     <!-- ✨ NEW: AI Chat Assistant HTML -->
-    <button id="aiChatButton" class="ai-chat-button">AI Estimating</button>
+    <button id="aiChatButton" class="ai-chat-button">AI</button>
 
     <div id="aiChatModal" class="ai-chat-modal">
         <div class="ai-chat-header">
