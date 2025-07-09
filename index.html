@@ -1760,11 +1760,14 @@
                 };
                 // ✨ CHANGED: Add your API Key here
                 const apiKey = "YOUR_API_KEY_HERE"; // 👈 PASTE YOUR KEY HERE
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-goog-api-key': apiKey // ✨ CHANGED: Key is now sent in the header
+                    },
                     body: JSON.stringify(payload)
                 });
 
