@@ -1746,7 +1746,15 @@
             aiChatHistory.appendChild(loadingBubble);
             aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
 
-            // Construct a detailed prompt for the AI
+            const apiKey = "AIzaSyBk0boOZgPcqpIAdPIBB3nMPJcv5UIRD1A"; // 👈 PASTE YOUR KEY HERE
+            
+            // ✨ CHANGED: Added specific check for placeholder key
+            if (apiKey === "YOUR_API_KEY_HERE") {
+                aiChatHistory.removeChild(loadingBubble);
+                addMessageToChat("Configuration error: Please add your Gemini API key to the index.html file.", 'ai');
+                return;
+            }
+
             const prompt = `
                 You are an expert construction cost estimator. A user is working on an estimate for a 
                 '${projectSettings.projectType}' project in '${projectSettings.projectState}'. 
@@ -1758,26 +1766,24 @@
                 const payload = {
                     contents: [{ role: "user", parts: [{ text: prompt }] }]
                 };
-                // ✨ CHANGED: Add your API Key here
-                const apiKey = AIzaSyBk0boOZgPcqpIAdPIBB3nMPJcv5UIRD1A; // 👈 PASTE YOUR KEY HERE
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        'x-goog-api-key': apiKey // ✨ CHANGED: Key is now sent in the header
                     },
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) {
-                    throw new Error(`API request failed with status ${response.status}`);
-                }
-
                 const result = await response.json();
-                
                 aiChatHistory.removeChild(loadingBubble);
+
+                if (result.error) {
+                    console.error("Gemini API Error:", result.error);
+                    addMessageToChat(`Error from API: ${result.error.message}`, 'ai');
+                    return;
+                }
 
                 if (result.candidates && result.candidates.length > 0 &&
                     result.candidates[0].content && result.candidates[0].content.parts &&
@@ -1786,12 +1792,12 @@
                     addMessageToChat(aiMessage, 'ai');
                     chatHistory.push({ role: "model", parts: [{ text: aiMessage }] });
                 } else {
-                    addMessageToChat('Sorry, I could not get a response. Please try again.', 'ai');
+                    addMessageToChat('Sorry, I could not get a response. The response was empty.', 'ai');
                 }
             } catch (error) {
                 console.error("Error calling Gemini API:", error);
                 aiChatHistory.removeChild(loadingBubble);
-                addMessageToChat('Sorry, there was an error connecting to the AI service.', 'ai');
+                addMessageToChat('Sorry, there was a network error connecting to the AI service.', 'ai');
             }
         }
 
