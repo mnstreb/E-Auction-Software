@@ -403,35 +403,34 @@
             font-size: 0.9em;
             padding: 6px 8px;
             box-sizing: border-box;
-            text-align: right;
             transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
+
+        /* ✨ CHANGED: Centering table content */
+        #estimateLineItemsTableContainer thead tr:nth-child(2) th {
+            text-align: center;
+        }
+        #estimateTableBody td:not(:nth-child(1)):not(:nth-child(2)) {
+            text-align: center;
+        }
+        #estimateTableBody td .input-field {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #estimateTableBody td input[type="number"].input-field {
+            text-align: center;
+        }
+        #estimateTableBody td select.input-field {
+            text-align-last: center;
+            text-align: center;
+        }
+        /* End of centering styles */
+
 
         /* Adjusted nth-child for select elements due to Trade column re-addition */
         #estimateTableBody td:nth-child(3) select, /* OT/DT */
         #estimateTableBody td:nth-child(4) select { /* Trade */
             width: 90px;
-            text-align: left;
-        }
-
-        /* Adjusted nth-child for specific text alignment due to Trade column re-addition */
-        #estimateTableBody td:nth-child(6) { /* $/hr */
-            white-space: nowrap;
-            font-weight: bold;
-            color: #1f2937;
-            text-align: right;
-            transition: color 0.3s;
-        }
-
-        /* Adjusted nth-child for centered totals due to Trade column re-addition */
-        #estimateTableBody td:nth-child(8), /* Labor Total */
-        #estimateTableBody td:nth-child(11), /* Materials Total */
-        #estimateTableBody td:nth-child(15) { /* Other Total */
-            white-space: nowrap;
-            font-weight: bold;
-            color: #1f2937;
-            text-align: center;
-            transition: color 0.3s;
         }
         
         /* Styles for centering the Actions column */
@@ -1717,10 +1716,10 @@
                 aiChatModal.classList.remove('show');
             });
 
-            aiChatSendBtn.addEventListener('click', handleAIChatSend);
+            aiChatSendBtn.addEventListener('click', () => handleAIChatSend(false));
             aiChatInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
-                    handleAIChatSend();
+                    handleAIChatSend(false);
                 }
             });
         }
@@ -1729,7 +1728,6 @@
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble ${sender}`;
             
-            // ✨ CHANGED: Allow HTML content for retry button
             if (isError) {
                 bubble.innerHTML = message;
             } else {
@@ -1737,17 +1735,13 @@
             }
 
             aiChatHistory.appendChild(bubble);
-            aiChatHistory.scrollTop = aiChatHistory.scrollHeight; // Auto-scroll to bottom
+            aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
         }
         
-        // ✨ NEW: Function to retry the last message
         function retryLastAIChatRequest() {
-            // Remove the previous error message before retrying
-            const errorBubbles = aiChatHistory.querySelectorAll('.ai.error');
-            errorBubbles.forEach(bubble => bubble.remove());
-            
-            // Resend the last user message
-            handleAIChatSend(true); // Pass a flag to indicate this is a retry
+            const errorBubbles = aiChatHistory.querySelectorAll('.ai');
+            errorBubbles[errorBubbles.length - 1].remove();
+            handleAIChatSend(true);
         }
 
         async function handleAIChatSend(isRetry = false) {
@@ -1758,7 +1752,7 @@
                 userMessage = aiChatInput.value.trim();
                 if (!userMessage) return;
                 addMessageToChat(userMessage, 'user');
-                lastUserMessage = userMessage; // Save the last message
+                lastUserMessage = userMessage;
                 aiChatInput.value = '';
             }
             
@@ -1776,7 +1770,6 @@
                 return;
             }
 
-            // ✨ CHANGED: Added instruction for concise answers
             const prompt = `
                 You are an expert construction cost estimator. A user is working on an estimate for a 
                 '${projectSettings.projectType}' project in '${projectSettings.projectState}'. 
@@ -1803,7 +1796,6 @@
 
                 if (result.error) {
                     console.error("Gemini API Error:", result.error);
-                    // ✨ CHANGED: Add a retry button for specific errors
                     let errorMessage = `Error from API: ${result.error.message}`;
                     if (result.error.message.includes("overloaded")) {
                         errorMessage += ` <button onclick="retryLastAIChatRequest()" class="btn btn-primary btn-sm" style="padding: 2px 8px; font-size: 12px; margin-left: 8px;">Retry</button>`;
