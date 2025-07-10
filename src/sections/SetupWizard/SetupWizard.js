@@ -155,9 +155,17 @@ window.SetupWizard = (function() {
             });
         }
 
-        // Trade search/filter listener
+        // ✨ CHANGED: Restored trade selection listeners
+        if (selectedTradesDisplay) {
+            selectedTradesDisplay.addEventListener('click', toggleTradeDropdown);
+        }
         if (tradeSearchInput) {
             tradeSearchInput.addEventListener('keyup', filterTrades);
+            tradeSearchInput.addEventListener('focus', showTradeDropdown);
+            tradeSearchInput.addEventListener('blur', () => setTimeout(hideTradeDropdown, 200));
+        }
+        if (tradesDropdown) {
+            tradesDropdown.addEventListener('mousedown', (e) => e.preventDefault());
         }
         
         // Add new skill listener
@@ -197,7 +205,7 @@ window.SetupWizard = (function() {
         profitMarginInput.value = projectSettings.profitMargin;
         overheadInput.value = projectSettings.overhead;
         materialMarkupInput.value = projectSettings.materialMarkup;
-        discountInput.value = projectSettings.discount || 0; // ✨ NEW
+        discountInput.value = projectSettings.discount || 0;
         salesTaxInput.value = projectSettings.salesTax;
         miscellaneousInput.value = projectSettings.miscellaneous;
         additionalConsiderationsValueInput.value = projectSettings.additionalConsiderationsValue;
@@ -205,17 +213,14 @@ window.SetupWizard = (function() {
     }
 
     /**
-     * ✨ BUG FIX: Corrected the logic to be more explicit.
      * Toggles the visibility of the advanced project details section.
      */
     function toggleAdvancedDetails() {
         if (advancedDetailsSection) {
             if (advancedDetailsSection.classList.contains('hidden')) {
-                // If it's hidden, show it
                 advancedDetailsSection.classList.remove('hidden');
                 showAdvancedDetailsLink.textContent = 'Hide Advanced Details';
             } else {
-                // If it's visible, hide it
                 advancedDetailsSection.classList.add('hidden');
                 showAdvancedDetailsLink.textContent = 'Show Advanced Details';
             }
@@ -262,7 +267,7 @@ window.SetupWizard = (function() {
         projectSettings.profitMargin = parseFloat(profitMarginInput.value) || 0;
         projectSettings.overhead = parseFloat(overheadInput.value) || 0;
         projectSettings.materialMarkup = parseFloat(materialMarkupInput.value) || 0;
-        projectSettings.discount = parseFloat(discountInput.value) || 0; // ✨ NEW
+        projectSettings.discount = parseFloat(discountInput.value) || 0;
         projectSettings.salesTax = parseFloat(salesTaxInput.value) || 0;
         projectSettings.miscellaneous = parseFloat(miscellaneousInput.value) || 0;
         projectSettings.additionalConsiderationsValue = parseFloat(additionalConsiderationsValueInput.value) || 0;
@@ -275,7 +280,6 @@ window.SetupWizard = (function() {
     }
 
     // Other functions (showStep, updateProgressBar, logo handling, trade selection, etc.) remain here...
-    // These functions do not need to be changed for the bug fix.
     
     function showStep(stepNumber) {
         wizardSteps.forEach((step, index) => {
@@ -355,6 +359,25 @@ window.SetupWizard = (function() {
         logoUploadInput.value = ''; // Clear the file input
     }
     
+    // ✨ NEW: Functions to control the trade dropdown visibility
+    function toggleTradeDropdown() {
+        if (tradesDropdown) {
+            tradesDropdown.classList.toggle('hidden');
+        }
+    }
+
+    function showTradeDropdown() {
+        if (tradesDropdown) {
+            tradesDropdown.classList.remove('hidden');
+        }
+    }
+
+    function hideTradeDropdown() {
+        if (tradesDropdown) {
+            tradesDropdown.classList.add('hidden');
+        }
+    }
+
     function populateTradesDropdown() {
         tradesDropdown.innerHTML = '';
         const allTrades = Object.keys(projectSettings.allTradeLaborRates);
@@ -399,18 +422,29 @@ window.SetupWizard = (function() {
     function updateSelectedTradesDisplay() {
         selectedTradesDisplay.innerHTML = '';
         if (projectSettings.activeTrades.length === 0) {
-            selectedTradesDisplay.innerHTML = '<p class="text-gray-500 italic">No trades selected.</p>';
+            selectedTradesDisplay.innerHTML = '<p class="text-gray-500 italic">Click to select trades...</p>';
         } else {
             projectSettings.activeTrades.forEach(trade => {
                 const tag = document.createElement('div');
                 tag.className = 'selected-trade-tag';
                 tag.innerHTML = `
                     <span>${trade}</span>
-                    <button class="remove-tag" onclick="SetupWizard.handleTradeSelection({value: '${trade}', checked: false});">&times;</button>
+                    <button class="remove-tag" onclick="SetupWizard.removeTrade('${trade}')">&times;</button>
                 `;
                 selectedTradesDisplay.appendChild(tag);
             });
         }
+    }
+    
+    function removeTrade(tradeToRemove) {
+        projectSettings.activeTrades = projectSettings.activeTrades.filter(t => t !== tradeToRemove);
+        // Uncheck the box in the dropdown
+        const checkbox = tradesDropdown.querySelector(`input[value="${tradeToRemove}"]`);
+        if (checkbox) {
+            checkbox.checked = false;
+        }
+        updateSelectedTradesDisplay();
+        populateWizardStep2LaborRates();
     }
 
     function populateWizardStep2LaborRates() {
@@ -537,14 +571,15 @@ window.SetupWizard = (function() {
     // Expose public methods for index.html to call
     return {
         init: init,
-        showStep: showStep, // Allows index.html to control wizard steps
-        populateTradesDropdown: populateTradesDropdown, // Needed for initial load
-        updateSelectedTradesDisplay: updateSelectedTradesDisplay, // Needed for initial load
-        updateSalesTaxForState: updateSalesTaxForState, // Needed for initial load
-        loadSavedLogo: loadSavedLogo, // Needed for initial load
-        handleTradeSelection: handleTradeSelection, // Needed for onchange event in HTML
-        updateLaborRate: updateLaborRate, // Needed for onchange event in HTML
-        updateSkillTitle: updateSkillTitle, // Needed for onchange event in HTML
-        confirmRemoveSkillLevel: confirmRemoveSkillLevel // Needed for onclick event in HTML
+        showStep: showStep,
+        populateTradesDropdown: populateTradesDropdown,
+        updateSelectedTradesDisplay: updateSelectedTradesDisplay,
+        updateSalesTaxForState: updateSalesTaxForState,
+        loadSavedLogo: loadSavedLogo,
+        handleTradeSelection: handleTradeSelection,
+        removeTrade: removeTrade, // ✨ NEW: Expose removeTrade
+        updateLaborRate: updateLaborRate,
+        updateSkillTitle: updateSkillTitle,
+        confirmRemoveSkillLevel: confirmRemoveSkillLevel
     };
 })();
