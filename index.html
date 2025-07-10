@@ -165,20 +165,20 @@
             transition: color 0.3s;
         }
 
-        /* ✨ CHANGED: AI Chat Styles for a circular button */
+        /* AI Chat Styles */
         .ai-chat-button {
             position: fixed;
             bottom: 25px;
             right: 25px;
             background-color: #2563eb;
             color: white;
-            width: 60px; /* Make width equal to height */
+            width: 60px; 
             height: 60px;
-            border-radius: 50%; /* Make it a circle */
+            border-radius: 50%; 
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px; /* Larger font for "AI" */
+            font-size: 24px; 
             font-weight: 600;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             cursor: pointer;
@@ -406,7 +406,7 @@
             transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
 
-        /* ✨ CHANGED: Centering table content */
+        /* Centering table content */
         #estimateLineItemsTableContainer thead tr:nth-child(2) th {
             text-align: center;
         }
@@ -758,9 +758,7 @@
                             onSaveProject: handleSaveProject,
                             onExportPdfReport: exportDetailedReportToPdf,
                             onExportCsv: exportEstimateToCsv,
-                            onExportPdfQuote: () => {
-                                renderMessageBox('Exporting Client Quote to PDF...');
-                            },
+                            onExportPdfQuote: exportClientQuoteToPdf, // ✨ CHANGED: Hooked up the new function
                             onEmailClient: sendEstimateEmailToClient,
                             onUserProfileClick: showSavedProjects 
                         });
@@ -919,8 +917,7 @@
             ownerAddress: "", /* ADDED: Owner Address */
             ownerCity: "", /* ADDED: Owner City */
             ownerZip: "", /* ADDED: Owner Zip */
-            ownerEmail: "", /* ADDED: Owner Email */
-            ownerPhone: "", /* ADDED: Owner Phone */
+            ownerEmail: "", /* ADDED: Owner Phone */
             projectZip: "",
             startDate: "",
             endDate: "",
@@ -933,7 +930,8 @@
             salesTax: 0,
             miscellaneous: 0,
             overhead: 0,
-            materialMarkup: 0, // NEW: Material Markup percentage
+            materialMarkup: 0, 
+            discount: 0, // ✨ NEW: Discount percentage
             additionalConsiderationsType: '%',
             additionalConsiderationsValue: 0,
             // Define labor rates nested by trade
@@ -1293,15 +1291,122 @@
 
         // --- Estimate Item Management & Exporting ---
 
-        function exportDetailedReportToPdf() {
-            if (typeof window.jspdf === 'undefined') {
-                renderMessageBox('Error: The core PDF library (jsPDF) is not loaded.');
-                console.error('window.jspdf is undefined. The script might be blocked or failed to load.');
+        /**
+         * ✨ NEW: Exports a client-facing quote to a PDF document.
+         */
+        function exportClientQuoteToPdf() {
+            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF.API.autoTable === 'undefined') {
+                renderMessageBox('Error: PDF generation library not loaded correctly.');
                 return;
             }
-            if (typeof window.jspdf.jsPDF.API.autoTable === 'undefined') {
-                renderMessageBox('Error: The PDF table plugin (jsPDF-AutoTable) is not loaded correctly.');
-                console.error('window.jspdf.jsPDF.API.autoTable is undefined. The plugin might be blocked or failed to load after the core library.');
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'letter' });
+
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 40;
+            let cursorY = 40;
+
+            // --- 1. HEADER ---
+            if (projectSettings.contractorLogo) {
+                try {
+                    doc.addImage(projectSettings.contractorLogo, 'PNG', margin, cursorY, 80, 25);
+                } catch (e) {
+                    console.error("Error adding logo to PDF:", e);
+                }
+            }
+
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('QUOTE', pageWidth - margin, cursorY + 15, { align: 'right' });
+            cursorY += 40;
+
+            // --- 2. COMPANY & CLIENT INFO ---
+            doc.setLineWidth(0.5);
+            doc.line(margin, cursorY, pageWidth - margin, cursorY); // Horizontal line
+            cursorY += 15;
+
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('FROM:', margin, cursorY);
+            doc.text('TO:', pageWidth / 2, cursorY);
+
+            doc.setFont('helvetica', 'normal');
+            cursorY += 12;
+            doc.text(projectSettings.ownerName || "Your Company Name", margin, cursorY);
+            doc.text(projectSettings.clientName, pageWidth / 2, cursorY);
+            cursorY += 12;
+            doc.text(projectSettings.ownerAddress || "123 Main St", margin, cursorY);
+            doc.text(projectSettings.projectAddress, pageWidth / 2, cursorY);
+            cursorY += 12;
+            doc.text(`${projectSettings.ownerCity || "Anytown, USA"} ${projectSettings.ownerZip || "12345"}`, margin, cursorY);
+            doc.text(`${projectSettings.projectCity}, ${projectSettings.projectState} ${projectSettings.projectZip}`, pageWidth / 2, cursorY);
+            cursorY += 25;
+
+            // --- 3. ESTIMATE DETAILS ---
+            doc.setFont('helvetica', 'bold');
+            doc.text('QUOTE #', margin, cursorY);
+            doc.text('DATE', pageWidth / 2, cursorY);
+            doc.setFont('helvetica', 'normal');
+            cursorY += 12;
+            doc.text(projectSettings.projectID || 'N/A', margin, cursorY);
+            doc.text(new Date().toLocaleDateString(), pageWidth / 2, cursorY);
+            cursorY += 25;
+
+            // --- 4. LINE ITEMS TABLE ---
+            const quoteBody = estimateItems.map(item => {
+                const laborTotal = item.hours * (projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0) * (item.otDtMultiplier || 1.0);
+                const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                const otherTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
+                const lineTotal = laborTotal + materialsTotal + otherTotal;
+                return [item.taskName, item.description, formatCurrency(lineTotal)];
+            });
+
+            doc.autoTable({
+                startY: cursorY,
+                head: [['DESCRIPTION', 'DETAILS', 'AMOUNT']],
+                body: quoteBody,
+                theme: 'striped',
+                headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+                columnStyles: { 2: { halign: 'right' } },
+                didDrawPage: (data) => {
+                    // Footer
+                    const pageCount = doc.internal.getNumberOfPages();
+                    doc.setFontSize(8);
+                    doc.text(`Page ${data.pageNumber} of ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
+                }
+            });
+            
+            cursorY = doc.autoTable.previous.finalY + 20;
+
+            // --- 5. TOTALS ---
+            const subtotal = projectSettings.grandTotal + projectSettings.discountAmount - projectSettings.salesTaxAmount;
+            const totalsBody = [
+                ['Subtotal', formatCurrency(subtotal)],
+                ['Sales Tax', formatCurrency(projectSettings.salesTaxAmount)],
+                ['Discount', `-${formatCurrency(projectSettings.discountAmount)}`],
+                ['Total', formatCurrency(projectSettings.grandTotal)]
+            ];
+
+            doc.autoTable({
+                startY: cursorY,
+                body: totalsBody,
+                theme: 'plain',
+                styles: { fontSize: 10 },
+                columnStyles: { 0: { halign: 'right', fontStyle: 'bold' }, 1: { halign: 'right' } },
+                margin: { left: pageWidth / 2 }
+            });
+
+            // --- 6. SAVE PDF ---
+            const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'quote'}-client-quote.pdf`;
+            doc.save(exportFileName);
+            renderMessageBox('Client quote has been exported to PDF.');
+        }
+
+
+        function exportDetailedReportToPdf() {
+            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF.API.autoTable === 'undefined') {
+                renderMessageBox('Error: PDF generation library not loaded correctly.');
                 return;
             }
             
@@ -1623,6 +1728,7 @@
             const miscellaneousPercent = parseFloat(projectSettings.miscellaneous) || 0;
             const profitMarginPercent = parseFloat(projectSettings.profitMargin) || 0;
             const salesTaxPercent = parseFloat(projectSettings.salesTax) || 0;
+            const discountPercent = parseFloat(projectSettings.discount) || 0; // ✨ NEW
             const additionalConsiderationsValue = parseFloat(projectSettings.additionalConsiderationsValue) || 0;
             const materialMarkupAmount = totalMaterialCostRaw * (materialMarkupPercent / 100);
             const baseCostForOverheadMiscProfit = totalProjectCostDirect + materialMarkupAmount;
@@ -1639,8 +1745,13 @@
             } else {
                 additionalConsiderationAmount = additionalConsiderationsValue;
             }
-            const grandTotal = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
+            const subtotalBeforeDiscount = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
+            const discountAmount = subtotalBeforeDiscount * (discountPercent / 100); // ✨ NEW
+            const grandTotal = subtotalBeforeDiscount - discountAmount; // ✨ CHANGED
+
             projectSettings.grandTotal = grandTotal; 
+            projectSettings.discountAmount = discountAmount; // ✨ NEW: Store for PDF
+            projectSettings.salesTaxAmount = salesTaxAmount; // ✨ NEW: Store for PDF
             const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
             const totalOtherCostsForPieChart = totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
 
@@ -1699,7 +1810,7 @@
             }
         }
 
-        // ✨ NEW: AI Chat Functions
+        // AI Chat Functions
         function setupAIChatListeners() {
             aiChatButton = document.getElementById('aiChatButton');
             aiChatModal = document.getElementById('aiChatModal');
