@@ -45,22 +45,27 @@ window.SetupWizard = (function() {
     let materialMarkupInput;
     let discountInput; 
     let additionalConsiderationsValueInput;
-    let additionalConsiderationsUnit;
-    let toggleAdditionalConsiderationsBtn;
+    let additionalConsiderationsUnitSpan;
+
 
     // State for wizard navigation
     let currentStep = 1;
     let isAdvancedDetailsActive = false; // For Step 1 advanced details
     let isAdvancedModeActive = false; // For Step 2 advanced labor rates
 
+    // Define step labels and statuses
+    const stepDetails = [
+        { label: 'Project Info', statusPending: 'Pending', statusInProgress: 'In Progress', statusCompleted: 'Completed' },
+        { label: 'Labor Rates', statusPending: 'Pending', statusInProgress: 'In Progress', statusCompleted: 'Completed' },
+        { label: 'Project Settings', statusPending: 'Pending', statusInProgress: 'In Progress', statusCompleted: 'Completed' }
+    ];
+
 
     /**
-     * Initializes the SetupWizard component by getting element references,
-     * setting up event listeners, and populating initial data.
-     * @param {object} config - The configuration object from the main script.
+     * Initializes the SetupWizard module.
+     * @param {object} config - Configuration object.
      */
     function init(config) {
-        // Store references from the main script
         projectSettings = config.projectSettings;
         estimateItems = config.estimateItems;
         stateSalesTax = config.stateSalesTax;
@@ -68,285 +73,284 @@ window.SetupWizard = (function() {
         renderMessageBoxCallback = config.renderMessageBox;
         closeMessageBoxCallback = config.closeMessageBox;
 
-        // Get all main UI elements
+        // Get UI element references
         setupWizardContainer = document.getElementById('setupWizard');
         wizardSteps = [
-            document.getElementById('wizard-step-1'),
-            document.getElementById('wizard-step-2'),
-            document.getElementById('wizard-step-3')
+            document.getElementById('wizardStep1'),
+            document.getElementById('wizardStep2'),
+            document.getElementById('wizardStep3')
         ];
-        stepItems = [
+        stepItems = [ 
             document.getElementById('step1Container'),
             document.getElementById('step2Container'),
             document.getElementById('step3Container')
         ];
         progressBar = document.getElementById('progressBar');
 
-        // Step 1 elements
         logoUploadInput = document.getElementById('logoUploadInput');
         logoUploadArea = document.getElementById('logoUploadArea');
         wizardLogoPreview = document.getElementById('wizardLogoPreview');
         defaultLogoIcon = document.getElementById('defaultLogoIcon');
         uploadText = document.getElementById('uploadText');
         clearLogoBtn = document.getElementById('clearLogoBtn');
+
         projectNameInput = document.getElementById('projectName');
         clientNameInput = document.getElementById('clientName');
         projectTypeSelect = document.getElementById('projectType');
         projectStateSelect = document.getElementById('projectState');
+        tradeSearchInput = document.getElementById('tradeSearchInput');
+        tradesDropdown = document.getElementById('tradesDropdown');
+        selectedTradesDisplay = document.getElementById('selectedTradesDisplay');
         showAdvancedDetailsLink = document.getElementById('showAdvancedDetailsLink');
         advancedDetailsSection = document.getElementById('advancedDetailsSection');
 
-        // Step 2 elements
-        tradeSearchInput = document.getElementById('tradeSearch');
-        tradesDropdown = document.getElementById('tradesDropdown');
-        selectedTradesDisplay = document.getElementById('selectedTradesDisplay');
         dynamicLaborRateInputs = document.getElementById('dynamicLaborRateInputs');
-        advancedLink = document.getElementById('advanced-link');
-        advancedSkillLevelControls = document.getElementById('advanced-skill-level-controls');
+        advancedLink = document.getElementById('advancedLink');
+        advancedSkillLevelControls = document.getElementById('advancedSkillLevelControls');
         newSkillTitleInput = document.getElementById('newSkillTitle');
         newSkillRateInput = document.getElementById('newSkillRate');
 
-        // Step 3 elements
         profitMarginInput = document.getElementById('profitMargin');
-        overheadInput = document.getElementById('overhead');
-        materialMarkupInput = document.getElementById('materialMarkup');
-        discountInput = document.getElementById('discount');
         salesTaxInput = document.getElementById('salesTax');
         miscellaneousInput = document.getElementById('miscellaneous');
+        overheadInput = document.getElementById('overhead');
+        materialMarkupInput = document.getElementById('materialMarkup');
         additionalConsiderationsValueInput = document.getElementById('additionalConsiderationsValue');
-        additionalConsiderationsUnit = document.getElementById('additionalConsiderationsUnit');
-        toggleAdditionalConsiderationsBtn = document.getElementById('toggleAdditionalConsiderationsBtn');
+        additionalConsiderationsUnitSpan = document.getElementById('additionalConsiderationsUnit');
 
-        // Setup all event listeners for the wizard
-        setupEventListeners();
+
+        // Attach event listeners specific to the wizard
+        logoUploadInput.addEventListener('change', handleLogoInputChange);
+        logoUploadArea.addEventListener('dragover', (event) => { event.preventDefault(); logoUploadArea.classList.add('drag-over'); });
+        logoUploadArea.addEventListener('dragleave', () => { logoUploadArea.classList.remove('drag-over'); });
+        logoUploadArea.addEventListener('drop', handleLogoDrop);
+        logoUploadArea.addEventListener('click', (event) => {
+            if (event.target !== clearLogoBtn) {
+                logoUploadInput.click();
+            }
+        });
         
-        // Populate form fields with existing projectSettings data
-        populateFormWithSettings();
-    }
-
-    /**
-     * Sets up all event listeners for the wizard's interactive elements.
-     */
-    function setupEventListeners() {
-        // Logo upload listeners
-        if (logoUploadArea) {
-            logoUploadArea.addEventListener('click', () => logoUploadInput.click());
-            logoUploadArea.addEventListener('dragover', handleDragOver);
-            logoUploadArea.addEventListener('dragleave', handleDragLeave);
-            logoUploadArea.addEventListener('drop', handleDrop);
-            logoUploadInput.addEventListener('change', handleFileSelect);
+        if (clearLogoBtn) {
             clearLogoBtn.addEventListener('click', clearLogo);
         }
 
-        // Navigation button listeners
-        document.getElementById('nextStep1Btn').addEventListener('click', () => showStep(2));
-        document.getElementById('prevStep2Btn').addEventListener('click', () => showStep(1));
-        document.getElementById('nextStep2Btn').addEventListener('click', () => showStep(3));
-        document.getElementById('prevStep3Btn').addEventListener('click', () => showStep(2));
-        document.getElementById('startEstimatingBtn').addEventListener('click', finishWizard);
 
-        // State dropdown listener to update sales tax
-        if (projectStateSelect) {
-            projectStateSelect.addEventListener('change', (event) => {
-                updateSalesTaxForState(event.target.value);
-            });
-        }
-
-        // Advanced details toggle listener
-        if (showAdvancedDetailsLink) {
-            showAdvancedDetailsLink.addEventListener('click', (event) => {
-                event.preventDefault();
-                toggleAdvancedDetails();
-            });
-        }
-
-        // Trade selection listeners
-        if (selectedTradesDisplay) {
-            selectedTradesDisplay.addEventListener('click', toggleTradeDropdown);
-        }
-        if (tradeSearchInput) {
-            tradeSearchInput.addEventListener('keyup', filterTrades);
-            tradeSearchInput.addEventListener('focus', showTradeDropdown);
-            tradeSearchInput.addEventListener('blur', hideTradeDropdown);
-        }
-        if (tradesDropdown) {
-            tradesDropdown.addEventListener('mousedown', (e) => e.preventDefault());
-        }
-        
-        // Add new skill listener
-        if(document.getElementById('addNewSkillBtn')){
-             document.getElementById('addNewSkillBtn').addEventListener('click', addNewSkillLevel);
-        }
-        if(advancedLink){
-            advancedLink.addEventListener('click', toggleAdvancedRates);
-        }
-
-        // Toggle for additional considerations unit (% or $)
-        if (toggleAdditionalConsiderationsBtn) {
-            toggleAdditionalConsiderationsBtn.addEventListener('click', toggleConsiderationsUnit);
-        }
-    }
-
-    /**
-     * Populates the wizard form fields with data from the projectSettings object.
-     */
-    function populateFormWithSettings() {
-        // Step 1
-        projectNameInput.value = projectSettings.projectName;
-        clientNameInput.value = projectSettings.clientName;
-        projectTypeSelect.value = projectSettings.projectType;
-        projectStateSelect.value = projectSettings.projectState;
-        // Advanced fields in Step 1
-        document.getElementById('projectStreetAddress').value = projectSettings.projectAddress || '';
-        document.getElementById('projectCity').value = projectSettings.projectCity || '';
-        document.getElementById('projectZip').value = projectSettings.projectZip || '';
-        document.getElementById('ownerName').value = projectSettings.ownerName || '';
-        document.getElementById('ownerAddress').value = projectSettings.ownerAddress || '';
-        document.getElementById('ownerCity').value = projectSettings.ownerCity || '';
-        document.getElementById('ownerZip').value = projectSettings.ownerZip || '';
-        document.getElementById('ownerEmail').value = projectSettings.ownerEmail || '';
-        document.getElementById('ownerPhone').value = projectSettings.ownerPhone || '';
-        document.getElementById('projectID').value = projectSettings.projectID || '';
-        document.getElementById('startDate').value = projectSettings.startDate || '';
-        document.getElementById('endDate').value = projectSettings.endDate || '';
-        document.getElementById('projectDescription').value = projectSettings.projectDescription || '';
-
-        // Step 3
-        profitMarginInput.value = projectSettings.profitMargin;
-        overheadInput.value = projectSettings.overhead;
-        materialMarkupInput.value = projectSettings.materialMarkup;
-        discountInput.value = projectSettings.discount || 0;
-        salesTaxInput.value = projectSettings.salesTax;
-        miscellaneousInput.value = projectSettings.miscellaneous;
-        additionalConsiderationsValueInput.value = projectSettings.additionalConsiderationsValue;
-        additionalConsiderationsUnit.textContent = projectSettings.additionalConsiderationsType;
-    }
-
-    /**
-     * ✨ BUG FIX: This function is corrected to properly toggle the section.
-     * Toggles the visibility of the advanced project details section.
-     */
-    function toggleAdvancedDetails() {
-        isAdvancedDetailsActive = !isAdvancedDetailsActive;
-        if (isAdvancedDetailsActive) {
-            showAdvancedDetailsLink.textContent = 'Hide Advanced Details';
-            advancedDetailsSection.classList.remove('hidden');
-        } else {
-            showAdvancedDetailsLink.textContent = 'Show Advanced Details';
-            advancedDetailsSection.classList.add('hidden');
-        }
-    }
-
-    /**
-     * Updates the sales tax input field based on the selected state.
-     * @param {string} state - The two-letter state abbreviation.
-     */
-    function updateSalesTaxForState(state) {
-        if (salesTaxInput && stateSalesTax[state] !== undefined) {
-            salesTaxInput.value = stateSalesTax[state];
-        }
-    }
-
-    /**
-     * Gathers all data from the wizard, updates projectSettings, and calls the completion callback.
-     */
-    function finishWizard() {
-        // Gather data from Step 1
-        projectSettings.projectName = projectNameInput.value;
-        projectSettings.clientName = clientNameInput.value;
-        projectSettings.projectType = projectTypeSelect.value;
-        projectSettings.projectState = projectStateSelect.value;
-        // Advanced Step 1 fields
-        projectSettings.projectAddress = document.getElementById('projectStreetAddress').value;
-        projectSettings.projectCity = document.getElementById('projectCity').value;
-        projectSettings.projectZip = document.getElementById('projectZip').value;
-        projectSettings.ownerName = document.getElementById('ownerName').value;
-        projectSettings.ownerAddress = document.getElementById('ownerAddress').value;
-        projectSettings.ownerCity = document.getElementById('ownerCity').value;
-        projectSettings.ownerZip = document.getElementById('ownerZip').value;
-        projectSettings.ownerEmail = document.getElementById('ownerEmail').value;
-        projectSettings.ownerPhone = document.getElementById('ownerPhone').value;
-        projectSettings.projectID = document.getElementById('projectID').value;
-        projectSettings.startDate = document.getElementById('startDate').value;
-        projectSettings.endDate = document.getElementById('endDate').value;
-        projectSettings.projectDescription = document.getElementById('projectDescription').value;
-
-        // Step 2 data is already updated in projectSettings as changes are made
-        
-        // Gather data from Step 3
-        projectSettings.profitMargin = parseFloat(profitMarginInput.value) || 0;
-        projectSettings.overhead = parseFloat(overheadInput.value) || 0;
-        projectSettings.materialMarkup = parseFloat(materialMarkupInput.value) || 0;
-        projectSettings.discount = parseFloat(discountInput.value) || 0;
-        projectSettings.salesTax = parseFloat(salesTaxInput.value) || 0;
-        projectSettings.miscellaneous = parseFloat(miscellaneousInput.value) || 0;
-        projectSettings.additionalConsiderationsValue = parseFloat(additionalConsiderationsValueInput.value) || 0;
-        projectSettings.additionalConsiderationsType = additionalConsiderationsUnit.textContent;
-
-        // Call the callback function passed from index.html
-        if (typeof onCompletionCallback === 'function') {
-            onCompletionCallback(projectSettings);
-        }
-    }
-    
-    function showStep(stepNumber) {
-        wizardSteps.forEach((step, index) => {
-            step.classList.add('hidden');
-            stepItems[index].classList.remove('active', 'completed');
+        projectStateSelect.addEventListener('change', (event) => {
+            updateSalesTaxForState(event.target.value);
         });
 
-        if (wizardSteps[stepNumber - 1]) {
-            wizardSteps[stepNumber - 1].classList.remove('hidden');
-            stepItems[stepNumber - 1].classList.add('active');
+        tradeSearchInput.addEventListener('input', populateTradesDropdown);
+        tradeSearchInput.addEventListener('focus', showTradeDropdown);
+        tradeSearchInput.addEventListener('blur', hideTradeDropdown);
+        selectedTradesDisplay.addEventListener('click', toggleTradeDropdown);
+
+        showAdvancedDetailsLink.addEventListener('click', toggleAdvancedDetails);
+        advancedLink.addEventListener('click', toggleAdvancedRates);
+        document.getElementById('addSkillLevelBtn').addEventListener('click', addSkillLevelFromAdvanced);
+
+        // Wizard navigation buttons
+        document.getElementById('nextStep1Btn').addEventListener('click', () => nextStep(1));
+        document.getElementById('prevStep2Btn').addEventListener('click', () => prevStep(2));
+        document.getElementById('nextStep2Btn').addEventListener('click', () => nextStep(2));
+        document.getElementById('prevStep3Btn').addEventListener('click', () => prevStep(3));
+        document.getElementById('startEstimatingBtn').addEventListener('click', startEstimating);
+        document.getElementById('toggleAdditionalConsiderationsBtn').addEventListener('click', toggleAdditionalConsiderationsType);
+
+        // Initial setup for the wizard
+        loadSavedLogo();
+        populateTradesDropdown();
+        updateSelectedTradesDisplay();
+    }
+
+
+    // --- Wizard Navigation Logic ---
+    function showStep(stepNumber) {
+        wizardSteps.forEach((stepDiv, index) => {
+            if (index + 1 === stepNumber) {
+                stepDiv.classList.remove('hidden');
+            } else {
+                stepDiv.classList.add('hidden');
+            }
+        });
+        
+        stepItems.forEach((stepItem, index) => {
+            const stepNum = index + 1;
+            const stepCircle = stepItem.querySelector('.step-circle');
+            const stepLabel = stepItem.querySelector('.step-label');
+            const stepStatus = stepItem.querySelector('.step-status');
+
+            stepItem.classList.remove('active', 'completed');
+            stepCircle.classList.remove('active', 'completed');
+            
+            stepLabel.textContent = stepDetails[index].label;
+            stepCircle.textContent = stepNum;
+
+            if (stepNum < stepNumber) {
+                stepItem.classList.add('completed');
+                stepCircle.classList.add('completed');
+                stepStatus.textContent = stepDetails[index].statusCompleted;
+            } else if (stepNum === stepNumber) {
+                stepItem.classList.add('active');
+                stepCircle.classList.add('active');
+                stepStatus.textContent = stepDetails[index].statusInProgress;
+            } else {
+                stepStatus.textContent = stepDetails[index].statusPending;
+            }
+        });
+
+        const totalSteps = wizardSteps.length;
+        let progressWidth = 0;
+        if (totalSteps > 1) {
+             progressWidth = ((stepNumber - 1) / (totalSteps - 1)) * 100;
+        }
+        progressBar.style.width = `${progressWidth}%`;
+
+        currentStep = stepNumber;
+
+        if (stepNumber === 1) {
+            populateWizardInputs();
+            loadSavedLogo();
+        }
+        if (stepNumber === 2) {
+            populateWizardStep2LaborRates();
+        }
+        if (stepNumber === 3) {
+            populateWizardStep3Settings();
+        }
+    }
+
+    function nextStep(stepNumber) {
+        if (stepNumber === 1) {
+            const projectName = projectNameInput.value.trim();
+            const clientName = clientNameInput.value.trim();
+            const projectType = projectTypeSelect.value.trim();
+            const projectState = projectStateSelect.value.trim();
+
+            if (!projectName) { renderMessageBoxCallback("Please enter a Project Name."); return; }
+            if (!clientName) { renderMessageBoxCallback("Please enter a Client Name/Company."); return; }
+            if (!projectType) { renderMessageBoxCallback("Please select a Project Type."); return; }
+            if (!projectState) { renderMessageBoxCallback("Please select a State/Location."); return; }
+            if (projectSettings.activeTrades.length === 0) { renderMessageBoxCallback("Please select at least one Trade Involved."); return; }
+
+            projectSettings.projectName = projectName;
+            projectSettings.clientName = clientName;
+            projectSettings.projectAddress = document.getElementById('projectAddress').value;
+            projectSettings.projectCity = document.getElementById('projectCity').value;
+            projectSettings.projectZip = document.getElementById('projectZip').value;
+            projectSettings.startDate = document.getElementById('startDate').value;
+            projectSettings.endDate = document.getElementById('endDate').value;
+            projectSettings.projectID = document.getElementById('projectID').value;
+            projectSettings.projectDescription = document.getElementById('projectDescription').value;
+            projectSettings.projectType = projectType;
+            projectSettings.projectState = projectState;
+            
+        } else if (stepNumber === 2) {
+            for (const trade of projectSettings.activeTrades) {
+                if (projectSettings.allTradeLaborRates[trade]) {
+                    for (const role in projectSettings.allTradeLaborRates[trade]) {
+                        const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]);
+                        if (isNaN(rate) || rate < 0) {
+                            renderMessageBoxCallback(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        showStep(stepNumber + 1);
+    }
+
+    function prevStep(stepNumber) {
+        showStep(stepNumber - 1);
+    }
+
+    function startEstimating() {
+        const projectName = projectNameInput.value.trim();
+        const clientName = clientNameInput.value.trim();
+        const projectType = projectTypeSelect.value.trim();
+        const projectState = projectStateSelect.value.trim();
+
+        if (!projectName) { renderMessageBoxCallback("Please enter a Project Name."); return; }
+        if (!clientName) { renderMessageBoxCallback("Please enter a Client Name/Company."); return; }
+        if (!projectType) { renderMessageBoxCallback("Please select a Project Type."); return; }
+        if (!projectState) { renderMessageBoxCallback("Please select a State/Location."); return; }
+        if (projectSettings.activeTrades.length === 0) {
+            renderMessageBoxCallback("Please select at least one trade involved in the project before starting the estimate.");
+            return;
         }
 
-        for (let i = 0; i < stepNumber - 1; i++) {
-            stepItems[i].classList.add('completed');
+        for (const trade of projectSettings.activeTrades) {
+            if (!projectSettings.allTradeLaborRates[trade]) {
+                renderMessageBoxCallback(`Labor rates for trade "${trade}" are not defined. Please define them or deselect this trade.`);
+                return;
+            }
+            for (const role in projectSettings.allTradeLaborRates[trade]) {
+                const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]);
+                if (isNaN(rate) || rate < 0) {
+                    renderMessageBoxCallback(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
+                    return;
+                }
+            }
         }
-        updateProgressBar(stepNumber);
+
+        projectSettings.projectName = projectNameInput.value;
+        projectSettings.clientName = clientNameInput.value;
+        projectSettings.projectAddress = document.getElementById('projectAddress').value;
+        projectSettings.projectCity = document.getElementById('projectCity').value;
+        projectSettings.projectZip = document.getElementById('projectZip').value;
+        projectSettings.startDate = document.getElementById('startDate').value;
+        projectSettings.endDate = document.getElementById('endDate').value;
+        projectSettings.projectID = document.getElementById('projectID').value;
+        projectSettings.projectDescription = document.getElementById('projectDescription').value;
+        projectSettings.projectType = projectTypeSelect.value;
+        projectSettings.projectState = projectStateSelect.value;
+        
+        projectSettings.profitMargin = parseFloat(profitMarginInput.value) || 0;
+        projectSettings.salesTax = parseFloat(salesTaxInput.value) || 0;
+        projectSettings.miscellaneous = parseFloat(miscellaneousInput.value) || 0;
+        projectSettings.overhead = parseFloat(overheadInput.value) || 0;
+        projectSettings.materialMarkup = parseFloat(materialMarkupInput.value) || 0;
+        projectSettings.additionalConsiderationsValue = parseFloat(additionalConsiderationsValueInput.value) || 0;
+
+        onCompletionCallback(projectSettings);
     }
 
-    function updateProgressBar(currentStep) {
-        const progressPercentage = ((currentStep - 1) / (wizardSteps.length - 1)) * 100;
-        progressBar.style.width = `${progressPercentage}%`;
-    }
 
-    function handleDragOver(event) {
-        event.preventDefault();
-        logoUploadArea.classList.add('drag-over');
-    }
+    // --- Data Management Functions (Specific to Wizard) ---
 
-    function handleDragLeave(event) {
-        event.preventDefault();
-        logoUploadArea.classList.remove('drag-over');
-    }
+    function handleLogoInputChange() {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            if (!file.type.startsWith('image/')) {
+                renderMessageBoxCallback('Please drop an image file (e.g., JPG, PNG, GIF).');
+                return;
+            }
 
-    function handleDrop(event) {
-        event.preventDefault();
-        logoUploadArea.classList.remove('drag-over');
-        const files = event.dataTransfer.files;
-        if (files.length > 0) {
-            handleFile(files[0]);
-        }
-    }
-
-    function handleFileSelect(event) {
-        const files = event.target.files;
-        if (files.length > 0) {
-            handleFile(files[0]);
-        }
-    }
-
-    function handleFile(file) {
-        if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 projectSettings.contractorLogo = e.target.result;
                 loadSavedLogo();
-            }
+            };
             reader.readAsDataURL(file);
-        } else {
-            renderMessageBoxCallback('Please upload a valid image file.');
+        }
+    }
+
+    function handleLogoDrop(event) {
+        event.preventDefault();
+        logoUploadArea.classList.remove('drag-over');
+
+        if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+            const file = event.dataTransfer.files[0];
+            if (!file.type.startsWith('image/')) {
+                renderMessageBoxCallback('Please drop an image file (e.g., JPG, PNG, GIF).');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                projectSettings.contractorLogo = e.target.result;
+                loadSavedLogo();
+            };
+            reader.readAsDataURL(file);
         }
     }
 
@@ -368,53 +372,106 @@ window.SetupWizard = (function() {
 
     function clearLogo(event) {
         event.stopPropagation();
-        projectSettings.contractorLogo = '';
-        loadSavedLogo();
-        logoUploadInput.value = '';
-    }
-    
-    function toggleTradeDropdown() {
-        tradesDropdown.classList.toggle('hidden');
-    }
-
-    function showTradeDropdown() {
-        tradesDropdown.classList.remove('hidden');
-    }
-
-    function hideTradeDropdown() {
-        setTimeout(() => {
-            if (!tradesDropdown.contains(document.activeElement) && document.activeElement !== tradeSearchInput) {
-                tradesDropdown.classList.add('hidden');
+        renderMessageBoxCallback('Are you sure you want to clear the logo?', () => {
+            projectSettings.contractorLogo = '';
+            loadSavedLogo();
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo('');
             }
-        }, 200);
+            closeMessageBoxCallback();
+        }, true);
+    }
+
+
+    function populateWizardInputs() {
+        projectNameInput.value = projectSettings.projectName;
+        clientNameInput.value = projectSettings.clientName;
+        projectTypeSelect.value = projectSettings.projectType;
+        projectStateSelect.value = projectSettings.projectState;
+
+        document.getElementById('projectAddress').value = projectSettings.projectAddress;
+        document.getElementById('projectCity').value = projectSettings.projectCity;
+        document.getElementById('projectZip').value = projectSettings.projectZip;
+        document.getElementById('startDate').value = projectSettings.startDate;
+        document.getElementById('endDate').value = projectSettings.endDate;
+        document.getElementById('projectID').value = projectSettings.projectID;
+        document.getElementById('projectDescription').value = projectSettings.projectDescription;
+
+        if (isAdvancedDetailsActive) {
+            advancedDetailsSection.classList.remove('hidden');
+            showAdvancedDetailsLink.textContent = 'Hide Advanced Details';
+        } else {
+            advancedDetailsSection.classList.add('hidden');
+            showAdvancedDetailsLink.textContent = 'Show Advanced Details';
+        }
+    }
+
+    function populateWizardStep3Settings() {
+        profitMarginInput.value = projectSettings.profitMargin;
+        salesTaxInput.value = projectSettings.salesTax;
+        miscellaneousInput.value = projectSettings.miscellaneous;
+        overheadInput.value = projectSettings.overhead;
+        materialMarkupInput.value = projectSettings.materialMarkup; 
+        additionalConsiderationsValueInput.value = projectSettings.additionalConsiderationsValue;
+        additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType;
+    }
+
+    function updateSalesTaxForState(stateCode) {
+        const taxRate = stateSalesTax[stateCode] || 0;
+        salesTaxInput.value = taxRate;
+        projectSettings.salesTax = taxRate;
+    }
+
+    function toggleAdditionalConsiderationsType() {
+        if (projectSettings.additionalConsiderationsType === '%') {
+            projectSettings.additionalConsiderationsType = '$';
+        } else {
+            projectSettings.additionalConsiderationsType = '%';
+        }
+        additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType;
     }
 
     function populateTradesDropdown() {
         tradesDropdown.innerHTML = '';
         const allTrades = Object.keys(projectSettings.allTradeLaborRates);
-        allTrades.forEach(trade => {
-            const isSelected = projectSettings.activeTrades.includes(trade);
-            const tradeItemHtml = `
-                <label class="flex items-center p-2 rounded-md hover:bg-gray-200 cursor-pointer">
-                    <input type="checkbox" class="mr-3" value="${trade}" ${isSelected ? 'checked' : ''} onchange="SetupWizard.handleTradeSelection(this)">
+
+        const searchTerm = tradeSearchInput.value.toLowerCase();
+        const filteredTrades = allTrades.filter(trade => 
+            trade.toLowerCase().includes(searchTerm)
+        );
+
+        if (filteredTrades.length === 0 && searchTerm) {
+            tradesDropdown.innerHTML = `<p class="text-gray-600 text-center py-4">No trades found matching "${searchTerm}"</p>`;
+        } else if (filteredTrades.length === 0 && !searchTerm) {
+            tradesDropdown.innerHTML = `<p class="text-gray-600 text-center py-4">No trades available.</p>`;
+        } else {
+            filteredTrades.forEach(trade => {
+                const checkboxId = `trade-${trade.replace(/\s/g, '-')}`;
+                const isChecked = projectSettings.activeTrades.includes(trade);
+
+                const label = document.createElement('label');
+                label.className = 'flex items-center p-2 rounded-md hover:bg-gray-200 cursor-pointer';
+                label.innerHTML = `
+                    <input type="checkbox" id="${checkboxId}" value="${trade}" ${isChecked ? 'checked' : ''} onchange="window.SetupWizard.handleTradeSelection(this)">
                     <span>${trade}</span>
-                </label>
-            `;
-            tradesDropdown.innerHTML += tradeItemHtml;
-        });
+                `;
+                tradesDropdown.appendChild(label);
+            });
+        }
     }
 
-    function filterTrades() {
-        const filter = tradeSearchInput.value.toUpperCase();
-        const labels = tradesDropdown.getElementsByTagName('label');
-        for (let i = 0; i < labels.length; i++) {
-            const span = labels[i].getElementsByTagName('span')[0];
-            if (span.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                labels[i].style.display = "";
-            } else {
-                labels[i].style.display = "none";
-            }
+    function updateSelectedTradesDisplay() {
+        selectedTradesDisplay.innerHTML = '';
+        if (projectSettings.activeTrades.length === 0) {
+            selectedTradesDisplay.innerHTML = '<p class="text-gray-500 italic">Click to select trades...</p>';
+            return;
         }
+        projectSettings.activeTrades.forEach(trade => {
+            const span = document.createElement('span');
+            span.className = 'selected-trade-tag';
+            span.innerHTML = `${trade} <span class="remove-tag" data-trade="${trade}" onclick="event.stopPropagation(); window.SetupWizard.removeTrade('${trade}')">&times;</span>`;
+            selectedTradesDisplay.appendChild(span);
+        });
     }
 
     function handleTradeSelection(checkbox) {
@@ -425,146 +482,212 @@ window.SetupWizard = (function() {
             }
         } else {
             projectSettings.activeTrades = projectSettings.activeTrades.filter(t => t !== trade);
+            estimateItems = estimateItems.filter(item => item.trade !== trade);
         }
         updateSelectedTradesDisplay();
         populateWizardStep2LaborRates();
     }
+    
+    function removeTrade(trade) {
+        handleTradeSelection({value: trade, checked: false});
+        const checkbox = tradesDropdown.querySelector(`input[value="${trade}"]`);
+        if(checkbox) checkbox.checked = false;
+    }
 
-    function updateSelectedTradesDisplay() {
-        selectedTradesDisplay.innerHTML = '';
-        if (projectSettings.activeTrades.length === 0) {
-            selectedTradesDisplay.innerHTML = '<p class="text-gray-500 italic">Click to select trades...</p>';
-        } else {
-            projectSettings.activeTrades.forEach(trade => {
-                const tag = document.createElement('div');
-                tag.className = 'selected-trade-tag';
-                tag.innerHTML = `
-                    <span>${trade}</span>
-                    <button class="remove-tag" onclick="SetupWizard.removeTrade('${trade}')">&times;</button>
-                `;
-                selectedTradesDisplay.appendChild(tag);
-            });
+    function toggleTradeDropdown() {
+        tradesDropdown.classList.toggle('hidden');
+        if (!tradesDropdown.classList.contains('hidden')) {
+            tradeSearchInput.value = '';
+            populateTradesDropdown();
         }
     }
     
-    function removeTrade(tradeToRemove) {
-        projectSettings.activeTrades = projectSettings.activeTrades.filter(t => t !== tradeToRemove);
-        const checkbox = tradesDropdown.querySelector(`input[value="${tradeToRemove}"]`);
-        if (checkbox) {
-            checkbox.checked = false;
-        }
-        updateSelectedTradesDisplay();
-        populateWizardStep2LaborRates();
+    function hideTradeDropdown() {
+        setTimeout(() => {
+            if (!tradesDropdown.contains(document.activeElement) && !selectedTradesDisplay.contains(document.activeElement)) {
+                 tradesDropdown.classList.add('hidden');
+            }
+        }, 100);
+    }
+
+    function showTradeDropdown() {
+        tradesDropdown.classList.remove('hidden');
     }
 
     function populateWizardStep2LaborRates() {
         dynamicLaborRateInputs.innerHTML = '';
-        projectSettings.activeTrades.forEach(trade => {
-            const tradeRates = projectSettings.allTradeLaborRates[trade];
-            if (tradeRates) {
-                let skillRowsHtml = '';
-                for (const role in tradeRates) {
-                    skillRowsHtml += `
-                        <div class="skill-level-row">
-                            <span class="skill-name-display">${role}</span>
-                            <div class="rate-input-group">
-                                <label class="rate-label">Rate ($/hr):</label>
-                                <input type="number" value="${tradeRates[role]}" class="input-field rate-input" onchange="SetupWizard.updateLaborRate('${trade}', '${role}', this.value)">
-                            </div>
-                        </div>
-                    `;
-                }
 
-                const tradeGroupHtml = `
-                    <div class="trade-labor-rates-group">
-                        <h3>${trade} Labor Rates</h3>
-                        <div class="skills-container">
-                            ${skillRowsHtml}
+        if (projectSettings.activeTrades.length === 0) {
+            dynamicLaborRateInputs.innerHTML = `<p class="text-gray-600">Please select trades in Step 1 to configure their labor rates here.</p>`;
+            return;
+        }
+
+        projectSettings.activeTrades.forEach(trade => {
+            const tradeGroupDiv = document.createElement('div');
+            tradeGroupDiv.className = 'trade-labor-rates-group';
+            tradeGroupDiv.innerHTML = `<h3>${trade} Labor Rates</h3>`;
+
+            const rolesWithRates = Object.entries(projectSettings.allTradeLaborRates[trade] || {});
+
+            rolesWithRates.sort(([, rateA], [, rateB]) => {
+                if (rateA !== rateB) {
+                    return rateB - rateA;
+                }
+                const roleNameA = arguments[0][0];
+                const roleNameB = arguments[1][0];
+                return roleNameA.localeCompare(roleNameB);
+            });
+
+            let skillLevelsHtml = '';
+            rolesWithRates.forEach(([role, rate]) => {
+                const rateInputId = `rate-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
+                const skillNameElementId = `skillname-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
+
+                skillLevelsHtml += `
+                    <div class="skill-level-row">
+                        ${isAdvancedModeActive ? `
+                            <input type="text" id="${skillNameElementId}" class="skill-name-input editable" value="${role}"
+                                onchange="window.SetupWizard.updateSkillTitle('${trade}', '${role}', this.value)">
+                        ` : `
+                            <span id="${skillNameElementId}" class="skill-name-display">${role}</span>
+                        `}
+                        <div class="rate-input-group">
+                            <label for="${rateInputId}" class="rate-label">Rate ($/hr):</label>
+                            <input type="number" id="${rateInputId}" class="input-field rate-input" value="${parseFloat(rate) || 0}"
+                                onchange="window.SetupWizard.updateLaborRate('${trade}', '${role}', this.value)">
+                            ${isAdvancedModeActive ? `
+                                <button class="remove-skill-btn" onclick="window.SetupWizard.confirmRemoveSkillLevel('${trade}', '${role}')">
+                                    &minus;
+                                </button>
+                            ` : ''}
                         </div>
                     </div>
                 `;
-                dynamicLaborRateInputs.innerHTML += tradeGroupHtml;
-            }
+            });
+            tradeGroupDiv.innerHTML += skillLevelsHtml;
+            dynamicLaborRateInputs.appendChild(tradeGroupDiv);
         });
     }
 
-    function addNewSkillLevel() {
-        const trade = document.getElementById('skillTradeSelect').value;
-        const newRole = newSkillTitleInput.value.trim();
-        const newRate = parseFloat(newSkillRateInput.value) || 0;
-
-        if (trade && newRole && newRate > 0) {
-            if (!projectSettings.allTradeLaborRates[trade]) {
-                projectSettings.allTradeLaborRates[trade] = {};
-            }
-            projectSettings.allTradeLaborRates[trade][newRole] = newRate;
-            
-            newSkillTitleInput.value = '';
-            newSkillRateInput.value = '';
-            populateWizardStep2LaborRates();
+    function updateLaborRate(trade, role, value) {
+        const parsedValue = parseFloat(value);
+        if (!isNaN(parsedValue) && parsedValue >= 0) {
+            projectSettings.allTradeLaborRates[trade][role] = parsedValue;
         } else {
-            renderMessageBoxCallback('Please provide a valid skill title and rate.');
+            console.error(`Invalid input for ${trade} ${role} rate: ${value}`);
+            const inputId = `rate-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
+            document.getElementById(inputId).value = parseFloat(projectSettings.allTradeLaborRates[trade][role]) || 0; 
         }
     }
 
-    function toggleAdvancedRates() {
+    function updateSkillTitle(trade, oldRole, newRole) {
+        const trimmedNewRole = newRole.trim();
+        if (trimmedNewRole === oldRole) {
+            return;
+        }
+        if (!trimmedNewRole) {
+            renderMessageBoxCallback("Skill level title cannot be empty. Reverting to original name.");
+            document.getElementById(`skillname-${trade.replace(/\s/g, '')}-${oldRole.replace(/\s/g, '')}`).value = oldRole;
+            return;
+        }
+        const existingRoles = Object.keys(projectSettings.allTradeLaborRates[trade]).map(r => r.toLowerCase());
+        if (existingRoles.includes(trimmedNewRole.toLowerCase()) && trimmedNewRole.toLowerCase() !== oldRole.toLowerCase()) {
+            renderMessageBoxCallback(`Skill level "${trimmedNewRole}" already exists for ${trade}. Please choose a different name.`);
+            document.getElementById(`skillname-${trade.replace(/\s/g, '')}-${oldRole.replace(/\s/g, '')}`).value = oldRole;
+            return;
+        }
+
+        if (projectSettings.allTradeLaborRates[trade] && projectSettings.allTradeLaborRates[trade][oldRole] !== undefined) {
+            const rate = projectSettings.allTradeLaborRates[trade][oldRole];
+            delete projectSettings.allTradeLaborRates[trade][oldRole];
+            projectSettings.allTradeLaborRates[trade][trimmedNewRole] = rate;
+            
+            estimateItems.forEach(item => {
+                if (item.trade === trade && item.rateRole === oldRole) {
+                    item.rateRole = trimmedNewRole;
+                }
+            });
+            populateWizardStep2LaborRates();
+        } else {
+            console.warn(`Could not find skill "${oldRole}" in trade "${trade}" for update.`);
+        }
+    }
+
+    function toggleAdvancedRates(event) {
+        event.preventDefault();
         isAdvancedModeActive = !isAdvancedModeActive;
-        advancedSkillLevelControls.classList.toggle('hidden');
-        advancedLink.textContent = isAdvancedModeActive ? 'Hide Advanced Options' : 'Show Advanced Options';
+        if (isAdvancedModeActive) {
+            advancedLink.textContent = 'Hide Advanced Options';
+            advancedSkillLevelControls.classList.remove('hidden');
+        } else {
+            advancedLink.textContent = 'Show Advanced Options';
+            advancedSkillLevelControls.classList.add('hidden');
+        }
         populateWizardStep2LaborRates();
     }
 
-    function toggleConsiderationsUnit() {
-        if (additionalConsiderationsUnit.textContent === '%') {
-            additionalConsiderationsUnit.textContent = '$';
-        } else {
-            additionalConsiderationsUnit.textContent = '%';
+    function addSkillLevelFromAdvanced() {
+        if (projectSettings.activeTrades.length === 0) {
+            renderMessageBoxCallback("Please select at least one trade in Step 1 before adding new skill levels.");
+            return;
         }
-    }
+        
+        const newTitle = newSkillTitleInput.value.trim();
+        const newRate = parseFloat(newSkillRateInput.value);
 
-    function updateLaborRate(trade, role, newRate) {
-        if (projectSettings.allTradeLaborRates[trade] && projectSettings.allTradeLaborRates[trade][role] !== undefined) {
-            projectSettings.allTradeLaborRates[trade][role] = parseFloat(newRate) || 0;
+        if (!newTitle) {
+            renderMessageBoxCallback("Please enter a title for the new skill level.");
+            return;
         }
-    }
-    
-    function updateSkillTitle(trade, oldRole, newRole) {
-        newRole = newRole.trim();
-        if (!newRole || newRole === oldRole) return;
+        if (isNaN(newRate) || newRate < 0) {
+            renderMessageBoxCallback("Please enter a valid non-negative number for the new skill rate.");
+            return;
+        }
 
-        if (projectSettings.allTradeLaborRates[trade] && projectSettings.allTradeLaborRates[trade][oldRole] !== undefined) {
-            if (projectSettings.allTradeLaborRates[trade][newRole]) {
-                renderMessageBoxCallback(`Skill level "${newRole}" already exists for this trade.`);
-                populateWizardStep2LaborRates();
-                return;
+        let newSkillAdded = false;
+        let alreadyExistsForSome = false;
+        projectSettings.activeTrades.forEach(trade => {
+            if (!projectSettings.allTradeLaborRates[trade]) {
+                projectSettings.allTradeLaborRates[trade] = {};
             }
+            const existingRolesForTrade = Object.keys(projectSettings.allTradeLaborRates[trade]).map(r => r.toLowerCase());
+            if (!existingRolesForTrade.includes(newTitle.toLowerCase())) {
+                projectSettings.allTradeLaborRates[trade][newTitle] = newRate;
+                newSkillAdded = true;
+            } else {
+                alreadyExistsForSome = true;
+            }
+        });
 
-            const rate = projectSettings.allTradeLaborRates[trade][oldRole];
-            projectSettings.allTradeLaborRates[trade][newRole] = rate;
-            delete projectSettings.allTradeLaborRates[trade][oldRole];
-
-            estimateItems.forEach(item => {
-                if (item.trade === trade && item.rateRole === oldRole) {
-                    item.rateRole = newRole;
-                }
-            });
-            
+        if (newSkillAdded) {
+            newSkillTitleInput.value = '';
+            newSkillRateInput.value = '0';
             populateWizardStep2LaborRates();
+        } else if (alreadyExistsForSome) {
+            renderMessageBoxCallback(`Skill level "${newTitle}" already exists for some or all selected trades. It was not added where it already existed.`);
+        } else {
+            renderMessageBoxCallback(`Skill level "${newTitle}" already exists for all selected trades or no trades are selected.`);
         }
     }
-    
+
+
     function confirmRemoveSkillLevel(trade, role) {
-        renderMessageBoxCallback(
-            `Are you sure you want to remove the "${role}" skill level for the "${trade}" trade?`,
+        renderMessageBoxCallback(`Are you sure you want to remove the skill level "${role}" from ${trade}? This will remove it from all line items using it.`,
             () => {
                 removeSkillLevel(trade, role);
                 closeMessageBoxCallback();
             },
-            true
+            true // Is a confirm message
         );
     }
 
     function removeSkillLevel(trade, role) {
+        const defaultRoles = ["Project Manager", "Superintendent", "General Foreman", "Foreman", "Journeyman", "Apprentice"];
+        if (defaultRoles.includes(role)) {
+            renderMessageBoxCallback(`"${role}" is a default skill level and cannot be removed.`);
+            return;
+        }
+
         if (projectSettings.allTradeLaborRates[trade] && projectSettings.allTradeLaborRates[trade][role] !== undefined) {
             delete projectSettings.allTradeLaborRates[trade][role];
             
