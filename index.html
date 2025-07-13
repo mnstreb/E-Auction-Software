@@ -101,6 +101,45 @@
             transform: translateY(-1px);
         }
 
+        /* ✨ NEW: Styles for the Entry Point Screen */
+        .entry-point-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 2000;
+            background: linear-gradient(135deg, #e0f2fe 0%, #c1e0fa 100%);
+        }
+        .entry-point-content {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .entry-point-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .entry-point-content p {
+            font-size: 1.1rem;
+            color: #4b5563;
+            margin-bottom: 40px;
+        }
+        .entry-point-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .entry-point-buttons .btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+        }
+
 
         table {
             width: 100%;
@@ -614,6 +653,19 @@
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
+    <!-- ✨ NEW: Entry Point Screen -->
+    <div id="entryPointContainer" class="entry-point-container">
+        <div class="entry-point-content">
+            <h1>Construction Estimator Pro</h1>
+            <p>Choose how you'd like to begin.</p>
+            <div class="entry-point-buttons">
+                <button id="startDetailedBtn" class="btn btn-primary">Start Detailed Estimate</button>
+                <button id="startQuickQuoteBtn" class="btn btn-green">Generate Quick Quote</button>
+            </div>
+        </div>
+    </div>
+
+
     <div id="mainApp" class="container hidden">
         <div id="appHeaderPlaceholder"></div>
         <div id="summaryOverviewPlaceholder"></div>
@@ -675,6 +727,13 @@
         </div>
     </div>
 
+    <!-- ✨ NEW: Placeholder for the Quick Quote Summary view -->
+    <div id="quickQuoteApp" class="container hidden">
+        <div id="appHeaderPlaceholderQuickQuote"></div>
+        <div id="quickQuoteSummaryPlaceholder"></div>
+    </div>
+
+
     <div id="setupWizardPlaceholder"></div>
 
     <div id="savedProjectsPlaceholder"></div>
@@ -731,7 +790,11 @@
                 const htmlResponse = await fetch('src/components/AppHeader/AppHeader.html');
                 if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for AppHeader.html`);
                 const html = await htmlResponse.text();
+
+                // ✨ CHANGED: Populate both placeholders with the same header HTML
                 document.getElementById('appHeaderPlaceholder').innerHTML = html;
+                document.getElementById('appHeaderPlaceholderQuickQuote').innerHTML = html;
+
 
                 const script = document.createElement('script');
                 script.src = 'src/components/AppHeader/AppHeader.js';
@@ -769,7 +832,7 @@
                     } else {
                         console.error('AppHeader module not available after loading.');
                     }
-                    loadSummaryOverview();
+                    // ✨ REMOVED: Don't automatically load the next component from here
                 };
                 script.onerror = (e) => console.error("Failed to load AppHeader.js", e);
                 document.body.appendChild(script);
@@ -800,7 +863,6 @@
                     } else {
                         console.error('SummaryOverview module not available after loading.');
                     }
-                    loadSetupWizard();
                 };
                 script.onerror = (e) => console.error("Failed to load SummaryOverview.js", e);
                 document.body.appendChild(script);
@@ -809,6 +871,36 @@
                 console.error("Error loading SummaryOverview component:", error);
             }
         }
+
+        // ✨ NEW: Function to load the Quick Quote Summary component
+        async function loadQuickQuoteSummary() {
+            try {
+                const htmlResponse = await fetch('src/sections/QuickQuoteSummary/QuickQuoteSummary.html');
+                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for QuickQuoteSummary.html`);
+                const html = await htmlResponse.text();
+                document.getElementById('quickQuoteSummaryPlaceholder').innerHTML = html;
+
+                const script = document.createElement('script');
+                script.src = 'src/sections/QuickQuoteSummary/QuickQuoteSummary.js';
+                script.onload = () => {
+                    if (window.QuickQuoteSummary) {
+                        window.QuickQuoteSummary.init({
+                            projectSettings: projectSettings,
+                            formatCurrency: formatCurrency,
+                            isDarkTheme: isDarkTheme
+                        });
+                    } else {
+                        console.error('QuickQuoteSummary module not available after loading.');
+                    }
+                };
+                script.onerror = (e) => console.error("Failed to load QuickQuoteSummary.js", e);
+                document.body.appendChild(script);
+
+            } catch (error) {
+                console.error("Error loading QuickQuoteSummary component:", error);
+            }
+        }
+
 
         async function loadSetupWizard() {
             try {
@@ -820,11 +912,12 @@
                 // Hide main app, show wizard by default if it's the first load
                 document.getElementById('setupWizardPlaceholder').classList.remove('hidden');
                 mainApp.classList.add('hidden');
+                quickQuoteApp.classList.add('hidden');
                 document.getElementById('savedProjectsPlaceholder').classList.add('hidden'); // Ensure saved projects is hidden
 
                 const script = document.createElement('script');
                 script.src = 'src/sections/SetupWizard/SetupWizard.js';
-             script.onload = () => {
+                script.onload = () => {
                     if (window.SetupWizard) {
                         window.SetupWizard.init({
                             projectSettings: projectSettings,
@@ -832,7 +925,9 @@
                             stateSalesTax: stateSalesTax,
                             onCompletion: handleWizardCompletion,
                             renderMessageBox: renderMessageBox,
-                            closeMessageBox: closeMessageBox
+                            closeMessageBox: closeMessageBox,
+                            // ✨ NEW: Pass the current mode to the wizard
+                            mode: currentAppMode 
                         });
                         window.SetupWizard.showStep(1);
                         window.SetupWizard.populateTradesDropdown();
@@ -1016,8 +1111,13 @@
             other: true
         };
 
+        // ✨ NEW: State for current application mode
+        let currentAppMode = 'entry'; // Can be 'entry', 'detailed', 'quickQuote'
+
         // UI Element references
+        const entryPointContainer = document.getElementById('entryPointContainer');
         const mainApp = document.getElementById('mainApp');
+        const quickQuoteApp = document.getElementById('quickQuoteApp'); // New container for quick quote view
         const estimateTableBody = document.getElementById('estimateTableBody');
         const saveProjectModal = document.getElementById('saveProjectModal');
         const saveProjectNameInput = document.getElementById('saveProjectName');
@@ -1150,7 +1250,16 @@
                 setupWizardPlaceholder.classList.add('hidden');
                 setupWizardPlaceholder.innerHTML = ''; 
             }
-            mainApp.classList.remove('hidden');
+            
+            // ✨ CHANGED: Show the correct app view based on the mode
+            if (currentAppMode === 'detailed') {
+                mainApp.classList.remove('hidden');
+                loadSummaryOverview(); // Load the detailed summary
+            } else if (currentAppMode === 'quickQuote') {
+                quickQuoteApp.classList.remove('hidden');
+                loadQuickQuoteSummary(); // Load the new quick quote summary
+            }
+            
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
             
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
@@ -1160,53 +1269,57 @@
                 window.AppHeader.updateLogo(projectSettings.contractorLogo);
             }
 
-            populateDefaultTradeSelector();
-            
-            if (estimateItems.length > 0) {
-                const firstItem = estimateItems[0];
-                const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
-                firstItem.trade = defaultTrade;
-                const availableRoles = Object.keys(projectSettings.allTradeLaborRates[firstItem.trade] || {});
-                firstItem.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
-            }
-            
-            renderItems(); 
-            
-            if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
-                window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
-            }
+            if (currentAppMode === 'detailed') {
+                populateDefaultTradeSelector();
+                
+                if (estimateItems.length > 0) {
+                    const firstItem = estimateItems[0];
+                    const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
+                    firstItem.trade = defaultTrade;
+                    const availableRoles = Object.keys(projectSettings.allTradeLaborRates[firstItem.trade] || {});
+                    firstItem.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+                }
+                
+                renderItems(); 
+                
+                if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                    window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
+                }
 
-            for (const group in collapsedState) {
-                if (collapsedState.hasOwnProperty(group)) {
-                    const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
-                    const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
-                    if (headerElement && mainThElement) {
-                        if (collapsedState[group]) {
-                            headerElement.classList.add('collapsed');
-                            mainThElement.colSpan = 1;
-                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                th.classList.add('column-hidden');
-                            });
-                        } else {
-                            mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
-                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                th.classList.remove('column-hidden');
-                            });
+                for (const group in collapsedState) {
+                    if (collapsedState.hasOwnProperty(group)) {
+                        const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
+                        const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
+                        if (headerElement && mainThElement) {
+                            if (collapsedState[group]) {
+                                headerElement.classList.add('collapsed');
+                                mainThElement.colSpan = 1;
+                                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                    th.classList.add('column-hidden');
+                                });
+                            } else {
+                                mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
+                                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                    th.classList.remove('column-hidden');
+                                });
+                            }
                         }
                     }
                 }
+                adjustTableMinWidth();
             }
-            adjustTableMinWidth();
         }
 
         function showSetupWizard() {
             mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden'); 
             loadSetupWizard();
         }
 
         function showMainApp() {
             mainApp.classList.remove('hidden');
+            quickQuoteApp.classList.add('hidden');
             document.getElementById('setupWizardPlaceholder').classList.add('hidden');
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
         }
@@ -1262,6 +1375,7 @@
 
         function showSavedProjects() {
             mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
             document.getElementById('setupWizardPlaceholder').classList.add('hidden');
             const savedProjectsPlaceholder = document.getElementById('savedProjectsPlaceholder');
             if (savedProjectsPlaceholder.innerHTML === '') {
@@ -1933,8 +2047,26 @@
             }
         }
 
+        // ✨ NEW: Functions to handle starting different app modes
+        function startDetailedEstimate() {
+            currentAppMode = 'detailed';
+            entryPointContainer.classList.add('hidden');
+            loadSetupWizard();
+        }
+
+        function startQuickQuote() {
+            currentAppMode = 'quickQuote';
+            entryPointContainer.classList.add('hidden');
+            loadSetupWizard();
+        }
+
 
         function setupInitialEventListeners() {
+            // ✨ NEW: Event listeners for the entry point buttons
+            document.getElementById('startDetailedBtn').addEventListener('click', startDetailedEstimate);
+            document.getElementById('startQuickQuoteBtn').addEventListener('click', startQuickQuote);
+
+
             document.querySelectorAll('.collapsible-header').forEach(header => {
                 header.addEventListener('click', function() {
                     const group = this.dataset.group;
@@ -1964,8 +2096,13 @@
 
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadAppHeader();
+            // ✨ CHANGED: Load the AppHeader first, then set up other listeners.
+            // The wizard is no longer loaded by default.
+            loadAppHeader(); 
             setupInitialEventListeners();
+
+            // The rest of this logic is for the detailed view and will be run
+            // after the wizard is completed for that mode.
             for (const group in collapsedState) {
                 if (collapsedState.hasOwnProperty(group)) {
                     const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
@@ -2028,3 +2165,8 @@
     </script>
 </body>
 </html>
+```
+
+I've set up the initial structure. Now, when the application loads, the user will be greeted with the choice to start a detailed estimate or a quick quote.
+
+Next, we need to modify the **Setup Wizard** to behave differently based on which button the user clicks. Are you ready to proceed with the changes to `SetupWizard.html` and `SetupWizard.j
