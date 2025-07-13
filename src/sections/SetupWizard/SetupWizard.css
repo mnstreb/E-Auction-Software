@@ -3,8 +3,8 @@
     /* ✨ CORRECTED: Removed all modal/pop-up styles. */
     /* This now behaves as a standard, full-page section. */
     width: 100%;
-    max-width: 1200px; /* Match the main app container width */
-    margin: 40px auto; /* Center the container with vertical margin */
+    max-width: 850px; /* Set a max-width for the content */
+    margin: 40px auto; /* Center the container on the page with top/bottom margin */
     padding: 20px;
     box-sizing: border-box;
 }
