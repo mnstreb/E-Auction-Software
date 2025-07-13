@@ -43,7 +43,6 @@ window.SetupWizard = (function() {
     let miscellaneousInput;
     let overheadInput;
     let materialMarkupInput;
-    let discountInput; 
     let additionalConsiderationsValueInput;
     let additionalConsiderationsUnitSpan;
 
@@ -64,6 +63,12 @@ window.SetupWizard = (function() {
     /**
      * Initializes the SetupWizard module.
      * @param {object} config - Configuration object.
+     * @param {object} config.projectSettings - The global project settings object (mutable).
+     * @param {Array<object>} config.estimateItems - The global estimate items array (mutable).
+     * @param {object} config.stateSalesTax - The map of state sales tax rates.
+     * @param {function} config.onCompletion - Callback function to execute when the wizard is completed.
+     * @param {function} config.renderMessageBox - Reference to the global renderMessageBox function.
+     * @param {function} config.closeMessageBox - Reference to the global closeMessageBox function.
      */
     function init(config) {
         projectSettings = config.projectSettings;
@@ -80,19 +85,20 @@ window.SetupWizard = (function() {
             document.getElementById('wizardStep2'),
             document.getElementById('wizardStep3')
         ];
+        // Referencing the step item containers now
         stepItems = [ 
             document.getElementById('step1Container'),
             document.getElementById('step2Container'),
             document.getElementById('step3Container')
         ];
-        progressBar = document.getElementById('progressBar');
+        progressBar = document.getElementById('progressBar'); // Progress bar element
 
         logoUploadInput = document.getElementById('logoUploadInput');
         logoUploadArea = document.getElementById('logoUploadArea');
         wizardLogoPreview = document.getElementById('wizardLogoPreview');
         defaultLogoIcon = document.getElementById('defaultLogoIcon');
         uploadText = document.getElementById('uploadText');
-        clearLogoBtn = document.getElementById('clearLogoBtn');
+        clearLogoBtn = document.getElementById('clearLogoBtn'); // NEW: Get reference to the clear button
 
         projectNameInput = document.getElementById('projectName');
         clientNameInput = document.getElementById('clientName');
@@ -125,11 +131,13 @@ window.SetupWizard = (function() {
         logoUploadArea.addEventListener('dragleave', () => { logoUploadArea.classList.remove('drag-over'); });
         logoUploadArea.addEventListener('drop', handleLogoDrop);
         logoUploadArea.addEventListener('click', (event) => {
+            // Only trigger file input if the click is not on the clear button
             if (event.target !== clearLogoBtn) {
                 logoUploadInput.click();
             }
         });
         
+        // NEW: Event listener for the clear logo button
         if (clearLogoBtn) {
             clearLogoBtn.addEventListener('click', clearLogo);
         }
@@ -160,6 +168,7 @@ window.SetupWizard = (function() {
         loadSavedLogo();
         populateTradesDropdown();
         updateSelectedTradesDisplay();
+        // The main script will call showStep(1) after init
     }
 
 
@@ -173,31 +182,38 @@ window.SetupWizard = (function() {
             }
         });
         
+        // Update step items, circles, labels, and progress bar
         stepItems.forEach((stepItem, index) => {
             const stepNum = index + 1;
             const stepCircle = stepItem.querySelector('.step-circle');
             const stepLabel = stepItem.querySelector('.step-label');
             const stepStatus = stepItem.querySelector('.step-status');
 
-            stepItem.classList.remove('active', 'completed');
+            stepItem.classList.remove('active', 'completed'); // Reset classes
             stepCircle.classList.remove('active', 'completed');
             
+            // Set text labels and numbers
             stepLabel.textContent = stepDetails[index].label;
             stepCircle.textContent = stepNum;
 
             if (stepNum < stepNumber) {
+                // Completed step
                 stepItem.classList.add('completed');
                 stepCircle.classList.add('completed');
                 stepStatus.textContent = stepDetails[index].statusCompleted;
             } else if (stepNum === stepNumber) {
+                // Current step
                 stepItem.classList.add('active');
                 stepCircle.classList.add('active');
                 stepStatus.textContent = stepDetails[index].statusInProgress;
             } else {
+                // Pending step
                 stepStatus.textContent = stepDetails[index].statusPending;
             }
         });
 
+        // Calculate progress bar width based on active step
+        // For 3 steps, 0% for step 1, 50% for step 2, 100% for step 3
         const totalSteps = wizardSteps.length;
         let progressWidth = 0;
         if (totalSteps > 1) {
@@ -207,9 +223,10 @@ window.SetupWizard = (function() {
 
         currentStep = stepNumber;
 
+        // Re-populate data each time a step is shown to reflect latest projectSettings
         if (stepNumber === 1) {
             populateWizardInputs();
-            loadSavedLogo();
+            loadSavedLogo(); // Ensure logo preview is correct
         }
         if (stepNumber === 2) {
             populateWizardStep2LaborRates();
@@ -232,6 +249,7 @@ window.SetupWizard = (function() {
             if (!projectState) { renderMessageBoxCallback("Please select a State/Location."); return; }
             if (projectSettings.activeTrades.length === 0) { renderMessageBoxCallback("Please select at least one Trade Involved."); return; }
 
+            // Save values to projectSettings, ensuring correct types
             projectSettings.projectName = projectName;
             projectSettings.clientName = clientName;
             projectSettings.projectAddress = document.getElementById('projectAddress').value;
@@ -243,12 +261,13 @@ window.SetupWizard = (function() {
             projectSettings.projectDescription = document.getElementById('projectDescription').value;
             projectSettings.projectType = projectType;
             projectSettings.projectState = projectState;
+            // Sales tax is updated on state change already, so no need to explicitly save here.
             
         } else if (stepNumber === 2) {
             for (const trade of projectSettings.activeTrades) {
-                if (projectSettings.allTradeLaborRates[trade]) {
+                if (projectSettings.allTradeLaborRates[trade]) { // Only validate if the trade actually exists in the rates data
                     for (const role in projectSettings.allTradeLaborRates[trade]) {
-                        const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]);
+                        const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]); // Ensure it's a number here too
                         if (isNaN(rate) || rate < 0) {
                             renderMessageBoxCallback(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
                             return;
@@ -265,6 +284,7 @@ window.SetupWizard = (function() {
     }
 
     function startEstimating() {
+        // Re-run final validation before completing
         const projectName = projectNameInput.value.trim();
         const clientName = clientNameInput.value.trim();
         const projectType = projectTypeSelect.value.trim();
@@ -285,7 +305,7 @@ window.SetupWizard = (function() {
                 return;
             }
             for (const role in projectSettings.allTradeLaborRates[trade]) {
-                const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]);
+                const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]); // Ensure it's a number here too
                 if (isNaN(rate) || rate < 0) {
                     renderMessageBoxCallback(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
                     return;
@@ -293,6 +313,7 @@ window.SetupWizard = (function() {
             }
         }
 
+        // Save final settings to projectSettings, ensuring ALL numerical values are parsed
         projectSettings.projectName = projectNameInput.value;
         projectSettings.clientName = clientNameInput.value;
         projectSettings.projectAddress = document.getElementById('projectAddress').value;
@@ -305,13 +326,17 @@ window.SetupWizard = (function() {
         projectSettings.projectType = projectTypeSelect.value;
         projectSettings.projectState = projectStateSelect.value;
         
+        // --- IMPORTANT: Ensure parseFloat for ALL numeric settings here ---
         projectSettings.profitMargin = parseFloat(profitMarginInput.value) || 0;
         projectSettings.salesTax = parseFloat(salesTaxInput.value) || 0;
         projectSettings.miscellaneous = parseFloat(miscellaneousInput.value) || 0;
         projectSettings.overhead = parseFloat(overheadInput.value) || 0;
         projectSettings.materialMarkup = parseFloat(materialMarkupInput.value) || 0;
         projectSettings.additionalConsiderationsValue = parseFloat(additionalConsiderationsValueInput.value) || 0;
+        // --- END IMPORTANT ---
 
+
+        // Callback to main script indicating completion
         onCompletionCallback(projectSettings);
     }
 
@@ -360,26 +385,28 @@ window.SetupWizard = (function() {
             wizardLogoPreview.classList.remove('hidden');
             defaultLogoIcon.classList.add('hidden');
             uploadText.classList.add('hidden');
-            clearLogoBtn.classList.remove('hidden');
+            clearLogoBtn.classList.remove('hidden'); // Show clear button if logo is present
         } else {
-            wizardLogoPreview.src = '';
+            wizardLogoPreview.src = ''; // Clear the image source
             wizardLogoPreview.classList.add('hidden');
             defaultLogoIcon.classList.remove('hidden');
             uploadText.classList.remove('hidden');
-            clearLogoBtn.classList.add('hidden');
+            clearLogoBtn.classList.add('hidden'); // Hide clear button if no logo
         }
     }
 
+    // NEW: Function to clear the logo
     function clearLogo(event) {
-        event.stopPropagation();
+        event.stopPropagation(); // Prevent click from bubbling to logoUploadArea and opening file input
         renderMessageBoxCallback('Are you sure you want to clear the logo?', () => {
-            projectSettings.contractorLogo = '';
-            loadSavedLogo();
+            projectSettings.contractorLogo = ''; // Clear the logo data
+            loadSavedLogo(); // Update the UI to show default state
+            // Also update the logo in the AppHeader if it's currently displayed
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo('');
             }
             closeMessageBoxCallback();
-        }, true);
+        }, true); // Pass true for isConfirm
     }
 
 
@@ -404,6 +431,7 @@ window.SetupWizard = (function() {
             advancedDetailsSection.classList.add('hidden');
             showAdvancedDetailsLink.textContent = 'Show Advanced Details';
         }
+        // No need to call populateWizardStep3Settings here, as showStep() handles it.
     }
 
     function populateWizardStep3Settings() {
@@ -419,7 +447,7 @@ window.SetupWizard = (function() {
     function updateSalesTaxForState(stateCode) {
         const taxRate = stateSalesTax[stateCode] || 0;
         salesTaxInput.value = taxRate;
-        projectSettings.salesTax = taxRate;
+        projectSettings.salesTax = taxRate; // Update global settings directly
     }
 
     function toggleAdditionalConsiderationsType() {
@@ -450,7 +478,7 @@ window.SetupWizard = (function() {
                 const isChecked = projectSettings.activeTrades.includes(trade);
 
                 const label = document.createElement('label');
-                label.className = 'flex items-center p-2 rounded-md hover:bg-gray-200 cursor-pointer';
+                label.className = 'flex items-center';
                 label.innerHTML = `
                     <input type="checkbox" id="${checkboxId}" value="${trade}" ${isChecked ? 'checked' : ''} onchange="window.SetupWizard.handleTradeSelection(this)">
                     <span>${trade}</span>
@@ -463,13 +491,13 @@ window.SetupWizard = (function() {
     function updateSelectedTradesDisplay() {
         selectedTradesDisplay.innerHTML = '';
         if (projectSettings.activeTrades.length === 0) {
-            selectedTradesDisplay.innerHTML = '<p class="text-gray-500 italic">Click to select trades...</p>';
+            selectedTradesDisplay.textContent = 'Click to select trades...';
             return;
         }
         projectSettings.activeTrades.forEach(trade => {
             const span = document.createElement('span');
             span.className = 'selected-trade-tag';
-            span.innerHTML = `${trade} <span class="remove-tag" data-trade="${trade}" onclick="event.stopPropagation(); window.SetupWizard.removeTrade('${trade}')">&times;</span>`;
+            span.innerHTML = `${trade} <span class="remove-tag" data-trade="${trade}">&times;</span>`;
             selectedTradesDisplay.appendChild(span);
         });
     }
@@ -482,16 +510,11 @@ window.SetupWizard = (function() {
             }
         } else {
             projectSettings.activeTrades = projectSettings.activeTrades.filter(t => t !== trade);
+            // Also remove line items associated with this trade
             estimateItems = estimateItems.filter(item => item.trade !== trade);
         }
         updateSelectedTradesDisplay();
-        populateWizardStep2LaborRates();
-    }
-    
-    function removeTrade(trade) {
-        handleTradeSelection({value: trade, checked: false});
-        const checkbox = tradesDropdown.querySelector(`input[value="${trade}"]`);
-        if(checkbox) checkbox.checked = false;
+        populateWizardStep2LaborRates(); // Re-render labor rates based on new active trades
     }
 
     function toggleTradeDropdown() {
@@ -573,9 +596,12 @@ window.SetupWizard = (function() {
         const parsedValue = parseFloat(value);
         if (!isNaN(parsedValue) && parsedValue >= 0) {
             projectSettings.allTradeLaborRates[trade][role] = parsedValue;
+            // No need to re-render populateWizardStep2LaborRates() here, as it causes focus issues.
+            // The value is correctly updated in projectSettings, and main app will recalculate on wizard completion.
         } else {
             console.error(`Invalid input for ${trade} ${role} rate: ${value}`);
             const inputId = `rate-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
+            // Revert to old value if input is invalid
             document.getElementById(inputId).value = parseFloat(projectSettings.allTradeLaborRates[trade][role]) || 0; 
         }
     }
@@ -602,12 +628,13 @@ window.SetupWizard = (function() {
             delete projectSettings.allTradeLaborRates[trade][oldRole];
             projectSettings.allTradeLaborRates[trade][trimmedNewRole] = rate;
             
+            // Update any estimate items that use this role
             estimateItems.forEach(item => {
                 if (item.trade === trade && item.rateRole === oldRole) {
                     item.rateRole = trimmedNewRole;
                 }
             });
-            populateWizardStep2LaborRates();
+            populateWizardStep2LaborRates(); // Re-render to show updated roles/rates
         } else {
             console.warn(`Could not find skill "${oldRole}" in trade "${trade}" for update.`);
         }
@@ -623,7 +650,19 @@ window.SetupWizard = (function() {
             advancedLink.textContent = 'Show Advanced Options';
             advancedSkillLevelControls.classList.add('hidden');
         }
-        populateWizardStep2LaborRates();
+        populateWizardStep2LaborRates(); // Re-render to show/hide advanced controls for rates
+    }
+
+    function toggleAdvancedDetails(event) {
+        event.preventDefault();
+        isAdvancedDetailsActive = !isAdvancedDetailsActive;
+        if (isAdvancedDetailsActive) {
+            showAdvancedDetailsLink.textContent = 'Hide Advanced Details';
+            advancedDetailsSection.classList.remove('hidden');
+        } else {
+            advancedDetailsLink.textContent = 'Show Advanced Details';
+            advancedDetailsSection.classList.add('hidden');
+        }
     }
 
     function addSkillLevelFromAdvanced() {
@@ -691,13 +730,14 @@ window.SetupWizard = (function() {
         if (projectSettings.allTradeLaborRates[trade] && projectSettings.allTradeLaborRates[trade][role] !== undefined) {
             delete projectSettings.allTradeLaborRates[trade][role];
             
+            // Update any estimate items that use this role, assign a fallback
             estimateItems.forEach(item => {
                 if (item.trade === trade && item.rateRole === role) {
                     const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
-                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman"; // Fallback to Journeyman if no other roles
                 }
             });
-            populateWizardStep2LaborRates();
+            populateWizardStep2LaborRates(); // Re-render the rates section
         }
     }
 
@@ -705,15 +745,14 @@ window.SetupWizard = (function() {
     // Expose public methods for index.html to call
     return {
         init: init,
-        showStep: showStep,
-        populateTradesDropdown: populateTradesDropdown,
-        updateSelectedTradesDisplay: updateSelectedTradesDisplay,
-        updateSalesTaxForState: updateSalesTaxForState,
-        loadSavedLogo: loadSavedLogo,
-        handleTradeSelection: handleTradeSelection,
-        removeTrade: removeTrade,
-        updateLaborRate: updateLaborRate,
-        updateSkillTitle: updateSkillTitle,
-        confirmRemoveSkillLevel: confirmRemoveSkillLevel
+        showStep: showStep, // Allows index.html to control wizard steps
+        populateTradesDropdown: populateTradesDropdown, // Needed for initial load
+        updateSelectedTradesDisplay: updateSelectedTradesDisplay, // Needed for initial load
+        updateSalesTaxForState: updateSalesTaxForState, // Needed for initial load
+        loadSavedLogo: loadSavedLogo, // Needed for initial load
+        handleTradeSelection: handleTradeSelection, // Needed for onchange event in HTML
+        updateLaborRate: updateLaborRate, // Needed for onchange event in HTML
+        updateSkillTitle: updateSkillTitle, // Needed for onchange event in HTML
+        confirmRemoveSkillLevel: confirmRemoveSkillLevel // Needed for onclick event in HTML
     };
 })();
