@@ -1,11 +1,11 @@
 /* Styles specific to the SetupWizard section */
 .setup-wizard-container {
-    /* ✨ CHANGED: Removed fixed positioning and background overlay styles. */
-    /* This makes the wizard a normal page element instead of a modal. */
+    /* ✨ CORRECTED: Removed all modal/pop-up styles. */
+    /* This now behaves as a standard, full-page section. */
     width: 100%;
-    display: flex;
-    justify-content: center;
-    padding: 40px 20px; /* Add some vertical padding */
+    max-width: 1200px; /* Match the main app container width */
+    margin: 40px auto; /* Center the container with vertical margin */
+    padding: 20px;
     box-sizing: border-box;
 }
 
@@ -13,15 +13,13 @@
     background: white;
     padding: 40px;
     border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    max-width: 800px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
     width: 100%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     transition: background-color 0.3s, box-shadow 0.3s;
-    /* Removed max-height and overflow, as the container will now scroll with the page body */
 }
 
 /* NEW: Styles for the intro section containing logo, h1, p */
@@ -504,9 +502,6 @@ body.dark-theme .clear-logo-btn {
 }
 
 /* Dark Theme Specifics for Wizard Elements */
-body.dark-theme .setup-wizard-container {
-    /* No background needed as it's part of the page flow now */
-}
 body.dark-theme .wizard-content {
     background: #2d3748;
     box-shadow: 0 10px 40px rgba(0,0,0,0.6);
