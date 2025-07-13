@@ -1,10 +1,16 @@
 /* Styles specific to the SetupWizard section */
 .setup-wizard-container {
-    /* ✨ CORRECTED: Removed all modal/pop-up styles. */
-    /* This now behaves as a standard, full-page section. */
-    width: 100%;
-    max-width: 850px; /* Set a max-width for the content */
-    margin: 40px auto; /* Center the container on the page with top/bottom margin */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
     padding: 20px;
     box-sizing: border-box;
 }
@@ -13,13 +19,16 @@
     background: white;
     padding: 40px;
     border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    max-width: 800px;
     width: 100%;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
     transition: background-color 0.3s, box-shadow 0.3s;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
 }
 
 /* NEW: Styles for the intro section containing logo, h1, p */
@@ -140,7 +149,7 @@
 
 /* Checkmark for completed steps */
 .step-circle.completed::before {
-    content: '✓'; /* Unicode checkmark character */
+    content: 'âœ“'; /* Unicode checkmark character */
     position: absolute;
     font-size: 1.2rem;
     font-weight: bold;
@@ -502,6 +511,9 @@ body.dark-theme .clear-logo-btn {
 }
 
 /* Dark Theme Specifics for Wizard Elements */
+body.dark-theme .setup-wizard-container {
+    background: rgba(0,0,0,0.7);
+}
 body.dark-theme .wizard-content {
     background: #2d3748;
     box-shadow: 0 10px 40px rgba(0,0,0,0.6);
