@@ -102,7 +102,7 @@ window.QuickQuoteSummary = (function() {
             const row = document.createElement('tr');
             row.setAttribute('data-id', item.id);
             
-            let qtyLabel = 'Qty';
+            let qtyLabel = 'Qty'; // This label is for screen readers, not visible in UI
             let qtyValue = item.qty;
             let qtyField = 'qty';
 
@@ -171,15 +171,39 @@ window.QuickQuoteSummary = (function() {
         // Update the main summary UI
         totalProposalElem.textContent = formatCurrency(grandTotal);
         totalHoursElem.textContent = formatHours(totalHours);
+
+        // Update global projectSettings for AppHeader and saving purposes
+        // This ensures the main index.html has the latest totals from QuickQuoteSummary
+        window.projectSettings.grandTotal = grandTotal;
+        window.projectSettings.totalLaborCost = directLaborCost;
+        window.projectSettings.totalMaterialCostRaw = directMaterialCost;
+        window.projectSettings.totalEquipmentCost = 0; // Quick quote doesn't track this separately
+        window.projectSettings.totalSubcontractorCost = 0; // Quick quote doesn't track this separately
+        window.projectSettings.totalMiscLineItemCosts = directOtherCost; // Lump 'other' into misc
+        window.projectSettings.overallLaborHoursSum = totalHours;
+        window.projectSettings.materialMarkupAmount = materialMarkupAmount;
+        window.projectSettings.totalOverheadCost = overheadAmount;
+        window.projectSettings.totalMiscCostAmount = additionalAdderAmount; // Quick quote's 'additionalAdder' maps to misc for detailed calculations
+        window.projectSettings.estimateSubtotalAmount = subtotal;
+        window.projectSettings.totalProfitMarginAmount = profitAmount;
+        // Sales tax and discount are not managed in QuickQuoteSummary, they come from projectSettings defaults.
+        // additionalConsiderationsType and Value are also not managed here, so they'll be defaults from projectSettings.
     }
     
     // Expose necessary functions to be called from HTML
     window.QuickQuoteSummary.updateItem = updateItem;
     window.QuickQuoteSummary.deleteItem = deleteItem;
+    window.QuickQuoteSummary.calculateTotals = calculateTotals; // Expose for index.html to trigger
+    window.QuickQuoteSummary.getQuickQuoteItems = () => quickQuoteItems; // Expose quickQuoteItems for saving
+    window.QuickQuoteSummary.getQuickQuoteSettings = () => ({ // Expose current settings from QQ inputs
+        overhead: parseFloat(overheadInput.value) || 0,
+        materialMarkup: parseFloat(materialMarkupInput.value) || 0,
+        profitMargin: parseFloat(profitMarginInput.value) || 0,
+        miscellaneous: parseFloat(additionalAdderInput.value) || 0,
+    });
 
     return {
         init: init
     };
 
 })();
-
