@@ -149,7 +149,7 @@
 
 /* Checkmark for completed steps */
 .step-circle.completed::before {
-    content: 'âœ“'; /* Unicode checkmark character */
+    content: '\2713'; /* CORRECTED: This is the proper CSS code for a checkmark */
     position: absolute;
     font-size: 1.2rem;
     font-weight: bold;
