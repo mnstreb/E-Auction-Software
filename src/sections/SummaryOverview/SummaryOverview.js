@@ -85,8 +85,8 @@ window.SummaryOverview = (function() {
         breakdownMaterialTotalElem = document.getElementById('breakdownMaterialTotal');
         breakdownEquipmentTotalElem = document.getElementById('breakdownEquipmentTotal');
         breakdownSubcontractorTotalElem = document.getElementById('breakdownSubcontractorTotal');
-        // BUG FIX: The ID in the HTML is 'breakdownMiscCost', this now correctly references it.
-        breakdownMiscCostLineItemsElem = document.getElementById('breakdownMiscCost');
+        // BUG FIX: The ID in the HTML is 'breakdownMiscCostLineItemsElem', this now correctly references it.
+        breakdownMiscCostLineItemsElem = document.getElementById('breakdownMiscCostLineItemsElem');
         breakdownProjectTotalElem = document.getElementById('breakdownProjectTotal');
 
         laborMaterialPieChartCanvas = document.getElementById('laborMaterialPieChart');
