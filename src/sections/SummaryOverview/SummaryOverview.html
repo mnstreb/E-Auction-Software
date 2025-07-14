@@ -1,37 +1,35 @@
 <!-- src/sections/QuickQuoteSummary/QuickQuoteSummary.html -->
 <div class="quick-quote-container">
-    <!-- REFORMATTED: Top Summary & Settings are now stacked vertically -->
-    <div class="flex flex-col gap-5 mb-6">
+    <!-- REFORMATTED: Top Summary & Settings in a 3-column grid -->
+    <div class="quick-quote-summary-grid">
         <!-- Metric Card 1: Total Proposal -->
-        <div class="summary-metric-card-stacked">
+        <div class="summary-metric-card">
             <span class="label">Total Proposal</span>
             <span class="value" id="qqTotalProposal">$0.00</span>
         </div>
         <!-- Metric Card 2: Total Labor Hours -->
-        <div class="summary-metric-card-stacked">
+        <div class="summary-metric-card">
             <span class="label">Total Labor Hours</span>
             <span class="value" id="qqTotalHours">0.00</span>
         </div>
         <!-- Settings Panel: Combined -->
-        <div class="settings-panel-stacked card">
-            <h4 class="title">Financial Settings</h4>
-            <div class="settings-inputs-grid">
-                <div class="form-group-horizontal">
-                    <label for="qqOverhead" class="label">Overhead (%):</label>
-                    <input type="number" id="qqOverhead" class="input-field" value="10">
-                </div>
-                <div class="form-group-horizontal">
-                    <label for="qqMaterialMarkup" class="label">Material Markup (%):</label>
-                    <input type="number" id="qqMaterialMarkup" class="input-field" value="10">
-                </div>
-                <div class="form-group-horizontal">
-                    <label for="qqProfitMargin" class="label">Profit Margin (%):</label>
-                    <input type="number" id="qqProfitMargin" class="input-field" value="15">
-                </div>
-                <div class="form-group-horizontal">
-                    <label for="qqAdditionalAdder" class="label">Additional Adder (%):</label>
-                    <input type="number" id="qqAdditionalAdder" class="input-field" value="5">
-                </div>
+        <div class="settings-panel card">
+            <h4>Financial Settings</h4>
+            <div class="form-group">
+                <label for="qqOverhead" class="label">Overhead (%):</label>
+                <input type="number" id="qqOverhead" class="input-field" value="10">
+            </div>
+            <div class="form-group">
+                <label for="qqMaterialMarkup" class="label">Material Markup (%):</label>
+                <input type="number" id="qqMaterialMarkup" class="input-field" value="10">
+            </div>
+            <div class="form-group">
+                <label for="qqProfitMargin" class="label">Profit Margin (%):</label>
+                <input type="number" id="qqProfitMargin" class="input-field" value="15">
+            </div>
+            <div class="form-group">
+                <label for="qqAdditionalAdder" class="label">Additional Adder (%):</label>
+                <input type="number" id="qqAdditionalAdder" class="input-field" value="5">
             </div>
         </div>
     </div>
