@@ -755,7 +755,7 @@
             </div>
             <div class="form-group">
                 <label for="saveLocation" class="label">Location (State):</label>
-                <input type="text" id="saveLocation" class="value-display" readonly>
+                <input type="text" id="saveLocation" class="input-field" required>  <!-- Changed to editable input -->
             </div>
             <div class="form-group">
                 <label for="saveProjectCost" class="label">Total Project Cost:</label>
@@ -825,6 +825,7 @@
                             onEmailClient: sendEstimateEmailToClient,
                             onUserProfileClick: showSavedProjects 
                         });
+                        // Initialize theme toggle state in header
                         if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
                             window.AppHeader.updateThemeToggleSlider(isDarkTheme);
                         }
@@ -1054,7 +1055,7 @@
             other: true
         };
 
-        // ✨ NEW: State for current application mode
+        // State for current application mode
         let currentAppMode = 'entry'; // Can be 'entry', 'detailed', 'quickQuote'
 
         // UI Element references
@@ -1074,7 +1075,7 @@
         let defaultTradeSelectorElem; 
         let currentlySelectedTradeForLineItems = "General"; 
 
-        // ✨ NEW: AI Chat UI Element References
+        // AI Chat UI Element References
         let aiChatButton;
         let aiChatModal;
         let aiChatCloseBtn;
@@ -1146,8 +1147,13 @@
                     window.AppHeader.updateThemeToggleSlider(isDarkTheme);
                 }
             }
-            if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+            // Update summaries and charts in relevant sections based on new theme
+            if (currentAppMode === 'detailed' && window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
+            } else if (currentAppMode === 'quickQuote' && window.QuickQuoteSummary && typeof window.QuickQuoteSummary.updateSummary === 'function') {
+                // QuickQuoteSummary's updateSummary should internally handle theme for its chart if it has one
+                // Or you might need a specific updateTheme function for QuickQuoteSummary
+                // For now, it's passed during init, but if chart colors need dynamic update, add a function there.
             }
             if (window.SavedProjects && typeof window.SavedProjects.updateCustomerTotalsChart === 'function') {
                 window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
@@ -1220,11 +1226,19 @@
         }
 
         function showEntryPoint() {
+            currentAppMode = 'entry'; // Set mode when showing entry point
             entryPointContainer.classList.remove('hidden');
             mainApp.classList.add('hidden');
             quickQuoteApp.classList.add('hidden');
             document.getElementById('setupWizardPlaceholder').classList.add('hidden');
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+            // Reset project info in header
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo('Project Type', 'Project Name - Location');
+            }
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo(''); // Clear logo
+            }
         }
         
         function reconfigureApp() {
@@ -1238,23 +1252,40 @@
         }
 
         function showSetupWizard() {
-            // ✨ CORRECTED LOGIC: This function is now only responsible for calling loadSetupWizard.
-            // The hiding of other elements is handled by the function that calls this one.
             loadSetupWizard();
         }
 
         function showMainApp() {
+            currentAppMode = 'detailed'; // Set mode when showing main app
             mainApp.classList.remove('hidden');
             quickQuoteApp.classList.add('hidden');
             document.getElementById('setupWizardPlaceholder').classList.add('hidden');
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+             // Ensure header info is updated when returning to main app
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.projectState);
+            }
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo(projectSettings.contractorLogo);
+            }
+            calculateTotals(); // Recalculate and update summaries
         }
 
         function handleSaveProject() {
-            calculateTotals(); 
-            saveProjectNameInput.value = projectSettings.projectName;
-            saveCustomerNameInput.value = projectSettings.clientName;
-            saveLocationInput.value = projectSettings.projectState;
+            // Ensure totals are calculated based on the current active view
+            if (currentAppMode === 'detailed') {
+                calculateTotals(); 
+            } else if (currentAppMode === 'quickQuote') {
+                if (window.QuickQuoteSummary && typeof window.QuickQuoteSummary.calculateTotals === 'function') {
+                    window.QuickQuoteSummary.calculateTotals(); // Ensure quick quote totals are fresh
+                }
+            }
+            
+            // Populate modal fields based on current projectSettings
+            saveProjectNameInput.value = projectSettings.projectName || '';
+            saveCustomerNameInput.value = projectSettings.clientName || '';
+            // For quick quote, projectState might not be set, allow user to input
+            saveLocationInput.value = projectSettings.projectState || ''; 
             saveProjectCostInput.value = formatCurrency(projectSettings.grandTotal || 0);
             saveProjectModal.classList.add('show');
         }
@@ -1266,26 +1297,39 @@
         function confirmSaveProject() {
             const projectName = saveProjectNameInput.value.trim();
             const customerName = saveCustomerNameInput.value.trim();
-            const projectState = saveLocationInput.value.trim();
-            const totalProposalRaw = projectSettings.grandTotal || 0;
+            const projectState = saveLocationInput.value.trim(); // Now editable
 
-            if (!projectName || !customerName) {
-                renderMessageBox('Project Name and Customer Name are required.');
+            if (!projectName || !customerName || !projectState) {
+                renderMessageBox('Project Name, Customer Name, and Location (State) are required.');
                 return;
             }
+
+            // Update projectSettings with values from modal, especially important for quick quote
+            // This ensures the saved project has the name, client, and state entered in the modal
+            projectSettings.projectName = projectName;
+            projectSettings.clientName = customerName;
+            projectSettings.projectState = projectState;
+
+            // Update AppHeader with potentially new project info from modal
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.projectState);
+            }
+
+            const totalProposalRaw = projectSettings.grandTotal || 0; // Ensures grandTotal is updated from latest calculations
 
             const newSavedProject = {
                 id: `proj_${Date.now()}`,
                 projectName: projectName,
                 customerName: customerName,
-                projectType: projectSettings.projectType,
+                projectType: projectSettings.projectType, // Use current type (from wizard or default)
                 projectState: projectState,
                 totalProposal: totalProposalRaw,
                 lastSavedDate: new Date().toISOString().split('T')[0],
                 status: 'Draft',
                 projectDetails: JSON.stringify({
-                    settings: { ...projectSettings },
-                    items: [...estimateItems]
+                    settings: { ...projectSettings }, // Save current project settings
+                    // Save either detailed estimate items or quick quote items
+                    items: currentAppMode === 'detailed' ? [...estimateItems] : (window.QuickQuoteSummary ? window.QuickQuoteSummary.getQuickQuoteItems() : []) 
                 })
             };
 
@@ -1390,7 +1434,8 @@
                 const lineTotal = laborTotal + materialsTotal + otherTotal;
                 return [item.taskName, item.description, formatCurrency(lineTotal)];
             }) : [
-                ["High-Level Project Estimate", `A quick quote for ${projectSettings.projectName}.`, formatCurrency(projectSettings.totalProjectCostDirect)]
+                // For quick quote, provide a simplified line item
+                ["Quick Quote Estimate", `A high-level estimate for ${projectSettings.projectName || 'your project'} in ${projectSettings.projectState || 'N/A'}.`, formatCurrency(projectSettings.grandTotal)]
             ];
 
 
@@ -1410,9 +1455,10 @@
             
             cursorY = doc.autoTable.previous.finalY + 20;
 
-            const subtotal = projectSettings.grandTotal + projectSettings.discountAmount - projectSettings.salesTaxAmount;
+            // Ensure totals are based on the correct projectSettings for the current mode
+            const subtotalValue = projectSettings.grandTotal + projectSettings.discountAmount - projectSettings.salesTaxAmount;
             const totalsBody = [
-                ['Subtotal', formatCurrency(subtotal)],
+                ['Subtotal', formatCurrency(subtotalValue)],
                 ['Sales Tax', formatCurrency(projectSettings.salesTaxAmount)],
                 ['Discount', `-${formatCurrency(projectSettings.discountAmount)}`],
                 ['Total', formatCurrency(projectSettings.grandTotal)]
@@ -1427,7 +1473,7 @@
                 margin: { left: pageWidth / 2 }
             });
 
-            const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'quote'}-client-quote.pdf`;
+            const exportFileName = `${(projectSettings.projectName || 'quote').replace(/ /g, '_')}-client-quote.pdf`;
             doc.save(exportFileName);
             renderMessageBox('Client quote has been exported to PDF.');
         }
@@ -1522,7 +1568,7 @@
                 doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width / 2, 200, { align: 'center' });
             }
 
-            const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'estimate'}-detailed-report.pdf`;
+            const exportFileName = `${(projectSettings.projectName || 'estimate').replace(/ /g, '_')}-detailed-report.pdf`;
             doc.save(exportFileName);
             renderMessageBox('Detailed report has been exported to PDF.');
         }
@@ -1561,7 +1607,7 @@
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'estimate'}-export.csv`;
+            const exportFileName = `${(projectSettings.projectName || 'estimate').replace(/ /g, '_')}-export.csv`;
             link.setAttribute('download', exportFileName);
             document.body.appendChild(link);
             link.click();
@@ -1730,21 +1776,49 @@
             });
             allPossibleRoles.forEach(role => { laborHoursBreakdown[role] = 0; });
 
-            estimateItems.forEach(item => {
-                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
-                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
-                const laborTotal = item.hours * effectiveLaborRate;
-                const materialsTotal = item.materialQuantity * item.materialUnitCost;
-                totalLaborCost += laborTotal;
-                totalMaterialCostRaw += materialsTotal;
-                totalEquipmentCost += item.equipmentRentalCost;
-                totalSubcontractorCost += item.subcontractorCostLineItem;
-                totalMiscLineItemCosts += item.miscLineItem;
-                if (laborHoursBreakdown[item.rateRole] !== undefined) {
-                    laborHoursBreakdown[item.rateRole] += item.hours;
+            // Calculate totals based on the current mode
+            if (currentAppMode === 'detailed') {
+                estimateItems.forEach(item => {
+                    const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
+                    const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                    const laborTotal = item.hours * effectiveLaborRate;
+                    const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                    totalLaborCost += laborTotal;
+                    totalMaterialCostRaw += materialsTotal;
+                    totalEquipmentCost += item.equipmentRentalCost;
+                    totalSubcontractorCost += item.subcontractorCostLineItem;
+                    totalMiscLineItemCosts += item.miscLineItem;
+                    if (laborHoursBreakdown[item.rateRole] !== undefined) {
+                        laborHoursBreakdown[item.rateRole] += item.hours;
+                    }
+                });
+            } else if (currentAppMode === 'quickQuote') {
+                if (window.QuickQuoteSummary && typeof window.QuickQuoteSummary.getQuickQuoteItems === 'function') {
+                    const quickQuoteItems = window.QuickQuoteSummary.getQuickQuoteItems();
+                    quickQuoteItems.forEach(item => {
+                        if (item.type === 'labor') {
+                            totalLaborCost += item.qty * item.unitCost;
+                            if (laborHoursBreakdown["Journeyman"] !== undefined) { // Default quick quote labor to Journeyman hours
+                                laborHoursBreakdown["Journeyman"] += item.qty;
+                            }
+                        } else if (item.type === 'material') {
+                            totalMaterialCostRaw += item.qty * item.unitCost;
+                        } else { // 'other'
+                            totalMiscLineItemCosts += item.qty * item.unitCost; // Lump all 'other' into misc line items for calculation
+                        }
+                    });
+                     // Also update projectSettings from QuickQuoteSummary's inputs
+                    if (window.QuickQuoteSummary && typeof window.QuickQuoteSummary.getQuickQuoteSettings === 'function') {
+                        const qqSettings = window.QuickQuoteSummary.getQuickQuoteSettings();
+                        projectSettings.overhead = qqSettings.overhead;
+                        projectSettings.materialMarkup = qqSettings.materialMarkup;
+                        projectSettings.profitMargin = qqSettings.profitMargin;
+                        projectSettings.miscellaneous = qqSettings.miscellaneous;
+                    }
                 }
-            });
-            
+            }
+
+
             const totalProjectCostDirect = totalLaborCost + totalMaterialCostRaw + totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
             projectSettings.totalProjectCostDirect = totalProjectCostDirect; // Store for quick quote
             
@@ -1777,7 +1851,16 @@
             projectSettings.grandTotal = grandTotal; 
             projectSettings.discountAmount = discountAmount;
             projectSettings.salesTaxAmount = salesTaxAmount;
+            projectSettings.totalOverheadCost = totalOverheadCost; // Store for PDF export
+            projectSettings.materialMarkupAmount = materialMarkupAmount; // Store for PDF export
+            projectSettings.totalMiscCostAmount = totalMiscCostAmount; // Store for PDF export
+            projectSettings.estimateSubtotalAmount = estimateSubtotalAmount; // Store for PDF export
+            projectSettings.totalProfitMarginAmount = totalProfitMarginAmount; // Store for PDF export
+            projectSettings.additionalConsiderationAmount = additionalConsiderationAmount; // Store for PDF export
+
+
             const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
+            projectSettings.overallLaborHoursSum = overallLaborHoursSum; // Store for PDF export
             
             if (currentAppMode === 'detailed' && window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
                 window.SummaryOverview.updateSummaries({
@@ -1789,26 +1872,38 @@
                     overallLaborHoursSum
                 }, estimateItems, isDarkTheme);
             } else if (currentAppMode === 'quickQuote' && window.QuickQuoteSummary && typeof window.QuickQuoteSummary.updateSummary === 'function') {
-                 window.QuickQuoteSummary.updateSummary({
-                    ...projectSettings, totalProjectCostDirect, materialMarkupAmount, totalOverheadCost,
-                    totalMiscCostAmount, estimateSubtotalAmount, totalProfitMarginAmount,
-                    salesTaxAmount, additionalConsiderationAmount, grandTotal
-                });
+                 // QuickQuoteSummary's updateSummary is called internally by its own calculateTotals
+                 // We only need to ensure projectSettings are updated for the AppHeader and saving
             }
         }
 
         function sendEstimateEmailToClient() {
-            calculateTotals(); 
+            calculateTotals(); // Ensure projectSettings.grandTotal is up-to-date
             const recipientEmail = ""; 
-            const projectName = projectSettings.projectName;
-            const clientName = projectSettings.clientName;
+            const projectName = projectSettings.projectName || 'Your Project';
+            const clientName = projectSettings.clientName || 'Client';
+            const projectState = projectSettings.projectState || 'N/A';
+            let emailBodyContent;
+
+            if (currentAppMode === 'detailed') {
+                emailBodyContent = `This email contains a summary of the estimate for your project: "${projectName}".\n\n` +
+                                   `Project Type: ${projectSettings.projectType}\n` +
+                                   `Location: ${projectState}\n` +
+                                   `Total Proposal: ${formatCurrency(projectSettings.grandTotal)}\n\n` +
+                                   `A detailed quote will be provided in a separate attachment or document.`;
+            } else { // currentAppMode === 'quickQuote'
+                emailBodyContent = `This email contains a quick quote estimate for your project: "${projectName}".\n\n` +
+                                   `Location: ${projectState}\n` +
+                                   `Total Quick Quote Estimate: ${formatCurrency(projectSettings.grandTotal)}\n\n` +
+                                   `This is a high-level estimate. For a detailed breakdown, please contact us.`;
+            }
+
             const subject = encodeURIComponent(`Estimate for Your Project: ${projectName}`);
             const body = encodeURIComponent(
-                `Dear ${clientName || 'Client'},\n\n` +
-                `This email contains a summary of the estimate for your project: "${projectName}".\n\n` +
-                `A detailed quote will be provided in a separate attachment or document.\n\n` +
+                `Dear ${clientName},\n\n` +
+                `${emailBodyContent}\n\n` +
                 `Please let us know if you have any questions.\n\n` +
-                `Regards,\n${projectSettings.contractorName || 'Your Company'}` 
+                `Regards,\n${projectSettings.ownerName || 'Your Company'}` 
             );
             const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
             window.open(mailtoLink, '_blank');
@@ -1963,21 +2058,35 @@
             }
         }
 
-        // ✨ CORRECTED: This function now correctly hides all other views before loading the wizard.
+        // CORRECTED: This function now correctly sets the currentAppMode
         function startDetailedEstimate() {
             currentAppMode = 'detailed';
             entryPointContainer.classList.add('hidden');
-            mainApp.classList.remove('hidden');
-            quickQuoteApp.classList.add('hidden');
+            mainApp.classList.remove('hidden'); // Show detailed app
+            quickQuoteApp.classList.add('hidden'); // Hide quick quote app
             loadSetupWizard();
         }
 
         function startQuickQuote() {
             currentAppMode = 'quickQuote';
             entryPointContainer.classList.add('hidden');
-            mainApp.classList.add('hidden');
-            quickQuoteApp.classList.remove('hidden');
+            mainApp.classList.add('hidden'); // Hide detailed app
+            quickQuoteApp.classList.remove('hidden'); // Show quick quote app
             loadQuickQuoteSummary();
+            // Update AppHeader with default quick quote info
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote - N/A');
+            }
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo(''); // Clear logo for quick quote
+            }
+            // Ensure projectSettings are reset or set to defaults for quick quote
+            projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
+            projectSettings.projectName = "New Quick Quote";
+            projectSettings.projectType = "Quick Quote";
+            projectSettings.clientName = ""; // Clear client name
+            projectSettings.projectState = ""; // Clear project state
+            estimateItems = []; // Clear detailed estimate items
         }
 
 
@@ -2007,7 +2116,10 @@
                     currentlySelectedTradeForLineItems = event.target.value;
                 });
             }
-            document.getElementById('addItemBtn').addEventListener('click', addItem);
+            // Only add item button listener if in detailed mode
+            if (document.getElementById('addItemBtn')) {
+                document.getElementById('addItemBtn').addEventListener('click', addItem);
+            }
             
             setupAIChatListeners();
         }
