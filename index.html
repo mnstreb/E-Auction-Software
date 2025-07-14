@@ -666,9 +666,13 @@
         </div>
     </div>
 
-
-    <div id="mainApp" class="container hidden">
+    <!-- THIS IS THE NEW SHARED HEADER CONTAINER -->
+    <div class="container" id="appHeaderContainer">
         <div id="appHeaderPlaceholder"></div>
+    </div>
+
+    <!-- The mainApp container no longer has its own header placeholder -->
+    <div id="mainApp" class="container hidden">
         <div id="summaryOverviewPlaceholder"></div>
 
         <div class="card overflow-x-auto" id="estimateLineItemsTableContainer">
@@ -728,9 +732,8 @@
         </div>
     </div>
 
-    <!-- ✨ NEW: Placeholder for the Quick Quote Summary view -->
+    <!-- The quickQuoteApp container no longer has its own header placeholder -->
     <div id="quickQuoteApp" class="container hidden">
-        <div id="appHeaderPlaceholderQuickQuote"></div>
         <div id="quickQuoteSummaryPlaceholder"></div>
     </div>
 
@@ -792,10 +795,8 @@
                 if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for AppHeader.html`);
                 const html = await htmlResponse.text();
 
-                // Populate both placeholders with the same header HTML
+                // THIS IS THE CHANGE: Only populate the single, shared placeholder
                 document.getElementById('appHeaderPlaceholder').innerHTML = html;
-                document.getElementById('appHeaderPlaceholderQuickQuote').innerHTML = html;
-
 
                 const script = document.createElement('script');
                 script.src = 'src/components/AppHeader/AppHeader.js';
@@ -841,7 +842,6 @@
 
         async function loadSummaryOverview() {
             try {
-                // THIS IS THE CORRECTED FUNCTION, FETCHING THE DETAILED SUMMARY
                 const htmlResponse = await fetch('src/sections/SummaryOverview/SummaryOverview.html');
                 if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SummaryOverview.html`);
                 const html = await htmlResponse.text();
@@ -1967,7 +1967,7 @@
         function startDetailedEstimate() {
             currentAppMode = 'detailed';
             entryPointContainer.classList.add('hidden');
-            mainApp.classList.add('hidden');
+            mainApp.classList.remove('hidden');
             quickQuoteApp.classList.add('hidden');
             loadSetupWizard();
         }
