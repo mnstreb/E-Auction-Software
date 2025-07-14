@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
     <link rel="stylesheet" href="src/sections/SavedProjects/SavedProjects.css">
     <link rel="stylesheet" href="src/components/SaveProjectModal/SaveProjectModal.css"> 
-    <link rel="stylesheet" href="src/sections/QuickQuoteSummary/QuickQuoteSummary.css">
     <style>
         /* Base styles and UI improvements (General styles remain here) */
         body {
@@ -26,7 +25,7 @@
             transition: background-color 0.3s, color 0.3s;
         }
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -102,7 +101,7 @@
             transform: translateY(-1px);
         }
 
-        /* Entry Point Screen Styles */
+        /* ✨ NEW: Styles for the Entry Point Screen */
         .entry-point-container {
             position: fixed;
             top: 0;
@@ -352,20 +351,37 @@
             td:nth-of-type(1):before { content: "Task Name:"; }
             td:nth-of-type(2):before { content: "Description:"; }
             td:nth-of-type(3):before { content: "OT/DT Multiplier:"; }
-            td:nth-of-type(4):before { content: "Trade:"; }
-            td:nth-of-type(5):before { content: "Skill:"; }
-            td:nth-of-type(6):before { content: "Rate:"; }
-            td:nth-of-type(7):before { content: "# hrs:"; }
-            td:nth-of-type(8):before { content: "Labor Total:"; }
-            td:nth-of-type(9):before { content: "QTY / UNIT:"; }
-            td:nth-of-type(10):before { content: "$ / UNIT:"; }
-            td:nth-of-type(11):before { content: "Materials Total:"; }
-            td:nth-of-type(12):before { content: "Equipment / Rental:"; }
-            td:nth-of-type(13):before { content: "Subcontractor:"; }
-            td:nth-of-type(14):before { content: "Misc.:"; }
-            td:nth-of-type(15):before { content: "Other Total:"; }
-            td:nth-of-type(16):before { content: "TOTAL:"; }
-            td:nth-of-type(17):before { content: "Actions:"; }
+            td:nth-of-type(4):before { content: "Trade:"; } /* Reverted to 4th column */
+            td:nth-of-type(5):before { content: "Skill:"; } /* Reverted to 5th column */
+            td:nth-of-type(6):before { content: "Rate:"; } /* Reverted to 6th column */
+            td:nth-of-type(7):before { content: "# hrs:"; } /* Reverted to 7th column */
+            td:nth-of-type(8):before { content: "Labor Total:"; } /* Reverted to 8th column */
+            td:nth-of-type(9):before { content: "QTY / UNIT:"; } /* Reverted to 9th column */
+            td:nth-of-type(10):before { content: "$ / UNIT:"; } /* Reverted to 10th column */
+            td:nth-of-type(11):before { content: "Materials Total:"; } /* Reverted to 11th column */
+            td:nth-of-type(12):before { content: "Equipment / Rental:"; } /* Reverted to 12th column */
+            td:nth-of-type(13):before { content: "Subcontractor:"; } /* Reverted to 13th column */
+            td:nth-of-type(14):before { content: "Misc.:"; } /* Reverted to 14th column */
+            td:nth-of-type(15):before { content: "Other Total:"; } /* Reverted to 15th column */
+            td:nth-of-type(16):before { content: "TOTAL:"; } /* Reverted to 16th column */
+            td:nth-of-type(17):before { content: "Actions:"; } /* Reverted to 17th column */
+
+
+            /* Re-apply center alignment for total columns specifically (content) */
+            /* Adjusted nth-of-type to match new column indices after Trade column re-addition */
+            td:nth-of-type(8),  /* Labor Total (now 8th column) */
+            td:nth-of-type(11), /* Materials Total (now 11th column) */
+            td:nth-of-type(15), /* Other Total (now 15th column) */
+            td:nth-of-type(16) { /* Line Total (now 16th column) */
+                text-align: center; /* Override the general 'text-align: right' for these specific columns */
+            }
+
+            /* Ensure headers of total columns are also centered in responsive view */
+            th.labor-total-col,
+            th.materials-total-col,
+            th.other-total-col {
+                text-align: center;
+            }
         }
 
         @media (max-width: 768px) {
@@ -377,9 +393,15 @@
                 padding: 10px 20px;
                 font-size: 14px;
             }
+            .header-title { /* Kept here as it's a general heading style now */
+                font-size: 24px;
+            }
+            .header-subtitle { /* Kept here as it's a general subheading style now */
+                font-size: 15px;
+            }
         }
 
-        /* Hide spinner arrows for number input fields */
+        /* Hide spinner arrows for number input fields within the table */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -387,6 +409,145 @@
         }
         input[type="number"] {
             -moz-appearance: textfield;
+        }
+
+        /* Custom styles for Task Name and Description fields to make them wider */
+        table.min-w-full {
+            min-width: 1400px;
+            width: 100%;
+        }
+
+        #estimateTableBody td {
+            padding: 8px 10px;
+        }
+
+        #estimateTableBody td:nth-child(1) textarea,
+        #estimateTableBody td:nth-child(2) textarea {
+            white-space: normal;
+            height: auto;
+            min-height: 40px;
+            box-sizing: border-box;
+            resize: vertical;
+            overflow-y: auto;
+        }
+        #estimateTableBody td:nth-child(1) textarea,
+        #estimateTableBody td:nth-child(2) textarea {
+            width: 100%;
+            max-width: none;
+        }
+
+        #estimateTableBody input[type="number"],
+        #estimateTableBody select {
+            width: 70px;
+            font-size: 0.9em;
+            padding: 6px 8px;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        /* Centering table content */
+        #estimateLineItemsTableContainer thead tr:nth-child(2) th {
+            text-align: center;
+        }
+        #estimateTableBody td:not(:nth-child(1)):not(:nth-child(2)) {
+            text-align: center;
+        }
+        #estimateTableBody td .input-field {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        #estimateTableBody td input[type="number"].input-field {
+            text-align: center;
+        }
+        #estimateTableBody td select.input-field {
+            text-align-last: center;
+            text-align: center;
+        }
+        /* End of centering styles */
+
+
+        /* Adjusted nth-child for select elements due to Trade column re-addition */
+        #estimateTableBody td:nth-child(3) select, /* OT/DT */
+        #estimateTableBody td:nth-child(4) select { /* Trade */
+            width: 90px;
+        }
+        
+        /* Styles for centering the Actions column */
+        .actions-col {
+            text-align: center !important;
+        }
+
+        #estimateTableBody td.actions-cell {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* --- CHANGED: Centered the TOTAL column (data cell) --- */
+        #estimateTableBody td:nth-child(16) { /* Total cell */
+            white-space: nowrap;
+            font-weight: bold;
+            color: #1f2937;
+            text-align: center;
+            transition: color 0.3s;
+        }
+
+        /* Styles for the buttons and their SVG icons */
+        #estimateTableBody td button.btn-red,
+        #estimateTableBody td button.btn-orange { 
+            padding: 6px 10px;
+            font-size: 0.85em;
+            display: inline-flex; /* Changed to inline-flex for centering */
+            align-items: center;
+            justify-content: center;
+        }
+        #estimateTableBody td button.btn-red svg,
+        #estimateTableBody td button.btn-orange svg {
+            width: 16px; 
+            height: 16px; 
+            stroke: currentColor; 
+            stroke-width: 2;
+        }
+        /* Specific override for delete icon to be bolder and centered */
+        #estimateTableBody td button.btn-red svg {
+             stroke-width: 3; 
+        }
+
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+        .collapsible-header span {
+            display: inline-block;
+        }
+        .collapse-toggle-icon {
+            font-size: 0.8em;
+            transition: transform 0.2s ease-in-out;
+            display: inline-block;
+        }
+        .collapsible-header.collapsed .collapse-toggle-icon {
+            transform: rotate(-90deg);
+        }
+        .column-hidden {
+            display: none !important;
+        }
+
+        th.labor-total-col,
+        th.materials-total-col,
+        th.other-total-col {
+            text-align: center;
+        }
+        
+        /* --- CHANGED: Centered the TOTAL header --- */
+        th.total-col {
+            text-align: center;
         }
 
         /* Dark Theme Styles */
@@ -408,13 +569,41 @@
             box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
         }
         .dark-theme .label,
-        .dark-theme h1, .dark-theme h2, .dark-theme h3, .dark-theme h4 {
+        .dark-theme h1,
+        .dark-theme h2,
+        .dark-theme .summary-block h4,
+        .dark-theme .summary-item strong {
+            color: #e2e8f0;
+        }
+        
+        /* NEW: Dark theme rule for h3 inside the card */
+        body.dark-theme .card h3 {
+            color: #e2e8f0; /* White text for h3 in dark theme */
+        }
+
+        .dark-theme .header-subtitle, /* Keep this here as a general style for subtitles if not specific to header */
+        .dark-theme .summary-item,
+        .dark-theme .multi-select-dropdown p,
+        .dark-theme .multi-select-dropdown label span,
+        .dark-theme .skill-name-display,
+        .dark-theme .rate-label {
+            color: #a0aec0;
+        }
+        /* Adjusted nth-child for dark theme text color due to Trade column re-addition */
+        .dark-theme #estimateTableBody td:nth-child(6), /* $/hr */
+        .dark-theme #estimateTableBody td:nth-child(8), /* Labor Total */
+        .dark-theme #estimateTableBody td:nth-child(11), /* Materials Total */
+        .dark-theme #estimateTableBody td:nth-child(15), /* Other Total */
+        .dark-theme #estimateTableBody td:nth-child(16) { /* Line Total */
             color: #e2e8f0;
         }
         .dark-theme td:before {
             color: #a0aec0;
         }
-        .dark-theme table, .dark-theme th, .dark-theme td {
+
+        .dark-theme table,
+        .dark-theme th,
+        .dark-theme td {
             border-color: #4a5568;
         }
         .dark-theme th {
@@ -427,11 +616,44 @@
         .dark-theme tr:hover {
             background: #4a5568;
         }
+        .dark-theme .selected-trades-display,
+        .dark-theme .multi-select-dropdown {
+            background-color: #4a5568;
+            border-color: #4a5568;
+        }
+        .dark-theme .selected-trade-tag {
+            background-color: #4299e1;
+            color: white;
+        }
+
+        /* NEW: Styles for the global trade selector */
+        .trade-selector-group { /* NEW: Class for the group containing label, select, and add button */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trade-selector-group .label {
+            margin-bottom: 0; /* Override default label margin */
+            flex-shrink: 0;
+            white-space: nowrap; /* Prevent label from wrapping */
+        }
+
+        .trade-selector-group .input-field {
+            max-width: 150px; /* Adjust width of the dropdown to be more compact */
+            flex-grow: 0; /* Prevent it from growing too much */
+        }
+
+        /* Ensure the Add Item button doesn't squish */
+        .trade-selector-group .btn-green {
+            flex-shrink: 0; /* Prevent the button from shrinking */
+            min-width: 100px; /* Give it a minimum width to prevent squishing */
+        }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 p-4">
 
-    <!-- Entry Point Screen -->
+    <!-- ✨ NEW: Entry Point Screen -->
     <div id="entryPointContainer" class="entry-point-container">
         <div class="entry-point-content">
             <h1>Construction Estimator Pro</h1>
@@ -443,237 +665,1395 @@
         </div>
     </div>
 
-    <!-- Main App for Detailed Estimate -->
+
     <div id="mainApp" class="container hidden">
         <div id="appHeaderPlaceholder"></div>
         <div id="summaryOverviewPlaceholder"></div>
-        <div id="estimateLineItemsTableContainer"></div>
+
+        <div class="card overflow-x-auto" id="estimateLineItemsTableContainer">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-semibold text-gray-800">Estimate Line Items</h3>
+                <div class="trade-selector-group"> <label for="defaultTradeSelector" class="label">Default Trade for New Items:</label>
+                    <select id="defaultTradeSelector" class="input-field">
+                        </select>
+                    <button id="addItemBtn" class="btn btn-green">➕ Add Item</button>
+                </div>
+            </div>
+
+            <table class="min-w-full">
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="task-name-col">Task Name</th>
+                        <th rowspan="2" class="description-col">Description</th>
+                        <th colspan="5" class="text-center labor-col" id="thLaborHeader">
+                            <div class="collapsible-header" data-group="labor">
+                                <span>LABOR</span>
+                                <span class="collapse-toggle-icon">▼</span>
+                            </div>
+                        </th>
+                        <th colspan="3" class="text-center materials-col" id="thMaterialsHeader">
+                            <div class="collapsible-header" data-group="materials">
+                                <span>MATERIALS</span>
+                                <span class="collapse-toggle-icon">▼</span>
+                            </div>
+                        </th>
+                        <th colspan="4" class="text-center other-col" id="thOtherHeader">
+                            <div class="collapsible-header" data-group="other">
+                                <span>OTHER</span>
+                                <span class="collapse-toggle-icon">▼</span>
+                            </div>
+                        </th>
+                        <th rowspan="2" class="total-col">TOTAL</th>
+                        <th rowspan="2" class="actions-col">Actions</th>
+                    </tr>
+                    <tr>
+                        <th class="border-b" data-col-group="labor-details">OT/DT</th>
+                        <th class="border-b" data-col-group="labor-details">Trade</th> <th class="border-b" data-col-group="labor-details">Skill</th>
+                        <th class="border-b" data-col-group="labor-details">$/hr</th>
+                        <th class="border-b labor-total-col">Labor Total</th>
+
+                        <th class="border-b" data-col-group="materials-details">QTY / UNIT</th>
+                        <th class="border-b" data-col-group="materials-details">$ / UNIT</th>
+                        <th class="border-b materials-total-col">Materials Total</th>
+
+                        <th class="border-b" data-col-group="other-details">Equipment / Rental</th>
+                        <th class="border-b" data-col-group="other-details">Subcontractor</th>
+                        <th class="border-b" data-col-group="other-details">Misc.</th>
+                        <th class="border-b other-total-col">Other Total</th> </tr>
+                </thead>
+                <tbody id="estimateTableBody">
+                    </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- App for Quick Quote -->
+    <!-- ✨ NEW: Placeholder for the Quick Quote Summary view -->
     <div id="quickQuoteApp" class="container hidden">
         <div id="appHeaderPlaceholderQuickQuote"></div>
         <div id="quickQuoteSummaryPlaceholder"></div>
     </div>
 
-    <!-- Placeholders for Modals -->
+
     <div id="setupWizardPlaceholder"></div>
+
     <div id="savedProjectsPlaceholder"></div>
-    <div id="saveProjectModalContainer"></div>
-    <div id="aiChatModalContainer"></div>
+
+    <div id="saveProjectModal" class="save-project-modal">
+        <div class="save-project-modal-content">
+            <h3>Save Project</h3>
+            <div class="form-group">
+                <label for="saveProjectName" class="label">Project Name:</label>
+                <input type="text" id="saveProjectName" class="input-field" required>
+            </div>
+            <div class="form-group">
+                <label for="saveCustomerName" class="label">Customer Name:</label>
+                <input type="text" id="saveCustomerName" class="input-field" required>
+            </div>
+            <div class="form-group">
+                <label for="saveLocation" class="label">Location (State):</label>
+                <input type="text" id="saveLocation" class="value-display" readonly>
+            </div>
+            <div class="form-group">
+                <label for="saveProjectCost" class="label">Total Project Cost:</label>
+                <input type="text" id="saveProjectCost" class="value-display" readonly>
+            </div>
+            <div class="flex justify-end gap-3 mt-4">
+                <button id="cancelSaveProjectBtn" class="btn btn-red">Cancel</button>
+                <button id="confirmSaveProjectBtn" class="btn btn-green">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✨ NEW: AI Chat Assistant HTML -->
+    <button id="aiChatButton" class="ai-chat-button">AI</button>
+
+    <div id="aiChatModal" class="ai-chat-modal">
+        <div class="ai-chat-header">
+            <h4>AI Estimating Assistant</h4>
+            <button id="aiChatCloseBtn" class="ai-chat-close-btn">&times;</button>
+        </div>
+        <div id="aiChatHistory" class="ai-chat-history">
+            <div class="chat-bubble ai">
+                Hello! How can I help you with your estimate today?
+            </div>
+        </div>
+        <div class="ai-chat-input-area">
+            <input type="text" id="aiChatInput" class="input-field" placeholder="Ask a question...">
+            <button id="aiChatSendBtn" class="btn btn-primary">Send</button>
+        </div>
+    </div>
 
     <script>
-        // --- Global State ---
-        let projectSettings = {};
-        let estimateItems = [];
-        let currentAppMode = 'entry'; // 'entry', 'detailed', 'quickQuote'
-        let isDarkTheme = false;
-        const stateSalesTax = { 'CA': 8.25, 'TX': 6.25, 'NY': 4.0, 'FL': 6.0, 'WA': 6.5, 'IL': 6.25, 'AL': 4.0, 'AK': 0.0, 'AZ': 5.6, 'AR': 6.5, 'CO': 2.9, 'CT': 6.35, 'DE': 0.0, 'GA': 4.0, 'HI': 4.0, 'ID': 6.0, 'IN': 7.0, 'IA': 6.0, 'KS': 6.5, 'KY': 6.0, 'LA': 4.45, 'ME': 5.5, 'MD': 6.0, 'MA': 6.25, 'MI': 6.0, 'MN': 6.875, 'MS': 7.0, 'MO': 4.225, 'MT': 0.0, 'NE': 5.5, 'NV': 6.85, 'NH': 0.0, 'NJ': 6.625, 'NM': 5.125, 'NC': 4.75, 'ND': 5.0, 'OH': 5.75, 'OK': 4.5, 'OR': 0.0, 'PA': 6.0, 'RI': 7.0, 'SC': 6.0, 'SD': 4.5, 'TN': 7.0, 'UT': 4.85, 'VT': 6.0, 'VA': 5.3, 'WV': 6.0, 'WI': 5.0, 'WY': 4.0 };
-        const initialProjectSettings = JSON.parse(JSON.stringify({ projectName: "New Project", clientName: "", projectType: "Commercial", projectState: "CA", profitMargin: 15, salesTax: 0, miscellaneous: 5, overhead: 10, materialMarkup: 10, activeTrades: ["General"], allTradeLaborRates: { "General": { "Project Manager": 120, "Superintendent": 100, "General Foreman": 90, "Foreman": 85, "Journeyman": 75, "Apprentice": 50 }, "Electrical": { "Project Manager": 135, "Superintendent": 110, "General Foreman": 100, "Foreman": 95, "Journeyman": 80, "Apprentice": 55 }, "Plumbing": { "Project Manager": 125, "Superintendent": 105, "General Foreman": 95, "Foreman": 90, "Journeyman": 78, "Apprentice": 52 } } }));
-        const initialEstimateItems = JSON.parse(JSON.stringify([{ id: Date.now(), taskName: 'Initial Task', description: '', trade: 'General', rateRole: 'Journeyman', hours: 0, otDtMultiplier: 1.0, materialQuantity: 0, materialUnitCost: 0, equipmentRentalCost: 0, subcontractorCostLineItem: 0, miscLineItem: 0 }]));
+        // --- Core Application Functions (Defined at the top to ensure hoisting) ---
+        async function loadAppHeader() {
+            try {
+                const htmlResponse = await fetch('src/components/AppHeader/AppHeader.html');
+                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for AppHeader.html`);
+                const html = await htmlResponse.text();
 
-        // --- UI Element References ---
+                // Populate both placeholders with the same header HTML
+                document.getElementById('appHeaderPlaceholder').innerHTML = html;
+                document.getElementById('appHeaderPlaceholderQuickQuote').innerHTML = html;
+
+
+                const script = document.createElement('script');
+                script.src = 'src/components/AppHeader/AppHeader.js';
+                script.onload = () => {
+                    if (window.AppHeader) {
+                        window.AppHeader.init({
+                            mainAppLogoId: 'mainAppLogo',
+                            reconfigureBtnId: 'reconfigureBtn',
+                            saveProjectBtnId: 'saveProjectBtn',
+                            exportDropdownBtnId: 'exportDropdownBtn',
+                            exportDropdownMenuId: 'exportDropdownMenu',
+                            userProfileBtnId: 'userProfileBtn',
+                            userProfileDropdownMenuId: 'userProfileDropdownMenu', 
+                            profileDropdownThemeToggleId: 'profileDropdownThemeToggle', 
+                            savedProjectsMenuItemId: 'savedProjectsMenuItem', 
+                            exportPdfReportBtnId: 'exportPdfReportBtn',
+                            exportCsvBtnId: 'exportCsvBtn',
+                            exportPdfQuoteBtnId: 'exportPdfQuoteBtn',
+                            emailClientBtnId: 'emailClientBtn',
+                            onThemeToggle: toggleTheme,
+                            onReconfigure: reconfigureApp, 
+                            onSaveProject: handleSaveProject,
+                            onExportPdfReport: exportDetailedReportToPdf,
+                            onExportCsv: exportEstimateToCsv,
+                            onExportPdfQuote: exportClientQuoteToPdf,
+                            onEmailClient: sendEstimateEmailToClient,
+                            onUserProfileClick: showSavedProjects 
+                        });
+                        if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
+                            window.AppHeader.updateThemeToggleSlider(isDarkTheme);
+                        }
+                    } else {
+                        console.error('AppHeader module not available after loading.');
+                    }
+                };
+                script.onerror = (e) => console.error("Failed to load AppHeader.js", e);
+                document.body.appendChild(script);
+
+            } catch (error) {
+                console.error("Error loading AppHeader component:", error);
+            }
+        }
+
+        async function loadSummaryOverview() {
+            try {
+                const htmlResponse = await fetch('src/sections/SummaryOverview/SummaryOverview.html');
+                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SummaryOverview.html`);
+                const html = await htmlResponse.text();
+                document.getElementById('summaryOverviewPlaceholder').innerHTML = html;
+
+                const script = document.createElement('script');
+                script.src = 'src/sections/SummaryOverview/SummaryOverview.js';
+                script.onload = () => {
+                    if (window.SummaryOverview) {
+                        window.SummaryOverview.init({
+                            projectSettings: projectSettings,
+                            estimateItems: estimateItems,
+                            formatCurrency: formatCurrency,
+                            formatHours: formatHours,
+                            isDarkTheme: isDarkTheme
+                        });
+                    } else {
+                        console.error('SummaryOverview module not available after loading.');
+                    }
+                };
+                script.onerror = (e) => console.error("Failed to load SummaryOverview.js", e);
+                document.body.appendChild(script);
+
+            } catch (error) {
+                console.error("Error loading SummaryOverview component:", error);
+            }
+        }
+
+        async function loadQuickQuoteSummary() {
+            try {
+                const htmlResponse = await fetch('src/sections/QuickQuoteSummary/QuickQuoteSummary.html');
+                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for QuickQuoteSummary.html`);
+                const html = await htmlResponse.text();
+                document.getElementById('quickQuoteSummaryPlaceholder').innerHTML = html;
+
+                const script = document.createElement('script');
+                script.src = 'src/sections/QuickQuoteSummary/QuickQuoteSummary.js';
+                script.onload = () => {
+                    if (window.QuickQuoteSummary) {
+                        window.QuickQuoteSummary.init({
+                            projectSettings: projectSettings,
+                            formatCurrency: formatCurrency,
+                            isDarkTheme: isDarkTheme
+                        });
+                    } else {
+                        console.error('QuickQuoteSummary module not available after loading.');
+                    }
+                };
+                script.onerror = (e) => console.error("Failed to load QuickQuoteSummary.js", e);
+                document.body.appendChild(script);
+
+            } catch (error) {
+                console.error("Error loading QuickQuoteSummary component:", error);
+            }
+        }
+
+
+        async function loadSetupWizard() {
+            try {
+                const htmlResponse = await fetch('src/sections/SetupWizard/SetupWizard.html');
+                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SetupWizard.html`);
+                const html = await htmlResponse.text();
+                document.getElementById('setupWizardPlaceholder').innerHTML = html;
+                
+                document.getElementById('setupWizardPlaceholder').classList.remove('hidden');
+
+                const script = document.createElement('script');
+                script.src = 'src/sections/SetupWizard/SetupWizard.js';
+                script.onload = () => {
+                    if (window.SetupWizard) {
+                        window.SetupWizard.init({
+                            projectSettings: projectSettings,
+                            estimateItems: estimateItems,
+                            stateSalesTax: stateSalesTax,
+                            onCompletion: handleWizardCompletion,
+                            renderMessageBox: renderMessageBox,
+                            closeMessageBox: closeMessageBox,
+                            mode: currentAppMode 
+                        });
+                        window.SetupWizard.showStep(1);
+                        window.SetupWizard.populateTradesDropdown();
+                        window.SetupWizard.updateSelectedTradesDisplay();
+                        window.SetupWizard.updateSalesTaxForState(projectSettings.projectState);
+                        window.SetupWizard.loadSavedLogo();
+                    } else {
+                        console.error('SetupWizard module not available after loading.');
+                    }
+                };
+                script.onerror = (e) => console.error("Failed to load SetupWizard.js", e);
+                document.body.appendChild(script);
+
+            } catch (error) {
+                console.error("Error loading SetupWizard component:", error);
+            }
+        }
+
+        async function loadSavedProjects() {
+            try {
+                const oldScript = document.querySelector('script[src="src/sections/SavedProjects/SavedProjects.js"]');
+                if (oldScript) {
+                    oldScript.remove();
+                }
+
+                const htmlResponse = await fetch('src/sections/SavedProjects/SavedProjects.html');
+                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SavedProjects.html`);
+                const html = await htmlResponse.text();
+                document.getElementById('savedProjectsPlaceholder').innerHTML = html;
+
+                const script = document.createElement('script');
+                script.src = 'src/sections/SavedProjects/SavedProjects.js';
+                script.onload = () => {
+                    if (window.SavedProjects) {
+                        window.SavedProjects.init({
+                            onGoToCalculator: showMainApp,
+                            formatCurrency: formatCurrency,
+                            isDarkTheme: isDarkTheme,
+                            renderMessageBox: renderMessageBox,
+                            closeMessageBox: closeMessageBox
+                        });
+                        document.getElementById('savedProjectsPlaceholder').classList.remove('hidden');
+                    } else {
+                        console.error('SavedProjects module not available after loading.');
+                    }
+                };
+                script.onerror = (e) => console.error("Failed to load SavedProjects.js", e);
+                document.body.appendChild(script);
+
+            } catch (error) {
+                console.error("Error loading SavedProjects component:", error);
+            }
+        }
+
+
+        // Helper function for currency formatting
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // Helper function for hours formatting (2 decimal places)
+        function formatHours(hours) {
+            return parseFloat(hours).toFixed(2);
+        }
+
+        // Store the initial state of projectSettings to reset it later
+        const initialProjectSettings = JSON.parse(JSON.stringify({
+            projectName: "New Project",
+            clientName: "",
+            projectAddress: "",
+            projectCity: "",
+            ownerName: "",
+            ownerAddress: "",
+            ownerCity: "",
+            ownerZip: "",
+            ownerEmail: "",
+            projectZip: "",
+            startDate: "",
+            endDate: "",
+            projectID: "",
+            projectDescription: "",
+            contractorLogo: "",
+            projectType: "Commercial",
+            projectState: "CA",
+            profitMargin: 15,
+            salesTax: 0,
+            miscellaneous: 5,
+            overhead: 10,
+            materialMarkup: 10, 
+            discount: 0,
+            additionalConsiderationsType: '%',
+            additionalConsiderationsValue: 0,
+            allTradeLaborRates: {
+                "General": { "Project Manager": 120, "Superintendent": 100, "General Foreman": 90, "Foreman": 85, "Journeyman": 75, "Apprentice": 50 },
+                "Electrical": { "Project Manager": 135, "Superintendent": 110, "General Foreman": 100, "Foreman": 95, "Journeyman": 80, "Apprentice": 55 },
+                "Plumbing": { "Project Manager": 125, "Superintendent": 105, "General Foreman": 95, "Foreman": 90, "Journeyman": 78, "Apprentice": 52 },
+                "HVAC": { "Project Manager": 130, "Superintendent": 108, "General Foreman": 98, "Foreman": 92, "Journeyman": 77, "Apprentice": 53 },
+                "Carpentry": { "Project Manager": 115, "Superintendent": 95, "General Foreman": 85, "Foreman": 80, "Journeyman": 70, "Apprentice": 48 },
+                "Concrete": { "Project Manager": 110, "Superintendent": 90, "General Foreman": 80, "Foreman": 75, "Journeyman": 68, "Apprentice": 45 },
+                "Roofing": { "Project Manager": 120, "Superintendent": 98, "General Foreman": 88, "Foreman": 83, "Journeyman": 73, "Apprentice": 47 },
+                "Painting": { "Project Manager": 105, "Superintendent": 88, "General Foreman": 78, "Foreman": 73, "Journeyman": 65, "Apprentice": 42 },
+                "Drywall": { "Project Manager": 112, "Superintendent": 92, "General Foreman": 82, "Foreman": 77, "Journeyman": 69, "Apprentice": 44 },
+                "Masonry": { "Project Manager": 128, "Superintendent": 102, "General Foreman": 93, "Foreman": 88, "Journeyman": 76, "Apprentice": 51 },
+                "Landscaping": { "Project Manager": 100, "Superintendent": 85, "General Foreman": 75, "Foreman": 70, "Journeyman": 60, "Apprentice": 40 }
+            },
+            activeTrades: ["General"],
+        }));
+
+        const initialEstimateItems = JSON.parse(JSON.stringify([
+            {
+                id: Date.now(), taskName: 'First Task', description: 'Detail your first project task here.',
+                trade: 'General', rateRole: 'Journeyman', hours: 0, otDtMultiplier: 1.0,
+                materialQuantity: 0, materialUnitCost: 0, equipmentRentalCost: 0,
+                subcontractorCostLineItem: 0, miscLineItem: 0
+            }
+        ]));
+
+        // Global variables for project settings
+        let projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
+        let estimateItems = JSON.parse(JSON.stringify(initialEstimateItems));
+
+        // State for collapsed columns (initially collapsed for all)
+        const collapsedState = {
+            labor: true,
+            materials: true,
+            other: true
+        };
+
+        // ✨ NEW: State for current application mode
+        let currentAppMode = 'entry'; // Can be 'entry', 'detailed', 'quickQuote'
+
+        // UI Element references
         const entryPointContainer = document.getElementById('entryPointContainer');
         const mainApp = document.getElementById('mainApp');
-        const quickQuoteApp = document.getElementById('quickQuoteApp');
-        const setupWizardPlaceholder = document.getElementById('setupWizardPlaceholder');
-        const savedProjectsPlaceholder = document.getElementById('savedProjectsPlaceholder');
+        const quickQuoteApp = document.getElementById('quickQuoteApp'); // New container for quick quote view
+        const estimateTableBody = document.getElementById('estimateTableBody');
+        const saveProjectModal = document.getElementById('saveProjectModal');
+        const saveProjectNameInput = document.getElementById('saveProjectName');
+        const saveCustomerNameInput = document.getElementById('saveCustomerName');
+        const saveLocationInput = document.getElementById('saveLocation');
+        const saveProjectCostInput = document.getElementById('saveProjectCost');
+        const cancelSaveProjectBtn = document.getElementById('cancelSaveProjectBtn');
+        const confirmSaveProjectBtn = document.getElementById('confirmSaveProjectBtn');
 
-        // --- View Manager ---
-        function showView(viewName) {
+        // References for the global trade selector
+        let defaultTradeSelectorElem; 
+        let currentlySelectedTradeForLineItems = "General"; 
+
+        // ✨ NEW: AI Chat UI Element References
+        let aiChatButton;
+        let aiChatModal;
+        let aiChatCloseBtn;
+        let aiChatHistory;
+        let aiChatInput;
+        let aiChatSendBtn;
+        let chatHistory = []; // To store the conversation
+        let lastUserMessage = ""; // To store the last user message for retries
+
+
+        // State for theme - will be initialized in DOMContentLoaded
+        let isDarkTheme = false;
+
+
+        // --- Collapsible Column Logic ---
+        function toggleColumnVisibility(group) {
+            collapsedState[group] = !collapsedState[group];
+            const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
+            const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
+            
+            if (collapsedState[group]) {
+                headerElement.classList.add('collapsed');
+                mainThElement.colSpan = 1; 
+
+                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => th.classList.add('column-hidden'));
+                estimateTableBody.querySelectorAll('tr').forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (group === 'labor') {
+                        [2, 3, 4, 5, 6].forEach(index => { if (cells[index]) cells[index].classList.add('column-hidden'); });
+                    } else if (group === 'materials') {
+                        [8, 9].forEach(index => { if (cells[index]) cells[index].classList.add('column-hidden'); });
+                    } else if (group === 'other') {
+                        [11, 12, 13].forEach(index => { if (cells[index]) cells[index].classList.add('column-hidden'); });
+                    }
+                });
+            } else {
+                headerElement.classList.remove('collapsed');
+                if (group === 'labor') mainThElement.colSpan = 5;
+                else if (group === 'materials') mainThElement.colSpan = 3;
+                else if (group === 'other') mainThElement.colSpan = 4;
+
+                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => th.classList.remove('column-hidden'));
+                estimateTableBody.querySelectorAll('tr').forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (group === 'labor') {
+                        [2, 3, 4, 5, 6].forEach(index => { if (cells[index]) cells[index].classList.remove('column-hidden'); });
+                    } else if (group === 'materials') {
+                        [8, 9].forEach(index => { if (cells[index]) cells[index].classList.remove('column-hidden'); });
+                    } else if (group === 'other') {
+                        [11, 12, 13].forEach(index => { if (cells[index]) cells[index].classList.remove('column-hidden'); });
+                    }
+                });
+            }
+            adjustTableMinWidth();
+        }
+
+
+        // --- Theme Toggle Logic ---
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            if (isDarkTheme) {
+                document.body.classList.add('dark-theme');
+                if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
+                    window.AppHeader.updateThemeToggleSlider(isDarkTheme);
+                }
+            } else {
+                document.body.classList.remove('dark-theme');
+                if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
+                    window.AppHeader.updateThemeToggleSlider(isDarkTheme);
+                }
+            }
+            if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
+            }
+            if (window.SavedProjects && typeof window.SavedProjects.updateCustomerTotalsChart === 'function') {
+                window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
+            }
+        }
+
+        // --- View Management Functions (Show/Hide Sections) ---
+
+        function handleWizardCompletion(updatedSettings) {
+            projectSettings = { ...updatedSettings }; 
+            
+            const setupWizardPlaceholder = document.getElementById('setupWizardPlaceholder');
+            if (setupWizardPlaceholder) {
+                setupWizardPlaceholder.classList.add('hidden');
+                setupWizardPlaceholder.innerHTML = ''; 
+            }
+            
+            // After wizard, always show the detailed app view
+            entryPointContainer.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+            quickQuoteApp.classList.add('hidden');
+            loadSummaryOverview();
+            
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+            
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.projectState);
+            }
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo(projectSettings.contractorLogo);
+            }
+
+            populateDefaultTradeSelector();
+            
+            if (estimateItems.length > 0) {
+                const firstItem = estimateItems[0];
+                const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
+                firstItem.trade = defaultTrade;
+                const availableRoles = Object.keys(projectSettings.allTradeLaborRates[firstItem.trade] || {});
+                firstItem.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+            }
+            
+            renderItems(); 
+            
+            if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
+            }
+
+            for (const group in collapsedState) {
+                if (collapsedState.hasOwnProperty(group)) {
+                    const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
+                    const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
+                    if (headerElement && mainThElement) {
+                        if (collapsedState[group]) {
+                            headerElement.classList.add('collapsed');
+                            mainThElement.colSpan = 1;
+                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                th.classList.add('column-hidden');
+                            });
+                        } else {
+                            mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
+                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                th.classList.remove('column-hidden');
+                            });
+                        }
+                    }
+                }
+            }
+            adjustTableMinWidth();
+        }
+
+        function showEntryPoint() {
+            entryPointContainer.classList.remove('hidden');
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
+            document.getElementById('setupWizardPlaceholder').classList.add('hidden');
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+        }
+        
+        function reconfigureApp() {
+            renderMessageBox("This will reset the current estimate and return to the main screen. Are you sure?", () => {
+                projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
+                estimateItems = JSON.parse(JSON.stringify(initialEstimateItems));
+                
+                showEntryPoint();
+                closeMessageBox();
+            }, true);
+        }
+
+        function showSetupWizard() {
+            // ✨ CORRECTED LOGIC: This function is now only responsible for calling loadSetupWizard.
+            // The hiding of other elements is handled by the function that calls this one.
+            loadSetupWizard();
+        }
+
+        function showMainApp() {
+            mainApp.classList.remove('hidden');
+            quickQuoteApp.classList.add('hidden');
+            document.getElementById('setupWizardPlaceholder').classList.add('hidden');
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+        }
+
+        function handleSaveProject() {
+            calculateTotals(); 
+            saveProjectNameInput.value = projectSettings.projectName;
+            saveCustomerNameInput.value = projectSettings.clientName;
+            saveLocationInput.value = projectSettings.projectState;
+            saveProjectCostInput.value = formatCurrency(projectSettings.grandTotal || 0);
+            saveProjectModal.classList.add('show');
+        }
+
+        function closeSaveProjectModal() {
+            saveProjectModal.classList.remove('show');
+        }
+
+        function confirmSaveProject() {
+            const projectName = saveProjectNameInput.value.trim();
+            const customerName = saveCustomerNameInput.value.trim();
+            const projectState = saveLocationInput.value.trim();
+            const totalProposalRaw = projectSettings.grandTotal || 0;
+
+            if (!projectName || !customerName) {
+                renderMessageBox('Project Name and Customer Name are required.');
+                return;
+            }
+
+            const newSavedProject = {
+                id: `proj_${Date.now()}`,
+                projectName: projectName,
+                customerName: customerName,
+                projectType: projectSettings.projectType,
+                projectState: projectState,
+                totalProposal: totalProposalRaw,
+                lastSavedDate: new Date().toISOString().split('T')[0],
+                status: 'Draft',
+                projectDetails: JSON.stringify({
+                    settings: { ...projectSettings },
+                    items: [...estimateItems]
+                })
+            };
+
+            if (window.SavedProjects && typeof window.SavedProjects.addProject === 'function') {
+                window.SavedProjects.addProject(newSavedProject);
+                renderMessageBox(`Project "${projectName}" saved successfully!`);
+            } else {
+                renderMessageBox('Error: SavedProjects module not fully loaded or missing addProject function.');
+            }
+
+            closeSaveProjectModal();
+        }
+
+        function showSavedProjects() {
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
+            document.getElementById('setupWizardPlaceholder').classList.add('hidden');
+            const savedProjectsPlaceholder = document.getElementById('savedProjectsPlaceholder');
+            if (savedProjectsPlaceholder.innerHTML === '') {
+                loadSavedProjects();
+            } else {
+                savedProjectsPlaceholder.classList.remove('hidden');
+                if (window.SavedProjects && typeof window.SavedProjects.renderProjects === 'function') {
+                     window.SavedProjects.renderProjects(window.SavedProjects.getSavedProjectsData());
+                     window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
+                }
+            }
+            closeMessageBox(); 
+        }
+
+        // --- Data Management Functions ---
+
+        const stateSalesTax = {
+            'CA': 8.25, 'TX': 6.25, 'NY': 4.0, 'FL': 6.0, 'WA': 6.5, 'IL': 6.25,
+            'AL': 4.0, 'AK': 0.0, 'AZ': 5.6, 'AR': 6.5, 'CO': 2.9, 'CT': 6.35, 'DE': 0.0,
+            'GA': 4.0, 'HI': 4.0, 'ID': 6.0, 'IN': 7.0, 'IA': 6.0, 'KS': 6.5, 'KY': 6.0,
+            'LA': 4.45, 'ME': 5.5, 'MD': 6.0, 'MA': 6.25, 'MI': 6.0, 'MN': 6.875, 'MS': 7.0,
+            'MO': 4.225, 'MT': 0.0, 'NE': 5.5, 'NV': 6.85, 'NH': 0.0, 'NJ': 6.625, 'NM': 5.125,
+            'NC': 4.75, 'ND': 5.0, 'OH': 5.75, 'OK': 4.5, 'OR': 0.0, 'PA': 6.0, 'RI': 7.0,
+            'SC': 6.0, 'SD': 4.5, 'TN': 7.0, 'UT': 4.85, 'VT': 6.0, 'VA': 5.3, 'WV': 6.0,
+            'WI': 5.0, 'WY': 4.0
+        };
+
+        // --- Estimate Item Management & Exporting ---
+
+        function exportClientQuoteToPdf() {
+            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF.API.autoTable === 'undefined') {
+                renderMessageBox('Error: PDF generation library not loaded correctly.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'letter' });
+
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 40;
+            let cursorY = 40;
+
+            if (projectSettings.contractorLogo) {
+                try { doc.addImage(projectSettings.contractorLogo, 'PNG', margin, cursorY, 80, 25); } catch (e) { console.error("Error adding logo to PDF:", e); }
+            }
+
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('QUOTE', pageWidth - margin, cursorY + 15, { align: 'right' });
+            cursorY += 40;
+
+            doc.setLineWidth(0.5);
+            doc.line(margin, cursorY, pageWidth - margin, cursorY);
+            cursorY += 15;
+
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.text('FROM:', margin, cursorY);
+            doc.text('TO:', pageWidth / 2, cursorY);
+
+            doc.setFont('helvetica', 'normal');
+            cursorY += 12;
+            doc.text(projectSettings.ownerName || "Your Company Name", margin, cursorY);
+            doc.text(projectSettings.clientName, pageWidth / 2, cursorY);
+            cursorY += 12;
+            doc.text(projectSettings.ownerAddress || "123 Main St", margin, cursorY);
+            doc.text(projectSettings.projectAddress, pageWidth / 2, cursorY);
+            cursorY += 12;
+            doc.text(`${projectSettings.ownerCity || "Anytown, USA"} ${projectSettings.ownerZip || "12345"}`, margin, cursorY);
+            doc.text(`${projectSettings.projectCity}, ${projectSettings.projectState} ${projectSettings.projectZip}`, pageWidth / 2, cursorY);
+            cursorY += 25;
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('QUOTE #', margin, cursorY);
+            doc.text('DATE', pageWidth / 2, cursorY);
+            doc.setFont('helvetica', 'normal');
+            cursorY += 12;
+            doc.text(projectSettings.projectID || 'N/A', margin, cursorY);
+            doc.text(new Date().toLocaleDateString(), pageWidth / 2, cursorY);
+            cursorY += 25;
+
+            const quoteBody = (currentAppMode === 'detailed') ? estimateItems.map(item => {
+                const laborTotal = item.hours * (projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0) * (item.otDtMultiplier || 1.0);
+                const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                const otherTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
+                const lineTotal = laborTotal + materialsTotal + otherTotal;
+                return [item.taskName, item.description, formatCurrency(lineTotal)];
+            }) : [
+                ["High-Level Project Estimate", `A quick quote for ${projectSettings.projectName}.`, formatCurrency(projectSettings.totalProjectCostDirect)]
+            ];
+
+
+            doc.autoTable({
+                startY: cursorY,
+                head: [['DESCRIPTION', 'DETAILS', 'AMOUNT']],
+                body: quoteBody,
+                theme: 'striped',
+                headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+                columnStyles: { 2: { halign: 'right' } },
+                didDrawPage: (data) => {
+                    const pageCount = doc.internal.getNumberOfPages();
+                    doc.setFontSize(8);
+                    doc.text(`Page ${data.pageNumber} of ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
+                }
+            });
+            
+            cursorY = doc.autoTable.previous.finalY + 20;
+
+            const subtotal = projectSettings.grandTotal + projectSettings.discountAmount - projectSettings.salesTaxAmount;
+            const totalsBody = [
+                ['Subtotal', formatCurrency(subtotal)],
+                ['Sales Tax', formatCurrency(projectSettings.salesTaxAmount)],
+                ['Discount', `-${formatCurrency(projectSettings.discountAmount)}`],
+                ['Total', formatCurrency(projectSettings.grandTotal)]
+            ];
+
+            doc.autoTable({
+                startY: cursorY,
+                body: totalsBody,
+                theme: 'plain',
+                styles: { fontSize: 10 },
+                columnStyles: { 0: { halign: 'right', fontStyle: 'bold' }, 1: { halign: 'right' } },
+                margin: { left: pageWidth / 2 }
+            });
+
+            const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'quote'}-client-quote.pdf`;
+            doc.save(exportFileName);
+            renderMessageBox('Client quote has been exported to PDF.');
+        }
+
+
+        function exportDetailedReportToPdf() {
+            if (currentAppMode !== 'detailed') {
+                renderMessageBox("Detailed reports are only available for Detailed Estimates.");
+                return;
+            }
+
+            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF.API.autoTable === 'undefined') {
+                renderMessageBox('Error: PDF generation library not loaded correctly.');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'landscape' });
+
+            if (projectSettings.contractorLogo) {
+                try { doc.addImage(projectSettings.contractorLogo, 'PNG', 15, 10, 40, 15); } catch (e) { console.error("Error adding logo to PDF:", e); }
+            }
+            
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Detailed Project Estimate', 148, 15, { align: 'center' });
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Project: ${projectSettings.projectName}`, 148, 22, { align: 'center' });
+            doc.text(`Client: ${projectSettings.clientName}`, 148, 27, { align: 'center' });
+            
+            const summaryBody = [
+                ['Total Proposal:', formatCurrency(projectSettings.grandTotal)],
+                ['Total Labor Hours:', formatHours(projectSettings.overallLaborHoursSum)],
+                ['Total Direct Cost:', formatCurrency(projectSettings.totalProjectCostDirect)],
+                ['Material Markup:', `${projectSettings.materialMarkup.toFixed(2)}% (${formatCurrency(projectSettings.materialMarkupAmount)})`],
+                ['Overhead:', `${projectSettings.overhead.toFixed(2)}% (${formatCurrency(projectSettings.totalOverheadCost)})`],
+            ];
+            const summaryBody2 = [
+                ['Miscellaneous:', `${projectSettings.miscellaneous.toFixed(2)}% (${formatCurrency(projectSettings.totalMiscCostAmount)})`],
+                ['Subtotal:', formatCurrency(projectSettings.estimateSubtotalAmount)],
+                ['Profit Margin:', `${projectSettings.profitMargin.toFixed(2)}% (${formatCurrency(projectSettings.totalProfitMarginAmount)})`],
+                ['Sales Tax:', `${projectSettings.salesTax.toFixed(2)}% (${formatCurrency(projectSettings.salesTaxAmount)})`],
+                ['Addt\'l Considerations:', formatCurrency(projectSettings.additionalConsiderationAmount)],
+            ];
+
+            doc.autoTable({ startY: 40, body: summaryBody, theme: 'striped', styles: { fontSize: 9 }, columnStyles: { 1: { halign: 'right' } }, margin: { left: 15 } });
+            doc.autoTable({ startY: 40, body: summaryBody2, theme: 'striped', styles: { fontSize: 9 }, columnStyles: { 1: { halign: 'right' } }, margin: { left: 157 } });
+            
+            const lineItemsHead = [
+                [
+                    { content: 'Task', rowSpan: 2, styles: { valign: 'middle' } },
+                    { content: 'Description', rowSpan: 2, styles: { valign: 'middle' } },
+                    { content: 'Labor', colSpan: 5, styles: { halign: 'center' } },
+                    { content: 'Materials', colSpan: 3, styles: { halign: 'center' } },
+                    { content: 'Other Costs', colSpan: 4, styles: { halign: 'center' } },
+                    { content: 'Line Total', rowSpan: 2, styles: { valign: 'middle', halign: 'center' } },
+                ],
+                ['OT/DT', 'Trade', 'Skill', '$/hr', 'Labor Total', 'Qty/Unit', '$/Unit', 'Mat. Total', 'Equip.', 'Sub', 'Misc.', 'Other Total']
+            ];
+
+            const lineItemsBody = estimateItems.map(item => {
+                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
+                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                const laborTotal = item.hours * effectiveLaborRate;
+                const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
+                const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
+
+                return [
+                    item.taskName, item.description, item.otDtMultiplier.toFixed(1), item.trade,
+                    item.rateRole, formatCurrency(laborRate), formatCurrency(laborTotal),
+                    `${item.materialQuantity} / unit`, formatCurrency(item.materialUnitCost),
+                    formatCurrency(materialsTotal), formatCurrency(item.equipmentRentalCost),
+                    formatCurrency(item.subcontractorCostLineItem), formatCurrency(item.miscLineItem),
+                    formatCurrency(otherCategoryTotal), formatCurrency(lineTotal)
+                ];
+            });
+
+            doc.autoTable({
+                head: lineItemsHead, body: lineItemsBody, startY: doc.autoTable.previous.finalY + 10,
+                theme: 'grid', headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+                styles: { fontSize: 7, cellPadding: 1.5 },
+                columnStyles: { 5: { halign: 'right' }, 6: { halign: 'right' }, 8: { halign: 'right' }, 9: { halign: 'right' }, 10: { halign: 'right' }, 11: { halign: 'right' }, 12: { halign: 'right' }, 13: { halign: 'right' }, 14: { halign: 'right' } }
+            });
+
+            const pageCount = doc.internal.getNumberOfPages();
+            for(let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width / 2, 200, { align: 'center' });
+            }
+
+            const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'estimate'}-detailed-report.pdf`;
+            doc.save(exportFileName);
+            renderMessageBox('Detailed report has been exported to PDF.');
+        }
+
+        function exportEstimateToCsv() {
+            if (currentAppMode !== 'detailed') {
+                renderMessageBox("CSV export is only available for Detailed Estimates.");
+                return;
+            }
+            if (estimateItems.length === 0) {
+                renderMessageBox('There are no line items to export.');
+                return;
+            }
+
+            const dataForExport = estimateItems.map(item => {
+                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
+                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                const laborTotal = item.hours * effectiveLaborRate;
+                const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
+                const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
+
+                return {
+                    "Task Name": item.taskName, "Description": item.description, "Trade": item.trade,
+                    "Skill": item.rateRole, "OT/DT Multiplier": item.otDtMultiplier, "Hours": item.hours,
+                    "Labor Rate ($)": laborRate.toFixed(2), "Labor Total ($)": laborTotal.toFixed(2),
+                    "Material Quantity": item.materialQuantity, "Material Unit Cost ($)": item.materialUnitCost.toFixed(2),
+                    "Materials Total ($)": materialsTotal.toFixed(2), "Equipment/Rental ($)": item.equipmentRentalCost.toFixed(2),
+                    "Subcontractor ($)": item.subcontractorCostLineItem.toFixed(2), "Misc Line Item ($)": item.miscLineItem.toFixed(2),
+                    "Other Total ($)": otherCategoryTotal.toFixed(2), "Line Total ($)": lineTotal.toFixed(2)
+                };
+            });
+
+            const csv = Papa.unparse(dataForExport);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            const exportFileName = `${projectSettings.projectName.replace(/ /g, '_') || 'estimate'}-export.csv`;
+            link.setAttribute('download', exportFileName);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            renderMessageBox('Estimate has been exported to CSV.');
+        }
+
+        function addItem() {
+            const defaultTradeForNewItem = currentlySelectedTradeForLineItems;
+            const defaultRoleForNewItem = projectSettings.allTradeLaborRates[defaultTradeForNewItem] && Object.keys(projectSettings.allTradeLaborRates[defaultTradeForNewItem]).length > 0 ? Object.keys(projectSettings.allTradeLaborRates[defaultTradeForNewItem])[0] : "Journeyman";
+
+            const newItem = {
+                id: Date.now(), taskName: 'New Task', description: 'Detail your first project task here.',
+                trade: defaultTradeForNewItem, rateRole: defaultRoleForNewItem, hours: 0,
+                otDtMultiplier: 1.0, materialQuantity: 0, materialUnitCost: 0,
+                equipmentRentalCost: 0, subcontractorCostLineItem: 0, miscLineItem: 0
+            };
+            estimateItems.push(newItem);
+            renderItems();
+        }
+
+        function deleteItem(id) {
+            estimateItems = estimateItems.filter(item => item.id !== id);
+            renderItems();
+        }
+
+        function duplicateItem(id) {
+            const itemToDuplicateIndex = estimateItems.findIndex(item => item.id === id);
+
+            if (itemToDuplicateIndex !== -1) {
+                const originalItem = estimateItems[itemToDuplicateIndex];
+                const duplicatedItem = JSON.parse(JSON.stringify(originalItem));
+                duplicatedItem.id = Date.now();
+                estimateItems.splice(itemToDuplicateIndex + 1, 0, duplicatedItem);
+                renderItems();
+
+                setTimeout(() => {
+                    const newItemElement = document.querySelector(`tr[data-id="${duplicatedItem.id}"]`);
+                    if (newItemElement) {
+                        newItemElement.style.transition = 'background-color 0.5s ease-in-out';
+                        newItemElement.style.backgroundColor = 'rgba(144, 238, 144, 0.3)';
+                        setTimeout(() => {
+                            newItemElement.style.backgroundColor = '';
+                            newItemElement.style.transition = '';
+                        }, 1000);
+                    }
+                }, 50);
+            }
+        }
+
+        function updateItem(id, field, value) {
+            const item = estimateItems.find(item => item.id === id);
+            if (item) {
+                if (['hours', 'materialQuantity', 'materialUnitCost', 'equipmentRentalCost', 'subcontractorCostLineItem', 'miscLineItem', 'otDtMultiplier'].includes(field)) {
+                    item[field] = parseFloat(value) || 0;
+                } else if (field === 'trade') {
+                    item.trade = value;
+                    const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
+                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+                } else {
+                    item[field] = value;
+                }
+                renderItems();
+            }
+        }
+
+
+        function renderItems() {
+            estimateTableBody.innerHTML = '';
+            let totalLaborHoursVal = 0; 
+
+            const activeTrades = projectSettings.activeTrades;
+
+            estimateItems.forEach(item => {
+                if (!activeTrades.includes(item.trade)) {
+                    item.trade = activeTrades.length > 0 ? activeTrades[0] : "General";
+                }
+                if (!projectSettings.allTradeLaborRates[item.trade] || !projectSettings.allTradeLaborRates[item.trade][item.rateRole]) {
+                    const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
+                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+                }
+
+                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
+                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                const laborTotal = item.hours * effectiveLaborRate;
+                const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
+                const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
+                totalLaborHoursVal += item.hours;
+
+                const row = document.createElement('tr');
+                row.setAttribute('data-id', item.id);
+                row.innerHTML = `
+                    <td data-label="Task Name"><textarea rows="2" onchange="updateItem(${item.id}, 'taskName', this.value)" class="input-field">${item.taskName}</textarea></td>
+                    <td data-label="Description"><textarea rows="2" onchange="updateItem(${item.id}, 'description', this.value)" class="input-field">${item.description}</textarea></td>
+                    <td data-label="OT/DT Multiplier" class="${collapsedState.labor ? 'column-hidden' : ''}">
+                        <select onchange="updateItem(${item.id}, 'otDtMultiplier', this.value)" class="input-field">
+                            <option value="1.0" ${item.otDtMultiplier === 1.0 ? 'selected' : ''}>1.0</option>
+                            <option value="1.5" ${item.otDtMultiplier === 1.5 ? 'selected' : ''}>1.5</option>
+                            <option value="2.0" ${item.otDtMultiplier === 2.0 ? 'selected' : ''}>2.0</option>
+                        </select>
+                    </td>
+                    <td data-label="Trade" class="${collapsedState.labor ? 'column-hidden' : ''}">
+                        <select onchange="updateItem(${item.id}, 'trade', this.value)" class="input-field">
+                            ${activeTrades.map(tradeOption => `<option value="${tradeOption}" ${item.trade === tradeOption ? 'selected' : ''}>${tradeOption}</option>`).join('')}
+                            ${activeTrades.length === 0 ? '<option value="" selected>No Trades</option>' : ''}
+                        </select>
+                    </td>
+                    <td data-label="Skill" class="${collapsedState.labor ? 'column-hidden' : ''}">
+                        <select onchange="updateItem(${item.id}, 'rateRole', this.value)" class="input-field">
+                            ${(projectSettings.allTradeLaborRates[item.trade] ? Object.keys(projectSettings.allTradeLaborRates[item.trade]) : []).map(role => `<option value="${role}" ${item.rateRole === role ? 'selected' : ''}>${role}</option>`).join('')}
+                            ${!projectSettings.allTradeLaborRates[item.trade] || Object.keys(projectSettings.allTradeLaborRates[item.trade]).length === 0 ? '<option value="" selected>No Skills</option>' : ''}
+                        </select>
+                    </td>
+                    <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(laborRate)}</td>
+                    <td data-label="# hrs" class="${collapsedState.labor ? 'column-hidden' : ''}"><input type="number" value="${item.hours}" onchange="updateItem(${item.id}, 'hours', this.value)" class="input-field"></td>
+                    <td data-label="Labor Total">${formatCurrency(laborTotal)}</td>
+                    <td data-label="Material Qty" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialQuantity}" onchange="updateItem(${item.id}, 'materialQuantity', this.value)" class="input-field"></td>
+                    <td data-label="Material $/Unit" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialUnitCost}" onchange="updateItem(${item.id}, 'materialUnitCost', this.value)" class="input-field"></td>
+                    <td data-label="Materials Total">${formatCurrency(materialsTotal)}</td>
+                    <td data-label="Equipment/Rental" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.equipmentRentalCost}" onchange="updateItem(${item.id}, 'equipmentRentalCost', this.value)" class="input-field"></td>
+                    <td data-label="Subcontractor" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.subcontractorCostLineItem}" onchange="updateItem(${item.id}, 'subcontractorCostLineItem', this.value)" class="input-field"></td>
+                    <td data-label="Misc. Cost" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.miscLineItem}" onchange="updateItem(${item.id}, 'miscLineItem', this.value)" class="input-field"></td>
+                    <td data-label="Other Total">${formatCurrency(otherCategoryTotal)}</td>
+                    <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
+                    <td class="actions-cell"> 
+                        <div class="flex items-center justify-center gap-2 h-full w-full"> 
+                            <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            </button>
+                            <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                estimateTableBody.appendChild(row);
+            });
+            calculateTotals();
+        }
+
+        function adjustTableMinWidth() {
+            const table = document.querySelector('.min-w-full');
+            let currentMinWidth = 150 + 200 + 90 + 90 + 90 + 70 + 70 + 100 + 70 + 70 + 100 + 70 + 70 + 70 + 100 + 80;
+            if (!collapsedState.labor) {
+                currentMinWidth += (90 + 90 + 90 + 70 + 70); 
+            }
+            if (!collapsedState.materials) {
+                currentMinWidth += (70 + 70); 
+            }
+            if (!collapsedState.other) {
+                currentMinWidth += (70 + 70 + 70); 
+            }
+            table.style.minWidth = `${currentMinWidth}px`;
+        }
+
+
+        function calculateTotals() {
+            let totalLaborCost = 0, totalMaterialCostRaw = 0, totalEquipmentCost = 0, totalSubcontractorCost = 0, totalMiscLineItemCosts = 0;
+            let laborHoursBreakdown = {};
+            const allPossibleRoles = new Set();
+            Object.keys(projectSettings.allTradeLaborRates).forEach(trade => {
+                if (projectSettings.allTradeLaborRates[trade]) {
+                    Object.keys(projectSettings.allTradeLaborRates[trade]).forEach(role => allPossibleRoles.add(role));
+                }
+            });
+            allPossibleRoles.forEach(role => { laborHoursBreakdown[role] = 0; });
+
+            estimateItems.forEach(item => {
+                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
+                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
+                const laborTotal = item.hours * effectiveLaborRate;
+                const materialsTotal = item.materialQuantity * item.materialUnitCost;
+                totalLaborCost += laborTotal;
+                totalMaterialCostRaw += materialsTotal;
+                totalEquipmentCost += item.equipmentRentalCost;
+                totalSubcontractorCost += item.subcontractorCostLineItem;
+                totalMiscLineItemCosts += item.miscLineItem;
+                if (laborHoursBreakdown[item.rateRole] !== undefined) {
+                    laborHoursBreakdown[item.rateRole] += item.hours;
+                }
+            });
+            
+            const totalProjectCostDirect = totalLaborCost + totalMaterialCostRaw + totalEquipmentCost + totalSubcontractorCost + totalMiscLineItemCosts;
+            projectSettings.totalProjectCostDirect = totalProjectCostDirect; // Store for quick quote
+            
+            const materialMarkupPercent = parseFloat(projectSettings.materialMarkup) || 0;
+            const overheadPercent = parseFloat(projectSettings.overhead) || 0;
+            const miscellaneousPercent = parseFloat(projectSettings.miscellaneous) || 0;
+            const profitMarginPercent = parseFloat(projectSettings.profitMargin) || 0;
+            const salesTaxPercent = parseFloat(projectSettings.salesTax) || 0;
+            const discountPercent = parseFloat(projectSettings.discount) || 0;
+            const additionalConsiderationsValue = parseFloat(projectSettings.additionalConsiderationsValue) || 0;
+            const materialMarkupAmount = totalMaterialCostRaw * (materialMarkupPercent / 100);
+            const baseCostForOverheadMiscProfit = totalProjectCostDirect + materialMarkupAmount;
+            const totalOverheadCost = baseCostForOverheadMiscProfit * (overheadPercent / 100);
+            const totalMiscCostAmount = baseCostForOverheadMiscProfit * (miscellaneousPercent / 100);
+            const subtotalBeforeProfitTax = baseCostForOverheadMiscProfit + totalMiscCostAmount + totalOverheadCost;
+            const totalProfitMarginAmount = subtotalBeforeProfitTax * (profitMarginPercent / 100);
+            const estimateSubtotalAmount = subtotalBeforeProfitTax + totalProfitMarginAmount;
+            const salesTaxApplicableBase = totalMaterialCostRaw + materialMarkupAmount;
+            const salesTaxAmount = salesTaxApplicableBase * (salesTaxPercent / 100);
+            let additionalConsiderationAmount = 0;
+            if (projectSettings.additionalConsiderationsType === '%') {
+                additionalConsiderationAmount = estimateSubtotalAmount * (additionalConsiderationsValue / 100);
+            } else {
+                additionalConsiderationAmount = additionalConsiderationsValue;
+            }
+            const subtotalBeforeDiscount = estimateSubtotalAmount + salesTaxAmount + additionalConsiderationAmount;
+            const discountAmount = subtotalBeforeDiscount * (discountPercent / 100);
+            const grandTotal = subtotalBeforeDiscount - discountAmount;
+
+            projectSettings.grandTotal = grandTotal; 
+            projectSettings.discountAmount = discountAmount;
+            projectSettings.salesTaxAmount = salesTaxAmount;
+            const overallLaborHoursSum = Object.values(laborHoursBreakdown).reduce((sum, hours) => sum + hours, 0);
+            
+            if (currentAppMode === 'detailed' && window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                window.SummaryOverview.updateSummaries({
+                    ...projectSettings, totalLaborCost, totalMaterialCostRaw, totalEquipmentCost,
+                    totalSubcontractorCost, totalMiscLineItemCosts, laborHoursBreakdown,
+                    totalProjectCostDirect, materialMarkupAmount, totalOverheadCost,
+                    totalMiscCostAmount, estimateSubtotalAmount, totalProfitMarginAmount,
+                    salesTaxAmount, additionalConsiderationAmount, grandTotal,
+                    overallLaborHoursSum
+                }, estimateItems, isDarkTheme);
+            } else if (currentAppMode === 'quickQuote' && window.QuickQuoteSummary && typeof window.QuickQuoteSummary.updateSummary === 'function') {
+                 window.QuickQuoteSummary.updateSummary({
+                    ...projectSettings, totalProjectCostDirect, materialMarkupAmount, totalOverheadCost,
+                    totalMiscCostAmount, estimateSubtotalAmount, totalProfitMarginAmount,
+                    salesTaxAmount, additionalConsiderationAmount, grandTotal
+                });
+            }
+        }
+
+        function sendEstimateEmailToClient() {
+            calculateTotals(); 
+            const recipientEmail = ""; 
+            const projectName = projectSettings.projectName;
+            const clientName = projectSettings.clientName;
+            const subject = encodeURIComponent(`Estimate for Your Project: ${projectName}`);
+            const body = encodeURIComponent(
+                `Dear ${clientName || 'Client'},\n\n` +
+                `This email contains a summary of the estimate for your project: "${projectName}".\n\n` +
+                `A detailed quote will be provided in a separate attachment or document.\n\n` +
+                `Please let us know if you have any questions.\n\n` +
+                `Regards,\n${projectSettings.contractorName || 'Your Company'}` 
+            );
+            const mailtoLink = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
+            window.open(mailtoLink, '_blank');
+            renderMessageBox('Your email client should open with a pre-filled estimate. Please remember to add a recipient and send it!');
+        }
+
+        function populateDefaultTradeSelector() {
+            defaultTradeSelectorElem = document.getElementById('defaultTradeSelector');
+            if (!defaultTradeSelectorElem) return;
+            defaultTradeSelectorElem.innerHTML = '';
+            if (projectSettings.activeTrades.length === 0) {
+                defaultTradeSelectorElem.innerHTML = '<option value="">No Trades Selected</option>';
+                defaultTradeSelectorElem.disabled = true;
+                currentlySelectedTradeForLineItems = "";
+            } else {
+                defaultTradeSelectorElem.disabled = false;
+                projectSettings.activeTrades.forEach(trade => {
+                    const option = document.createElement('option');
+                    option.value = trade;
+                    option.textContent = trade;
+                    defaultTradeSelectorElem.appendChild(option);
+                });
+                if (projectSettings.activeTrades.includes(currentlySelectedTradeForLineItems)) {
+                    defaultTradeSelectorElem.value = currentlySelectedTradeForLineItems;
+                } else {
+                    defaultTradeSelectorElem.value = projectSettings.activeTrades[0];
+                    currentlySelectedTradeForLineItems = projectSettings.activeTrades[0];
+                }
+            }
+        }
+
+        // AI Chat Functions
+        function setupAIChatListeners() {
+            aiChatButton = document.getElementById('aiChatButton');
+            aiChatModal = document.getElementById('aiChatModal');
+            aiChatCloseBtn = document.getElementById('aiChatCloseBtn');
+            aiChatHistory = document.getElementById('aiChatHistory');
+            aiChatInput = document.getElementById('aiChatInput');
+            aiChatSendBtn = document.getElementById('aiChatSendBtn');
+
+            aiChatButton.addEventListener('click', () => {
+                aiChatModal.classList.toggle('show');
+            });
+
+            aiChatCloseBtn.addEventListener('click', () => {
+                aiChatModal.classList.remove('show');
+            });
+
+            aiChatSendBtn.addEventListener('click', () => handleAIChatSend(false));
+            aiChatInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    handleAIChatSend(false);
+                }
+            });
+        }
+
+        function addMessageToChat(message, sender, isError = false) {
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${sender}`;
+            
+            if (isError) {
+                bubble.innerHTML = message;
+            } else {
+                bubble.textContent = message;
+            }
+
+            aiChatHistory.appendChild(bubble);
+            aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+        }
+        
+        function retryLastAIChatRequest() {
+            const errorBubbles = aiChatHistory.querySelectorAll('.ai');
+            errorBubbles[errorBubbles.length - 1].remove();
+            handleAIChatSend(true);
+        }
+
+        async function handleAIChatSend(isRetry = false) {
+            let userMessage;
+            if (isRetry) {
+                userMessage = lastUserMessage;
+            } else {
+                userMessage = aiChatInput.value.trim();
+                if (!userMessage) return;
+                addMessageToChat(userMessage, 'user');
+                lastUserMessage = userMessage;
+                aiChatInput.value = '';
+            }
+            
+            const loadingBubble = document.createElement('div');
+            loadingBubble.className = 'chat-bubble loading';
+            loadingBubble.textContent = 'Thinking...';
+            aiChatHistory.appendChild(loadingBubble);
+            aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+
+            const apiKey = "YOUR_API_KEY_HERE";
+            
+            if (apiKey === "YOUR_API_KEY_HERE") {
+                aiChatHistory.removeChild(loadingBubble);
+                addMessageToChat("Configuration error: Please add your Gemini API key to the index.html file.", 'ai');
+                return;
+            }
+
+            const prompt = `
+                You are an expert construction cost estimator. A user is working on an estimate for a 
+                '${projectSettings.projectType}' project in '${projectSettings.projectState}'. 
+                Provide helpful advice based on their question. Keep your answer concise and to the point. Use bullet points for clarity if needed.
+                User's question: "${userMessage}"
+            `;
+
+            try {
+                const payload = {
+                    contents: [{ role: "user", parts: [{ text: prompt }] }]
+                };
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                aiChatHistory.removeChild(loadingBubble);
+
+                if (result.error) {
+                    console.error("Gemini API Error:", result.error);
+                    let errorMessage = `Error from API: ${result.error.message}`;
+                    if (result.error.message.includes("overloaded")) {
+                        errorMessage += ` <button onclick="retryLastAIChatRequest()" class="btn btn-primary btn-sm" style="padding: 2px 8px; font-size: 12px; margin-left: 8px;">Retry</button>`;
+                        addMessageToChat(errorMessage, 'ai', true);
+                    } else {
+                        addMessageToChat(errorMessage, 'ai');
+                    }
+                    return;
+                }
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const aiMessage = result.candidates[0].content.parts[0].text;
+                    addMessageToChat(aiMessage, 'ai');
+                    chatHistory.push({ role: "model", parts: [{ text: aiMessage }] });
+                } else {
+                    addMessageToChat('Sorry, I could not get a response. The response was empty.', 'ai');
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                aiChatHistory.removeChild(loadingBubble);
+                addMessageToChat('Sorry, there was a network error connecting to the AI service.', 'ai');
+            }
+        }
+
+        // ✨ CORRECTED: This function now correctly hides all other views before loading the wizard.
+        function startDetailedEstimate() {
+            currentAppMode = 'detailed';
             entryPointContainer.classList.add('hidden');
             mainApp.classList.add('hidden');
             quickQuoteApp.classList.add('hidden');
-            setupWizardPlaceholder.classList.add('hidden');
-            savedProjectsPlaceholder.classList.add('hidden');
-
-            if (viewName === 'entry') entryPointContainer.classList.remove('hidden');
-            else if (viewName === 'detailed') mainApp.classList.remove('hidden');
-            else if (viewName === 'quickQuote') quickQuoteApp.classList.remove('hidden');
-            else if (viewName === 'wizard') setupWizardPlaceholder.classList.remove('hidden');
-            else if (viewName === 'savedProjects') savedProjectsPlaceholder.classList.remove('hidden');
-        }
-
-        // --- App Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            resetProjectData();
-            loadAppHeader();
-            
-            document.getElementById('startDetailedBtn').addEventListener('click', startDetailedEstimate);
-            document.getElementById('startQuickQuoteBtn').addEventListener('click', startQuickQuote);
-        });
-
-        function resetProjectData() {
-            projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
-            estimateItems = JSON.parse(JSON.stringify(initialEstimateItems));
-        }
-
-        // --- Flow Control Functions ---
-        function startDetailedEstimate() {
-            currentAppMode = 'detailed';
-            showView('wizard');
             loadSetupWizard();
         }
 
         function startQuickQuote() {
             currentAppMode = 'quickQuote';
-            showView('quickQuote');
+            entryPointContainer.classList.add('hidden');
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.remove('hidden');
             loadQuickQuoteSummary();
         }
 
-        function handleWizardCompletion(updatedSettings) {
-            projectSettings = { ...updatedSettings };
-            showView('detailed');
-            loadDetailedDashboard();
-        }
 
-        function reconfigureApp() {
-            renderMessageBox("This will reset everything and return to the main screen. Are you sure?", () => {
-                resetProjectData();
-                showView('entry');
-                closeMessageBox();
-            }, true);
-        }
-        
-        // --- Component Loaders ---
-        async function loadComponent(path, placeholderId, jsInitFunction) {
-            try {
-                const htmlResponse = await fetch(`${path}.html`);
-                if (!htmlResponse.ok) throw new Error(`Failed to load HTML for ${path}`);
-                document.getElementById(placeholderId).innerHTML = await htmlResponse.text();
+        function setupInitialEventListeners() {
+            document.getElementById('startDetailedBtn').addEventListener('click', startDetailedEstimate);
+            document.getElementById('startQuickQuoteBtn').addEventListener('click', startQuickQuote);
 
-                if (jsInitFunction) {
-                    const script = document.createElement('script');
-                    script.src = `${path}.js`;
-                    script.onload = jsInitFunction;
-                    document.body.appendChild(script);
+
+            document.querySelectorAll('.collapsible-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const group = this.dataset.group;
+                    toggleColumnVisibility(group);
+                });
+            });
+            document.addEventListener('click', function(event) {
+                if (event.target && event.target.id === 'goToCalculatorBtn') {
+                    showMainApp();
                 }
-            } catch (error) {
-                console.error(`Error loading component ${path}:`, error);
+            });
+            
+            cancelSaveProjectBtn.addEventListener('click', closeSaveProjectModal);
+            confirmSaveProjectBtn.addEventListener('click', confirmSaveProject);
+
+            defaultTradeSelectorElem = document.getElementById('defaultTradeSelector');
+            if (defaultTradeSelectorElem) {
+                defaultTradeSelectorElem.addEventListener('change', (event) => {
+                    currentlySelectedTradeForLineItems = event.target.value;
+                });
             }
-        }
-
-        function loadAppHeader() {
-            loadComponent('src/components/AppHeader/AppHeader', 'appHeaderPlaceholder', () => {
-                if(window.AppHeader) {
-                    window.AppHeader.init({ onReconfigure: reconfigureApp, onUserProfileClick: () => { showView('savedProjects'); loadSavedProjects(); }});
-                }
-            });
-            loadComponent('src/components/AppHeader/AppHeader', 'appHeaderPlaceholderQuickQuote');
-        }
-
-        function loadSetupWizard() {
-            loadComponent('src/sections/SetupWizard/SetupWizard', 'setupWizardPlaceholder', () => {
-                if(window.SetupWizard) {
-                    window.SetupWizard.init({ projectSettings, estimateItems, stateSalesTax, onCompletion: handleWizardCompletion, renderMessageBox, closeMessageBox });
-                }
-            });
-        }
-        
-        function loadQuickQuoteSummary() {
-            loadComponent('src/sections/QuickQuoteSummary/QuickQuoteSummary', 'quickQuoteSummaryPlaceholder', () => {
-                if(window.QuickQuoteSummary) {
-                    window.QuickQuoteSummary.init({ projectSettings, formatCurrency, formatHours });
-                }
-            });
-        }
-        
-        function loadDetailedDashboard() {
-            // This function is now responsible for loading all parts of the detailed view
-            // This is where you would load the original detailed summary and line items table.
-            // For now, we'll just re-create the original structure dynamically.
-            const summaryPlaceholder = document.getElementById('summaryOverviewPlaceholder');
-            const tablePlaceholder = document.getElementById('estimateLineItemsTableContainer');
+            document.getElementById('addItemBtn').addEventListener('click', addItem);
             
-            // This is a simplified representation of your original detailed dashboard structure
-            summaryPlaceholder.innerHTML = `<!-- Your original SummaryOverview.html content would go here -->`;
-            tablePlaceholder.innerHTML = `
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-semibold">Estimate Line Items</h3>
-                    <button id="addItemBtn" class="btn btn-green">➕ Add Item</button>
-                </div>
-                <table class="min-w-full">
-                    <thead>
-                        <tr>
-                            <th rowspan="2">Task Name</th>
-                            <th rowspan="2">Description</th>
-                            <th colspan="5" class="text-center">LABOR</th>
-                            <th colspan="3" class="text-center">MATERIALS</th>
-                            <th colspan="4" class="text-center">OTHER</th>
-                            <th rowspan="2">TOTAL</th>
-                            <th rowspan="2">Actions</th>
-                        </tr>
-                        <tr>
-                            <th>OT/DT</th>
-                            <th>Trade</th>
-                            <th>Skill</th>
-                            <th>$/hr</th>
-                            <th>Labor Total</th>
-                            <th>QTY / UNIT</th>
-                            <th>$ / UNIT</th>
-                            <th>Materials Total</th>
-                            <th>Equipment</th>
-                            <th>Sub</th>
-                            <th>Misc.</th>
-                            <th>Other Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="estimateTableBody"></tbody>
-                </table>`;
-            
-            // Re-initialize event listeners for the detailed view
-            document.getElementById('addItemBtn').addEventListener('click', () => addItem('detailed'));
-            // ... and so on for other detailed view functionality
-            renderItems(); // Render the initial items for the detailed view
+            setupAIChatListeners();
         }
 
-        function loadSavedProjects() {
-            loadComponent('src/sections/SavedProjects/SavedProjects', 'savedProjectsPlaceholder', () => {
-                if(window.SavedProjects) { window.SavedProjects.init({ /* config */ }); }
-            });
-        }
 
-        // --- Utility & Calculation Functions ---
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
-        }
-        function formatHours(hours) {
-            return parseFloat(hours || 0).toFixed(2);
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAppHeader(); 
+            setupInitialEventListeners();
+        });
+
         function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
-            const existingOverlay = document.getElementById('messageBoxOverlay');
-            if (existingOverlay) existingOverlay.remove();
-            const overlay = document.createElement('div');
-            overlay.id = 'messageBoxOverlay';
-            overlay.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[2001]';
-            const box = document.createElement('div');
-            box.className = 'bg-white rounded-xl p-8 shadow-2xl max-w-sm mx-auto text-center';
+            const messageBoxOverlay = document.createElement('div');
+            messageBoxOverlay.id = 'messageBoxOverlay';
+            messageBoxOverlay.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[1001] backdrop-filter backdrop-blur-sm';
+            
+            const messageBox = document.createElement('div');
+            messageBox.className = 'bg-white rounded-xl p-8 shadow-2xl max-w-sm mx-auto text-center';
+            
             let buttonsHtml = `<button class="btn btn-primary" onclick="closeMessageBox()">OK</button>`;
             if (isConfirm) {
-                buttonsHtml = `<button class="btn btn-red mr-3" id="confirmYesBtn">Yes</button><button class="btn btn-primary" onclick="closeMessageBox()">No</button>`;
+                buttonsHtml = `
+                    <button class="btn btn-red mr-3" id="confirmYesBtn">Yes</button>
+                    <button class="btn btn-primary" onclick="closeMessageBox()">No</button>
+                `;
             }
-            box.innerHTML = `<p class="text-lg font-semibold text-gray-800 mb-6">${message}</p><div class="flex justify-center gap-3">${buttonsHtml}</div>`;
-            overlay.appendChild(box);
-            document.body.appendChild(overlay);
+
+            messageBox.innerHTML = `
+                <p class="text-lg font-semibold text-gray-800 mb-6">${message}</p>
+                <div class="flex justify-center gap-3">
+                    ${buttonsHtml}
+                </div>
+            `;
+            messageBoxOverlay.appendChild(messageBox);
+            document.body.appendChild(messageBoxOverlay);
+
             if (isConfirm && onConfirmCallback) {
-                document.getElementById('confirmYesBtn').addEventListener('click', onConfirmCallback);
+                document.getElementById('confirmYesBtn').addEventListener('click', () => {
+                    onConfirmCallback();
+                    closeMessageBox();
+                });
             }
         }
+
         function closeMessageBox() {
-            const overlay = document.getElementById('messageBoxOverlay');
-            if (overlay) overlay.remove();
+            const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+            if (messageBoxOverlay) {
+                messageBoxOverlay.remove();
+            }
         }
-
-        // This is a simplified renderItems for the detailed view, you would replace this
-        // with your original, more complex renderItems function.
-        function renderItems() {
-             const tableBody = document.getElementById('estimateTableBody');
-             if(!tableBody) return;
-             tableBody.innerHTML = '';
-             // Logic to render detailed items would go here...
-             console.log("Rendering detailed estimate items...");
-        }
-
     </script>
 </body>
 </html>
