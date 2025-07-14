@@ -1,1 +1,66 @@
+<!-- src/sections/QuickQuoteSummary/QuickQuoteSummary.html -->
+<div class="quick-quote-container">
+    <!-- Top Summary & Settings Grid -->
+    <div class="dashboard-summary-grid">
+        <div class="summary-metric-card">
+            <span class="label">Total Proposal</span>
+            <span class="value" id="qqTotalProposal">$0.00</span>
+        </div>
+        <div class="summary-metric-card">
+            <span class="label">Total Labor Hours</span>
+            <span class="value" id="qqTotalHours">0.00</span>
+        </div>
+        <div class="settings-panel card">
+            <h4>Financial Settings</h4>
+            <div class="form-group">
+                <label for="qqOverhead" class="label">Overhead (%):</label>
+                <input type="number" id="qqOverhead" class="input-field" value="10">
+            </div>
+            <div class="form-group">
+                <label for="qqMaterialMarkup" class="label">Material Markup (%):</label>
+                <input type="number" id="qqMaterialMarkup" class="input-field" value="10">
+            </div>
+        </div>
+         <div class="settings-panel card">
+            <h4>Profit & Adders</h4>
+            <div class="form-group">
+                <label for="qqProfitMargin" class="label">Profit Margin (%):</label>
+                <input type="number" id="qqProfitMargin" class="input-field" value="15">
+            </div>
+            <div class="form-group">
+                <label for="qqAdditionalAdder" class="label">Additional Adder (%):</label>
+                <input type="number" id="qqAdditionalAdder" class="input-field" value="5">
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Items Table -->
+    <div class="card overflow-x-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-semibold text-gray-800">Quote Items</h3>
+            <div class="add-item-dropdown-container">
+                <button id="qqAddItemDropdownBtn" class="btn btn-green">➕ Add Item ▼</button>
+                <div id="qqAddItemDropdownMenu" class="add-item-dropdown-menu">
+                    <button class="dropdown-item" data-item-type="labor">Add Labor</button>
+                    <button class="dropdown-item" data-item-type="material">Add Material</button>
+                    <button class="dropdown-item" data-item-type="other">Add Other</button>
+                </div>
+            </div>
+        </div>
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="task-name-col">Item / Description</th>
+                    <th class="w-24">Qty</th>
+                    <th class="w-32">Unit Cost</th>
+                    <th class="w-32">Total</th>
+                    <th class="w-20">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="qqEstimateTableBody">
+                <!-- Quick Quote line items will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
