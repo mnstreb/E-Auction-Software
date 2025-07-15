@@ -77,29 +77,33 @@ window.QuickQuoteSummary = (function() {
             }
         });
 
-        // Event delegation for table inputs and buttons
+        // *** IMPORTANT: Event delegation for table inputs and buttons ***
+        // This replaces all inline onchange/onclick attributes in the rendered HTML
         if (tableBody) {
             console.log("QuickQuoteSummary.js: Attaching event delegation listeners to tableBody.");
+            
+            // Listener for 'change' events on inputs within the table
             tableBody.addEventListener('change', (e) => {
                 const target = e.target;
                 const row = target.closest('tr');
-                if (!row) return;
+                if (!row) return; // Ensure we are inside a row
                 const itemId = parseInt(row.dataset.id);
 
-                if (target.matches('input[type="text"]')) {
+                if (target.matches('input[data-field="description"]')) {
                     updateItem(itemId, 'description', target.value);
-                } else if (target.matches('input[type="number"]')) {
+                } else if (target.matches('input[data-field="totalAmount"]')) {
                     updateItem(itemId, 'totalAmount', target.value);
                 }
             });
 
+            // Listener for 'click' events on buttons within the table
             tableBody.addEventListener('click', (e) => {
                 const target = e.target;
                 const row = target.closest('tr');
-                if (!row) return;
+                if (!row) return; // Ensure we are inside a row
                 const itemId = parseInt(row.dataset.id);
 
-                if (target.matches('.btn-red')) { // Delete button
+                if (target.matches('button[data-action="delete"]')) { // Delete button
                     deleteItem(itemId);
                 }
             });
@@ -148,7 +152,8 @@ window.QuickQuoteSummary = (function() {
             console.error("QuickQuoteSummary.js: tableBody is null, cannot render.");
             return;
         }
-        tableBody.innerHTML = '';
+        tableBody.innerHTML = ''; // Clear existing content
+
         if (quickQuoteItems.length === 0) {
             const noItemsRow = document.createElement('tr');
             noItemsRow.innerHTML = `<td colspan="4" class="text-center text-gray-500 italic py-4">No quick quote items added yet. Click "Add Item" to begin!</td>`;
@@ -159,6 +164,8 @@ window.QuickQuoteSummary = (function() {
             const row = document.createElement('tr');
             row.setAttribute('data-id', item.id);
             
+            // Removed inline onchange/onclick attributes.
+            // Data attributes (data-field, data-action) are used for event delegation.
             row.innerHTML = `
                 <td><input type="text" class="input-field" value="${item.description}" data-field="description"></td>
                 <td><span class="font-semibold text-gray-700">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span></td>
@@ -212,6 +219,7 @@ window.QuickQuoteSummary = (function() {
             appHeaderTotalHoursElem.textContent = formatHours(totalHours);
         }
 
+        // Update global projectSettings for AppHeader and saving purposes
         window.projectSettings.grandTotal = grandTotal;
         window.projectSettings.totalLaborCost = directLaborCost;
         window.projectSettings.totalMaterialCostRaw = directMaterialCost;
@@ -226,8 +234,9 @@ window.QuickQuoteSummary = (function() {
         window.projectSettings.totalProfitMarginAmount = profitAmount;
     }
     
-    window.QuickQuoteSummary.updateItem = updateItem;
-    window.QuickQuoteSummary.deleteItem = deleteItem;
+    // Expose necessary functions to be called from HTML (via event delegation now)
+    window.QuickQuoteSummary.updateItem = updateItem; // Still exposed for potential direct calls if needed, but not used by inline HTML
+    window.QuickQuoteSummary.deleteItem = deleteItem; // Same as above
     window.QuickQuoteSummary.calculateTotals = calculateTotals;
     window.QuickQuoteSummary.getQuickQuoteItems = () => quickQuoteItems;
     window.QuickQuoteSummary.getQuickQuoteSettings = () => ({
