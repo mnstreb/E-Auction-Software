@@ -58,9 +58,11 @@ export default (function() {
         if(addItemMenu) {
             console.log("QuickQuoteSummary.js: Attaching click listener to addItemMenu for dropdown items.");
             addItemMenu.addEventListener('click', (e) => {
-                if (e.target.matches('.dropdown-item')) {
-                    console.log("QuickQuoteSummary.js: Dropdown item clicked:", e.target.dataset.itemType);
-                    const type = e.target.dataset.itemType;
+                // Find the closest dropdown-item ancestor to ensure the click is on an actual item
+                const dropdownItem = e.target.closest('.dropdown-item');
+                if (dropdownItem) {
+                    console.log("QuickQuoteSummary.js: Dropdown item clicked:", dropdownItem.dataset.itemType);
+                    const type = dropdownItem.dataset.itemType;
                     addItem(type);
                     addItemMenu.classList.remove('show'); // Close menu after selection
                 }
@@ -236,7 +238,6 @@ export default (function() {
     }
     
     // Expose necessary functions to be called from outside (e.g., index.html)
-    // These are no longer used by inline HTML, but might be by other JS modules.
     return {
         init: init,
         updateItem: updateItem, 
