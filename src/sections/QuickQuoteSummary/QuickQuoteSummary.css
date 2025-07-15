@@ -116,6 +116,16 @@
     font-size: 0.85em;
 }
 
+/* NEW: Style for the 'Type' column content */
+#qqEstimateTableBody td:nth-child(2) { /* Selects the second column (Type) */
+    text-align: center; /* Center the text content */
+}
+#qqEstimateTableBody td:nth-child(2) span {
+    display: block; /* Ensure the span behaves like a block for centering */
+    width: 100%; /* Take full width of its cell */
+}
+
+
 /* Dark Theme Adjustments */
 body.dark-theme .settings-panel {
     background: #2d3748;
@@ -129,5 +139,15 @@ body.dark-theme .add-item-dropdown-menu .dropdown-item {
 }
 body.dark-theme .add-item-dropdown-menu .dropdown-item:hover {
     background-color: #4a5568;
+}
+
+/* Dark theme for table body text */
+body.dark-theme #qqEstimateTableBody input.input-field {
+    background-color: #4a5568;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+body.dark-theme #qqEstimateTableBody span.font-semibold {
+    color: #e2e8f0; /* Ensure type text is visible in dark mode */
 }
 
