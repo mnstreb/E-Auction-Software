@@ -883,13 +883,15 @@
                 script.type = 'module'; // Added type="module"
                 script.onload = () => {
                     if (window.QuickQuoteSummary) {
-                        // No setTimeout needed with type="module" as it defers execution until DOM is parsed
-                        window.QuickQuoteSummary.init({
-                            projectSettings: projectSettings,
-                            formatCurrency: formatCurrency,
-                            formatHours: formatHours,
-                            isDarkTheme: isDarkTheme
-                        });
+                        // Use setTimeout to ensure DOM is ready after HTML injection
+                        setTimeout(() => { // Re-added setTimeout
+                            window.QuickQuoteSummary.init({
+                                projectSettings: projectSettings,
+                                formatCurrency: formatCurrency,
+                                formatHours: formatHours,
+                                isDarkTheme: isDarkTheme
+                            });
+                        }, 0); // Execute after current event loop
                     } else {
                         console.error('QuickQuoteSummary module not available after loading.');
                     }
