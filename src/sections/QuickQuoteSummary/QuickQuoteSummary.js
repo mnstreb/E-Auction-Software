@@ -58,6 +58,7 @@ export default (function() {
         if(addItemMenu) {
             console.log("QuickQuoteSummary.js: Attaching click listener to addItemMenu for dropdown items.");
             addItemMenu.addEventListener('click', (e) => {
+                e.stopPropagation(); // Add stopPropagation here to prevent immediate re-opening
                 // Find the closest dropdown-item ancestor to ensure the click is on an actual item
                 const dropdownItem = e.target.closest('.dropdown-item');
                 if (dropdownItem) {
