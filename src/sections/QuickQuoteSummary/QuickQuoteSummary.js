@@ -1,6 +1,7 @@
 // src/sections/QuickQuoteSummary/QuickQuoteSummary.js
 
-window.QuickQuoteSummary = (function() {
+// Change to ES Module export
+export default (function() {
 
     let projectSettings;
     let formatCurrency;
@@ -234,20 +235,20 @@ window.QuickQuoteSummary = (function() {
         window.projectSettings.totalProfitMarginAmount = profitAmount;
     }
     
-    // Expose necessary functions to be called from HTML (via event delegation now)
-    window.QuickQuoteSummary.updateItem = updateItem; // Still exposed for potential direct calls if needed, but not used by inline HTML
-    window.QuickQuoteSummary.deleteItem = deleteItem; // Same as above
-    window.QuickQuoteSummary.calculateTotals = calculateTotals;
-    window.QuickQuoteSummary.getQuickQuoteItems = () => quickQuoteItems;
-    window.QuickQuoteSummary.getQuickQuoteSettings = () => ({
-        overhead: parseFloat(overheadInput.value) || 0,
-        materialMarkup: parseFloat(materialMarkupInput.value) || 0,
-        profitMargin: parseFloat(profitMarginInput.value) || 0,
-        miscellaneous: parseFloat(additionalAdderInput.value) || 0,
-    });
-
+    // Expose necessary functions to be called from outside (e.g., index.html)
+    // These are no longer used by inline HTML, but might be by other JS modules.
     return {
-        init: init
+        init: init,
+        updateItem: updateItem, 
+        deleteItem: deleteItem, 
+        calculateTotals: calculateTotals,
+        getQuickQuoteItems: () => quickQuoteItems,
+        getQuickQuoteSettings: () => ({
+            overhead: parseFloat(overheadInput.value) || 0,
+            materialMarkup: parseFloat(materialMarkupInput.value) || 0,
+            profitMargin: parseFloat(profitMarginInput.value) || 0,
+            miscellaneous: parseFloat(additionalAdderInput.value) || 0,
+        }),
     };
 
 })();
