@@ -9,7 +9,7 @@ window.QuickQuoteSummary = (function() {
     let quickQuoteItems = []; // Local array for quick quote items
 
     // UI Elements
-    let totalProposalElem, totalHoursElem;
+    let totalProposalElem; // Removed totalHoursElem as it's no longer directly calculated/displayed here
     let overheadInput, materialMarkupInput, profitMarginInput, additionalAdderInput;
     let addItemBtn, addItemMenu;
     let tableBody;
@@ -22,7 +22,7 @@ window.QuickQuoteSummary = (function() {
 
         // Get UI Element References
         totalProposalElem = document.getElementById('qqTotalProposal');
-        totalHoursElem = document.getElementById('qqTotalHours');
+        // totalHoursElem = document.getElementById('qqTotalHours'); // Removed
         overheadInput = document.getElementById('qqOverhead');
         materialMarkupInput = document.getElementById('qqMaterialMarkup');
         profitMarginInput = document.getElementById('qqProfitMargin');
@@ -53,8 +53,10 @@ window.QuickQuoteSummary = (function() {
             });
         }
 
-        document.addEventListener('click', () => {
-            if (addItemMenu && addItemMenu.classList.contains('show')) {
+        document.addEventListener('click', (e) => {
+            // Close dropdown if click is outside the button and menu
+            if (addItemMenu && addItemMenu.classList.contains('show') &&
+                !addItemBtn.contains(e.target) && !addItemMenu.contains(e.target)) {
                 addItemMenu.classList.remove('show');
             }
         });
@@ -70,10 +72,10 @@ window.QuickQuoteSummary = (function() {
     function addItem(type) {
         const newItem = {
             id: Date.now(),
-            type: type, // 'labor', 'material', or 'other'
+            type: type, // 'labor', 'material', 'equipment', or 'other'
             description: `New ${type} item`,
-            qty: (type === 'labor') ? 8 : 1, // Default hours for labor, qty for others
-            unitCost: (type === 'labor') ? 75 : 100, // Avg labor rate, default cost for others
+            // Set a default totalAmount based on type
+            totalAmount: (type === 'labor') ? 600 : (type === 'material') ? 250 : (type === 'equipment') ? 150 : 100,
         };
         quickQuoteItems.push(newItem);
         render();
@@ -89,7 +91,7 @@ window.QuickQuoteSummary = (function() {
         if (item) {
             if (field === 'description') {
                 item[field] = value;
-            } else {
+            } else if (field === 'totalAmount') {
                 item[field] = parseFloat(value) || 0;
             }
         }
@@ -102,21 +104,10 @@ window.QuickQuoteSummary = (function() {
             const row = document.createElement('tr');
             row.setAttribute('data-id', item.id);
             
-            let qtyLabel = 'Qty'; // This label is for screen readers, not visible in UI
-            let qtyValue = item.qty;
-            let qtyField = 'qty';
-
-            if(item.type === 'labor') {
-                qtyLabel = 'Hours';
-                qtyValue = item.qty; // For labor, qty represents hours
-                qtyField = 'qty';
-            }
-
             row.innerHTML = `
                 <td><input type="text" class="input-field" value="${item.description}" onchange="window.QuickQuoteSummary.updateItem(${item.id}, 'description', this.value)"></td>
-                <td><input type="number" class="input-field" value="${qtyValue}" onchange="window.QuickQuoteSummary.updateItem(${item.id}, '${qtyField}', this.value)" aria-label="${qtyLabel}"></td>
-                <td><input type="number" class="input-field" value="${item.unitCost}" onchange="window.QuickQuoteSummary.updateItem(${item.id}, 'unitCost', this.value)"></td>
-                <td class="font-semibold text-right" id="total-${item.id}"></td>
+                <td><span class="font-semibold text-gray-700">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span></td> <!-- Display Type -->
+                <td><input type="number" class="input-field" value="${item.totalAmount}" onchange="window.QuickQuoteSummary.updateItem(${item.id}, 'totalAmount', this.value)"></td>
                 <td><button class="btn btn-red btn-sm" onclick="window.QuickQuoteSummary.deleteItem(${item.id})">&times;</button></td>
             `;
             tableBody.appendChild(row);
@@ -133,30 +124,29 @@ window.QuickQuoteSummary = (function() {
 
         let directLaborCost = 0;
         let directMaterialCost = 0;
+        let directEquipmentCost = 0; // New for equipment
         let directOtherCost = 0;
-        let totalHours = 0;
-        
+        let totalHours = 0; // Still calculating for potential display in AppHeader/Saving
+
         quickQuoteItems.forEach(item => {
-            let itemTotal = 0;
             if (item.type === 'labor') {
-                itemTotal = item.qty * item.unitCost; // hours * rate
-                directLaborCost += itemTotal;
-                totalHours += item.qty;
+                directLaborCost += item.totalAmount;
+                totalHours += item.totalAmount / (projectSettings.allTradeLaborRates?.General?.Journeyman || 75); // Estimate hours based on default rate
             } else if (item.type === 'material') {
-                itemTotal = item.qty * item.unitCost;
-                directMaterialCost += itemTotal;
+                directMaterialCost += item.totalAmount;
+            } else if (item.type === 'equipment') { // Handle equipment
+                directEquipmentCost += item.totalAmount;
             } else { // 'other'
-                itemTotal = item.qty * item.unitCost;
-                directOtherCost += itemTotal;
-            }
-            const totalElem = document.getElementById(`total-${item.id}`);
-            if(totalElem) {
-                totalElem.textContent = formatCurrency(itemTotal);
+                directOtherCost += item.totalAmount;
             }
         });
 
+        // Ensure totalHoursElem is updated (even if not directly visible)
+        // if (totalHoursElem) totalHoursElem.textContent = formatHours(totalHours); // Removed from QQ summary, but still calculated for global projectSettings
+
         const materialMarkupAmount = directMaterialCost * (projectSettings.materialMarkup / 100);
-        const totalDirectCost = directLaborCost + directMaterialCost + directOtherCost;
+        // Sum all direct costs including new equipment cost
+        const totalDirectCost = directLaborCost + directMaterialCost + directEquipmentCost + directOtherCost;
         
         const baseForMarkups = totalDirectCost + materialMarkupAmount;
         
@@ -170,14 +160,19 @@ window.QuickQuoteSummary = (function() {
 
         // Update the main summary UI
         totalProposalElem.textContent = formatCurrency(grandTotal);
-        totalHoursElem.textContent = formatHours(totalHours);
+        // Update total hours display in the AppHeader if it's visible
+        const appHeaderTotalHoursElem = document.getElementById('summaryOverallLaborHours');
+        if (appHeaderTotalHoursElem) {
+            appHeaderTotalHoursElem.textContent = formatHours(totalHours);
+        }
+
 
         // Update global projectSettings for AppHeader and saving purposes
         // This ensures the main index.html has the latest totals from QuickQuoteSummary
         window.projectSettings.grandTotal = grandTotal;
         window.projectSettings.totalLaborCost = directLaborCost;
         window.projectSettings.totalMaterialCostRaw = directMaterialCost;
-        window.projectSettings.totalEquipmentCost = 0; // Quick quote doesn't track this separately
+        window.projectSettings.totalEquipmentCost = directEquipmentCost; // Pass equipment cost
         window.projectSettings.totalSubcontractorCost = 0; // Quick quote doesn't track this separately
         window.projectSettings.totalMiscLineItemCosts = directOtherCost; // Lump 'other' into misc
         window.projectSettings.overallLaborHoursSum = totalHours;
