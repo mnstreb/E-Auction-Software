@@ -882,12 +882,15 @@
                 script.src = 'src/sections/QuickQuoteSummary/QuickQuoteSummary.js';
                 script.onload = () => {
                     if (window.QuickQuoteSummary) {
-                        window.QuickQuoteSummary.init({
-                            projectSettings: projectSettings,
-                            formatCurrency: formatCurrency,
-                            formatHours: formatHours,
-                            isDarkTheme: isDarkTheme
-                        });
+                        // Use setTimeout to ensure DOM is ready after HTML injection
+                        setTimeout(() => {
+                            window.QuickQuoteSummary.init({
+                                projectSettings: projectSettings,
+                                formatCurrency: formatCurrency,
+                                formatHours: formatHours,
+                                isDarkTheme: isDarkTheme
+                            });
+                        }, 0); // Execute after current event loop
                     } else {
                         console.error('QuickQuoteSummary module not available after loading.');
                     }
@@ -1797,14 +1800,16 @@
                     const quickQuoteItems = window.QuickQuoteSummary.getQuickQuoteItems();
                     quickQuoteItems.forEach(item => {
                         if (item.type === 'labor') {
-                            totalLaborCost += item.qty * item.unitCost;
+                            totalLaborCost += item.totalAmount;
                             if (laborHoursBreakdown["Journeyman"] !== undefined) { // Default quick quote labor to Journeyman hours
-                                laborHoursBreakdown["Journeyman"] += item.qty;
+                                laborHoursBreakdown["Journeyman"] += item.totalAmount / (projectSettings.allTradeLaborRates?.General?.Journeyman || 75); // Estimate hours
                             }
                         } else if (item.type === 'material') {
-                            totalMaterialCostRaw += item.qty * item.unitCost;
+                            totalMaterialCostRaw += item.totalAmount;
+                        } else if (item.type === 'equipment') {
+                            totalEquipmentCost += item.totalAmount;
                         } else { // 'other'
-                            totalMiscLineItemCosts += item.qty * item.unitCost; // Lump all 'other' into misc line items for calculation
+                            totalMiscLineItemCosts += item.totalAmount; // Lump all 'other' into misc line items for calculation
                         }
                     });
                      // Also update projectSettings from QuickQuoteSummary's inputs
@@ -2117,8 +2122,10 @@
                 });
             }
             // Only add item button listener if in detailed mode
-            if (document.getElementById('addItemBtn')) {
-                document.getElementById('addItemBtn').addEventListener('click', addItem);
+            // This is for the detailed estimate's "Add Item" button
+            const detailedAddItemBtn = document.getElementById('addItemBtn');
+            if (detailedAddItemBtn) {
+                detailedAddItemBtn.addEventListener('click', addItem);
             }
             
             setupAIChatListeners();
