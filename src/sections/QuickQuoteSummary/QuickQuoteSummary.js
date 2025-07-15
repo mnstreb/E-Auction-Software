@@ -29,16 +29,19 @@ window.QuickQuoteSummary = (function() {
         additionalAdderInput = document.getElementById('qqAdditionalAdder');
         addItemBtn = document.getElementById('qqAddItemDropdownBtn');
         addItemMenu = document.getElementById('qqAddItemDropdownMenu');
-        tableBody = document.getElementById('qqEstimateTableBody');
+        tableBody = document.getElementById('qqEstimateTableBody'); // Get reference to the table body
 
         console.log("QuickQuoteSummary.js: addItemBtn found?", addItemBtn); 
         console.log("QuickQuoteSummary.js: addItemMenu found?", addItemMenu); 
+        console.log("QuickQuoteSummary.js: tableBody found?", tableBody);
 
-        // Attach Event Listeners
+
+        // Attach Event Listeners for financial settings
         [overheadInput, materialMarkupInput, profitMarginInput, additionalAdderInput].forEach(input => {
             if(input) input.addEventListener('change', calculateTotals);
         });
 
+        // Attach Event Listener for the main "Add Item" button
         if(addItemBtn) {
             console.log("QuickQuoteSummary.js: Attaching click listener to addItemBtn."); 
             addItemBtn.addEventListener('click', (e) => {
@@ -50,6 +53,7 @@ window.QuickQuoteSummary = (function() {
             console.error("QuickQuoteSummary.js: addItemBtn not found after init. Check HTML ID.");
         }
 
+        // Attach Event Listener for the dropdown menu items (using delegation)
         if(addItemMenu) {
             console.log("QuickQuoteSummary.js: Attaching click listener to addItemMenu for dropdown items.");
             addItemMenu.addEventListener('click', (e) => {
@@ -64,15 +68,44 @@ window.QuickQuoteSummary = (function() {
             console.error("QuickQuoteSummary.js: addItemMenu not found after init. Check HTML ID.");
         }
 
+        // Global click listener to close dropdown when clicking outside
         document.addEventListener('click', (e) => {
-            // Close dropdown if click is outside the button and menu
-            // Ensure addItemBtn and addItemMenu exist before checking contains
             if (addItemMenu && addItemBtn && addItemMenu.classList.contains('show') &&
                 !addItemBtn.contains(e.target) && !addItemMenu.contains(e.target)) {
                 console.log("QuickQuoteSummary.js: Closing dropdown due to outside click.");
                 addItemMenu.classList.remove('show');
             }
         });
+
+        // Event delegation for table inputs and buttons
+        if (tableBody) {
+            console.log("QuickQuoteSummary.js: Attaching event delegation listeners to tableBody.");
+            tableBody.addEventListener('change', (e) => {
+                const target = e.target;
+                const row = target.closest('tr');
+                if (!row) return;
+                const itemId = parseInt(row.dataset.id);
+
+                if (target.matches('input[type="text"]')) {
+                    updateItem(itemId, 'description', target.value);
+                } else if (target.matches('input[type="number"]')) {
+                    updateItem(itemId, 'totalAmount', target.value);
+                }
+            });
+
+            tableBody.addEventListener('click', (e) => {
+                const target = e.target;
+                const row = target.closest('tr');
+                if (!row) return;
+                const itemId = parseInt(row.dataset.id);
+
+                if (target.matches('.btn-red')) { // Delete button
+                    deleteItem(itemId);
+                }
+            });
+        } else {
+            console.error("QuickQuoteSummary.js: tableBody not found after init. Check HTML ID.");
+        }
         
         // Initial render of the table (even if empty)
         render(); 
@@ -111,6 +144,10 @@ window.QuickQuoteSummary = (function() {
 
     function render() {
         console.log("QuickQuoteSummary.js: Rendering items. Current items:", quickQuoteItems.length);
+        if (!tableBody) { // Safety check if tableBody wasn't found during init
+            console.error("QuickQuoteSummary.js: tableBody is null, cannot render.");
+            return;
+        }
         tableBody.innerHTML = '';
         if (quickQuoteItems.length === 0) {
             const noItemsRow = document.createElement('tr');
@@ -123,10 +160,10 @@ window.QuickQuoteSummary = (function() {
             row.setAttribute('data-id', item.id);
             
             row.innerHTML = `
-                <td><input type="text" class="input-field" value="${item.description}" onchange="window.QuickQuoteSummary.updateItem(${item.id}, 'description', this.value)"></td>
+                <td><input type="text" class="input-field" value="${item.description}" data-field="description"></td>
                 <td><span class="font-semibold text-gray-700">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span></td>
-                <td><input type="number" class="input-field" value="${item.totalAmount}" onchange="window.QuickQuoteSummary.updateItem(${item.id}, 'totalAmount', this.value)"></td>
-                <td><button class="btn btn-red btn-sm" onclick="window.QuickQuoteSummary.deleteItem(${item.id})">&times;</button></td>
+                <td><input type="number" class="input-field" value="${item.totalAmount}" data-field="totalAmount"></td>
+                <td><button class="btn btn-red btn-sm" data-action="delete">&times;</button></td>
             `;
             tableBody.appendChild(row);
         });
@@ -134,7 +171,6 @@ window.QuickQuoteSummary = (function() {
     }
 
     function calculateTotals() {
-        // ... (existing calculateTotals logic) ...
         console.log("QuickQuoteSummary.js: Calculating totals.");
 
         projectSettings.overhead = parseFloat(overheadInput.value) || 0;
