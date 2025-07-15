@@ -787,7 +787,10 @@
         </div>
     </div>
 
-    <script>
+    <script type="module"> // Changed to type="module" for the main script block
+        // Import QuickQuoteSummary as a module
+        import QuickQuoteSummary from './src/sections/QuickQuoteSummary/QuickQuoteSummary.js';
+
         // --- Core Application Functions (Defined at the top to ensure hoisting) ---
         async function loadAppHeader() {
             try {
@@ -878,26 +881,18 @@
                 const html = await htmlResponse.text();
                 document.getElementById('quickQuoteSummaryPlaceholder').innerHTML = html;
 
-                const script = document.createElement('script');
-                script.src = 'src/sections/QuickQuoteSummary/QuickQuoteSummary.js';
-                script.type = 'module'; // Added type="module"
-                script.onload = () => {
-                    if (window.QuickQuoteSummary) {
-                        // Use setTimeout to ensure DOM is ready after HTML injection
-                        setTimeout(() => { // Re-added setTimeout
-                            window.QuickQuoteSummary.init({
-                                projectSettings: projectSettings,
-                                formatCurrency: formatCurrency,
-                                formatHours: formatHours,
-                                isDarkTheme: isDarkTheme
-                            });
-                        }, 0); // Execute after current event loop
-                    } else {
-                        console.error('QuickQuoteSummary module not available after loading.');
-                    }
-                };
-                script.onerror = (e) => console.error("Failed to load QuickQuoteSummary.js", e);
-                document.body.appendChild(script);
+                // Directly use the imported QuickQuoteSummary module
+                // No need for dynamic script element or setTimeout here, as the import is handled by the module loader
+                if (QuickQuoteSummary) {
+                    QuickQuoteSummary.init({
+                        projectSettings: projectSettings,
+                        formatCurrency: formatCurrency,
+                        formatHours: formatHours,
+                        isDarkTheme: isDarkTheme
+                    });
+                } else {
+                    console.error('QuickQuoteSummary module not available after loading. Check import path.');
+                }
 
             } catch (error) {
                 console.error("Error loading QuickQuoteSummary component:", error);
@@ -1280,8 +1275,8 @@
             if (currentAppMode === 'detailed') {
                 calculateTotals(); 
             } else if (currentAppMode === 'quickQuote') {
-                if (window.QuickQuoteSummary && typeof window.QuickQuoteSummary.calculateTotals === 'function') {
-                    window.QuickQuoteSummary.calculateTotals(); // Ensure quick quote totals are fresh
+                if (QuickQuoteSummary && typeof QuickQuoteSummary.calculateTotals === 'function') {
+                    QuickQuoteSummary.calculateTotals(); // Ensure quick quote totals are fresh
                 }
             }
             
@@ -1333,7 +1328,7 @@
                 projectDetails: JSON.stringify({
                     settings: { ...projectSettings }, // Save current project settings
                     // Save either detailed estimate items or quick quote items
-                    items: currentAppMode === 'detailed' ? [...estimateItems] : (window.QuickQuoteSummary ? window.QuickQuoteSummary.getQuickQuoteItems() : []) 
+                    items: currentAppMode === 'detailed' ? [...estimateItems] : (QuickQuoteSummary ? QuickQuoteSummary.getQuickQuoteItems() : []) 
                 })
             };
 
@@ -1787,8 +1782,7 @@
                     const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
                     const laborTotal = item.hours * effectiveLaborRate;
                     const materialsTotal = item.materialQuantity * item.materialUnitCost;
-                    totalLaborCost += laborTotal;
-                    totalMaterialCostRaw += materialsTotal;
+                    totalLaborCost += materialsTotal;
                     totalEquipmentCost += item.equipmentRentalCost;
                     totalSubcontractorCost += item.subcontractorCostLineItem;
                     totalMiscLineItemCosts += item.miscLineItem;
@@ -1797,8 +1791,8 @@
                     }
                 });
             } else if (currentAppMode === 'quickQuote') {
-                if (window.QuickQuoteSummary && typeof window.QuickQuoteSummary.getQuickQuoteItems === 'function') {
-                    const quickQuoteItems = window.QuickQuoteSummary.getQuickQuoteItems();
+                if (QuickQuoteSummary && typeof QuickQuoteSummary.getQuickQuoteItems === 'function') {
+                    const quickQuoteItems = QuickQuoteSummary.getQuickQuoteItems();
                     quickQuoteItems.forEach(item => {
                         if (item.type === 'labor') {
                             totalLaborCost += item.totalAmount;
@@ -1814,8 +1808,8 @@
                         }
                     });
                      // Also update projectSettings from QuickQuoteSummary's inputs
-                    if (window.QuickQuoteSummary && typeof window.QuickQuoteSummary.getQuickQuoteSettings === 'function') {
-                        const qqSettings = window.QuickQuoteSummary.getQuickQuoteSettings();
+                    if (QuickQuoteSummary && typeof QuickQuoteSummary.getQuickQuoteSettings === 'function') {
+                        const qqSettings = QuickQuoteSummary.getQuickQuoteSettings();
                         projectSettings.overhead = qqSettings.overhead;
                         projectSettings.materialMarkup = qqSettings.materialMarkup;
                         projectSettings.profitMargin = qqSettings.profitMargin;
@@ -1877,7 +1871,7 @@
                     salesTaxAmount, additionalConsiderationAmount, grandTotal,
                     overallLaborHoursSum
                 }, estimateItems, isDarkTheme);
-            } else if (currentAppMode === 'quickQuote' && window.QuickQuoteSummary && typeof window.QuickQuoteSummary.updateSummary === 'function') {
+            } else if (currentAppMode === 'quickQuote' && QuickQuoteSummary && typeof QuickQuoteSummary.updateSummary === 'function') {
                  // QuickQuoteSummary's updateSummary is called internally by its own calculateTotals
                  // We only need to ensure projectSettings are updated for the AppHeader and saving
             }
