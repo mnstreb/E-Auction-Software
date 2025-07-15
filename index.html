@@ -880,17 +880,16 @@
 
                 const script = document.createElement('script');
                 script.src = 'src/sections/QuickQuoteSummary/QuickQuoteSummary.js';
+                script.type = 'module'; // Added type="module"
                 script.onload = () => {
                     if (window.QuickQuoteSummary) {
-                        // Use setTimeout to ensure DOM is ready after HTML injection
-                        setTimeout(() => {
-                            window.QuickQuoteSummary.init({
-                                projectSettings: projectSettings,
-                                formatCurrency: formatCurrency,
-                                formatHours: formatHours,
-                                isDarkTheme: isDarkTheme
-                            });
-                        }, 0); // Execute after current event loop
+                        // No setTimeout needed with type="module" as it defers execution until DOM is parsed
+                        window.QuickQuoteSummary.init({
+                            projectSettings: projectSettings,
+                            formatCurrency: formatCurrency,
+                            formatHours: formatHours,
+                            isDarkTheme: isDarkTheme
+                        });
                     } else {
                         console.error('QuickQuoteSummary module not available after loading.');
                     }
@@ -1625,8 +1624,8 @@
             const newItem = {
                 id: Date.now(), taskName: 'New Task', description: 'Detail your first project task here.',
                 trade: defaultTradeForNewItem, rateRole: defaultRoleForNewItem, hours: 0,
-                otDtMultiplier: 1.0, materialQuantity: 0, materialUnitCost: 0,
-                equipmentRentalCost: 0, subcontractorCostLineItem: 0, miscLineItem: 0
+                materialQuantity: 0, materialUnitCost: 0, equipmentRentalCost: 0,
+                subcontractorCostLineItem: 0, miscLineItem: 0
             };
             estimateItems.push(newItem);
             renderItems();
@@ -1924,7 +1923,6 @@
                 defaultTradeSelectorElem.disabled = true;
                 currentlySelectedTradeForLineItems = "";
             } else {
-                defaultTradeSelectorElem.disabled = false;
                 projectSettings.activeTrades.forEach(trade => {
                     const option = document.createElement('option');
                     option.value = trade;
