@@ -38,7 +38,7 @@ window.QuickQuoteSummary = (function() {
 
         if(addItemBtn) {
             addItemBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // Prevent this click from immediately bubbling to document and closing
                 addItemMenu.classList.toggle('show');
             });
         }
@@ -48,7 +48,7 @@ window.QuickQuoteSummary = (function() {
                 if (e.target.matches('.dropdown-item')) {
                     const type = e.target.dataset.itemType;
                     addItem(type);
-                    addItemMenu.classList.remove('show');
+                    addItemMenu.classList.remove('show'); // Close menu after selection
                 }
             });
         }
@@ -63,7 +63,8 @@ window.QuickQuoteSummary = (function() {
         
         // Initial render
         if (quickQuoteItems.length === 0) {
-            addItem('labor'); // Start with one labor item
+            // Do not add item automatically on init to avoid unexpected items on load
+            // The user will explicitly click "Add Item"
         } else {
             render();
         }
@@ -100,6 +101,13 @@ window.QuickQuoteSummary = (function() {
 
     function render() {
         tableBody.innerHTML = '';
+        if (quickQuoteItems.length === 0) {
+            // Optional: Add a message if no items
+            const noItemsRow = document.createElement('tr');
+            noItemsRow.innerHTML = `<td colspan="4" class="text-center text-gray-500 italic py-4">No quick quote items added yet. Click "Add Item" to begin!</td>`;
+            tableBody.appendChild(noItemsRow);
+        }
+
         quickQuoteItems.forEach(item => {
             const row = document.createElement('tr');
             row.setAttribute('data-id', item.id);
