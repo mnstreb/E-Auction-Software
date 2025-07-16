@@ -22,6 +22,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    min-height: 180px; /* Made taller to appear "longer" */
 }
 
 .summary-metric-card .label {
@@ -41,6 +42,10 @@
     background: #f8fafc;
     padding: 25px;
     border-radius: 16px;
+    min-height: 180px; /* Ensure settings panels match the new height */
+    display: flex; /* Ensure flex for consistent internal layout */
+    flex-direction: column;
+    justify-content: center; /* Center content vertically if space allows */
 }
 
 .settings-panel h4 {
@@ -151,3 +156,8 @@ body.dark-theme #qqEstimateTableBody span.font-semibold {
     color: #e2e8f0; /* Ensure type text is visible in dark mode */
 }
 
+/* Dark theme for newly added Project Subtotal card */
+body.dark-theme .summary-metric-card {
+    background: linear-gradient(135deg, #2a4365 0%, #2c5282 100%);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
