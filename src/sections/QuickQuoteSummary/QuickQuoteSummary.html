@@ -1,7 +1,7 @@
 <!-- src/sections/QuickQuoteSummary/QuickQuoteSummary.html -->
 <div class="quick-quote-container">
-    <!-- Top Summary & Settings Grid -->
-    <div class="dashboard-summary-grid">
+    <!-- Top Row: Total Proposal & Total Labor Hours -->
+    <div class="quick-quote-top-metrics-row mb-6">
         <div class="summary-metric-card">
             <span class="label">Total Proposal</span>
             <span class="value" id="qqTotalProposal">$0.00</span>
@@ -10,6 +10,10 @@
             <span class="label">Total Labor Hours</span>
             <span class="value" id="qqTotalHours">0.00</span>
         </div>
+    </div>
+
+    <!-- Middle Row: Financial Settings & Profit & Adders Panels -->
+    <div class="quick-quote-settings-panels-row mb-6">
         <div class="settings-panel card">
             <h4>Financial Settings</h4>
             <div class="form-group">
@@ -34,9 +38,9 @@
         </div>
     </div>
 
-    <!-- Project Subtotal Card on its own line, aligned to the right -->
-    <div class="flex justify-end w-full max-w-full mb-6">
-        <div class="summary-metric-card w-full md:w-1/2 lg:w-1/3"> 
+    <!-- Bottom Row: Project Subtotal Card (aligned right) -->
+    <div class="quick-quote-subtotal-row mb-6">
+        <div class="summary-metric-card">
             <span class="label">Project Subtotal</span>
             <span class="value" id="qqProjectSubtotal">$0.00</span>
         </div>
