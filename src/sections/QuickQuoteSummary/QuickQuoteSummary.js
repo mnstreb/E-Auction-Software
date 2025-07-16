@@ -11,6 +11,7 @@ export default (function() {
 
     // UI Elements
     let totalProposalElem; 
+    let qqProjectSubtotalElem; // NEW: Reference for the Project Subtotal element
     let overheadInput, materialMarkupInput, profitMarginInput, additionalAdderInput;
     let addItemBtn, addItemMenu;
     let tableBody;
@@ -24,6 +25,7 @@ export default (function() {
 
         // Get UI Element References
         totalProposalElem = document.getElementById('qqTotalProposal');
+        qqProjectSubtotalElem = document.getElementById('qqProjectSubtotal'); // NEW: Get reference
         overheadInput = document.getElementById('qqOverhead');
         materialMarkupInput = document.getElementById('qqMaterialMarkup');
         profitMarginInput = document.getElementById('qqProfitMargin');
@@ -35,6 +37,7 @@ export default (function() {
         console.log("QuickQuoteSummary.js: addItemBtn found?", addItemBtn); 
         console.log("QuickQuoteSummary.js: addItemMenu found?", addItemMenu); 
         console.log("QuickQuoteSummary.js: tableBody found?", tableBody);
+        console.log("QuickQuoteSummary.js: qqProjectSubtotalElem found?", qqProjectSubtotalElem);
 
 
         // Attach Event Listeners for financial settings
@@ -210,6 +213,12 @@ export default (function() {
 
         const materialMarkupAmount = directMaterialCost * (projectSettings.materialMarkup / 100);
         const totalDirectCost = directLaborCost + directMaterialCost + directEquipmentCost + directOtherCost;
+        
+        // NEW: Update the Project Subtotal element
+        if (qqProjectSubtotalElem) {
+            qqProjectSubtotalElem.textContent = formatCurrency(totalDirectCost);
+        }
+
         const baseForMarkups = totalDirectCost + materialMarkupAmount;
         const overheadAmount = baseForMarkups * (projectSettings.overhead / 100);
         const additionalAdderAmount = baseForMarkups * (projectSettings.miscellaneous / 100);
