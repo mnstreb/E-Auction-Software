@@ -173,7 +173,7 @@ export default (function() {
             row.innerHTML = `
                 <td><input type="text" class="input-field" value="${item.description}" data-field="description"></td>
                 <td><span class="font-semibold text-gray-700">${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</span></td>
-                <td><input type="number" class="input-field" value="${item.totalAmount}" data-field="totalAmount"></td>
+                <td><input type="text" class="input-field" value="${formatCurrency(item.totalAmount)}" data-field="totalAmount"></td>
                 <td><button class="btn btn-red btn-sm" data-action="delete">&times;</button></td>
             `;
             tableBody.appendChild(row);
