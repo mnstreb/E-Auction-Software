@@ -426,12 +426,12 @@ window.SetupWizard = (function() {
         projectStateSelect.value = projectSettings.projectState;
 
         document.getElementById('projectAddress').value = projectSettings.projectAddress;
-        document.getElementById('projectCity').value = projectSettings.projectCity; // Corrected from document.getElementById('projectCity').value
-        document.getElementById('projectZip').value = projectSettings.projectZip; // Corrected from document.getElementById('projectZip').value
-        document.getElementById('startDate').value = projectSettings.startDate; // Corrected from document.getElementById('startDate').value
-        document.getElementById('endDate').value = projectSettings.endDate; // Corrected from document.getElementById('endDate').value
-        document.getElementById('projectID').value = projectSettings.projectID; // Corrected from document.getElementById('projectID').value
-        document.getElementById('projectDescription').value = projectSettings.projectDescription; // Corrected from document.getElementById('projectDescription').value
+        document.getElementById('projectCity').value = projectSettings.projectCity;
+        document.getElementById('projectZip').value = projectSettings.projectZip;
+        document.getElementById('startDate').value = projectSettings.startDate;
+        document.getElementById('endDate').value = projectSettings.endDate;
+        document.getElementById('projectID').value = projectSettings.projectID;
+        document.getElementById('projectDescription').value = projectSettings.projectDescription;
 
         if (isAdvancedDetailsActive) {
             advancedDetailsSection.classList.remove('hidden');
@@ -450,7 +450,8 @@ window.SetupWizard = (function() {
         overheadInput.value = projectSettings.overhead;
         materialMarkupInput.value = projectSettings.materialMarkup; 
         additionalConsiderationsValueInput.value = projectSettings.additionalConsiderationsValue;
-        // Removed: additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType;
+        // Removed: additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType; // This line is no longer needed
+        updateAdditionalConsiderationsButtonText(); // Ensure button text is correct on load of step 3
     }
 
     function updateSalesTaxForState(stateCode) {
@@ -465,7 +466,7 @@ window.SetupWizard = (function() {
         } else {
             projectSettings.additionalConsiderationsType = '%';
         }
-        // Removed: additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType;
+        // Removed: additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType; // This line is no longer needed
         updateAdditionalConsiderationsButtonText(); // Update the button text
     }
 
