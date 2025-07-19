@@ -44,7 +44,7 @@ window.SetupWizard = (function() {
     let overheadInput;
     let materialMarkupInput;
     let additionalConsiderationsValueInput;
-    let additionalConsiderationsUnitSpan;
+    // Removed: let additionalConsiderationsUnitSpan; // This reference is no longer needed
     let toggleAdditionalConsiderationsBtn; // NEW: Reference for the toggle button
 
 
@@ -123,7 +123,7 @@ window.SetupWizard = (function() {
         overheadInput = document.getElementById('overhead');
         materialMarkupInput = document.getElementById('materialMarkup');
         additionalConsiderationsValueInput = document.getElementById('additionalConsiderationsValue');
-        additionalConsiderationsUnitSpan = document.getElementById('additionalConsiderationsUnit');
+        // Removed: additionalConsiderationsUnitSpan = document.getElementById('additionalConsiderationsUnit'); // This line is no longer needed
         toggleAdditionalConsiderationsBtn = document.getElementById('toggleAdditionalConsiderationsBtn'); // NEW: Get reference
 
 
@@ -426,12 +426,12 @@ window.SetupWizard = (function() {
         projectStateSelect.value = projectSettings.projectState;
 
         document.getElementById('projectAddress').value = projectSettings.projectAddress;
-        document.getElementById('projectCity').value = document.getElementById('projectCity').value;
-        document.getElementById('projectZip').value = document.getElementById('projectZip').value;
-        document.getElementById('startDate').value = document.getElementById('startDate').value;
-        document.getElementById('endDate').value = document.getElementById('endDate').value;
-        document.getElementById('projectID').value = document.getElementById('projectID').value;
-        document.getElementById('projectDescription').value = document.getElementById('projectDescription').value;
+        document.getElementById('projectCity').value = projectSettings.projectCity; // Corrected from document.getElementById('projectCity').value
+        document.getElementById('projectZip').value = projectSettings.projectZip; // Corrected from document.getElementById('projectZip').value
+        document.getElementById('startDate').value = projectSettings.startDate; // Corrected from document.getElementById('startDate').value
+        document.getElementById('endDate').value = projectSettings.endDate; // Corrected from document.getElementById('endDate').value
+        document.getElementById('projectID').value = projectSettings.projectID; // Corrected from document.getElementById('projectID').value
+        document.getElementById('projectDescription').value = projectSettings.projectDescription; // Corrected from document.getElementById('projectDescription').value
 
         if (isAdvancedDetailsActive) {
             advancedDetailsSection.classList.remove('hidden');
@@ -450,7 +450,7 @@ window.SetupWizard = (function() {
         overheadInput.value = projectSettings.overhead;
         materialMarkupInput.value = projectSettings.materialMarkup; 
         additionalConsiderationsValueInput.value = projectSettings.additionalConsiderationsValue;
-        additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType;
+        // Removed: additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType;
     }
 
     function updateSalesTaxForState(stateCode) {
@@ -465,18 +465,14 @@ window.SetupWizard = (function() {
         } else {
             projectSettings.additionalConsiderationsType = '%';
         }
-        additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType;
+        // Removed: additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType;
         updateAdditionalConsiderationsButtonText(); // Update the button text
     }
 
     // NEW: Function to update the text on the toggle button
     function updateAdditionalConsiderationsButtonText() {
         if (toggleAdditionalConsiderationsBtn) {
-            if (projectSettings.additionalConsiderationsType === '%') {
-                toggleAdditionalConsiderationsBtn.textContent = '% / $';
-            } else {
-                toggleAdditionalConsiderationsBtn.textContent = '$ / %';
-            }
+            toggleAdditionalConsiderationsBtn.textContent = projectSettings.additionalConsiderationsType;
         }
     }
 
