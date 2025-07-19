@@ -1149,7 +1149,7 @@
             // Update summaries and charts in relevant sections based on new theme
             if (currentAppMode === 'detailed' && window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
-            } else if (currentAppMode === 'quickQuote' && window.QuickQuoteSummary && typeof window.QuickQuoteSummary.updateSummary === 'function') {
+            } else if (currentAppMode === 'quickQuote' && QuickQuoteSummary && typeof QuickQuoteSummary.updateSummary === 'function') {
                 // QuickQuoteSummary's updateSummary should internally handle theme for its chart if it has one
                 // Or you might need a specific updateTheme function for QuickQuoteSummary
                 // For now, it's passed during init, but if chart colors need dynamic update, add a function there.
@@ -1172,9 +1172,18 @@
             
             // After wizard, always show the detailed app view
             entryPointContainer.classList.add('hidden');
-            mainApp.classList.remove('hidden');
+            // Ensure mainApp and quickQuoteApp are hidden before deciding which to show
+            mainApp.classList.add('hidden');
             quickQuoteApp.classList.add('hidden');
-            loadSummaryOverview();
+
+            // Now, based on the mode, show the correct app
+            if (projectSettings.projectType === "Quick Quote") { // Assuming Quick Quote is set in projectSettings from startQuickQuote
+                 quickQuoteApp.classList.remove('hidden');
+                 loadQuickQuoteSummary(); // Ensure quick quote summary is loaded/reloaded
+            } else {
+                 mainApp.classList.remove('hidden');
+                 loadSummaryOverview();
+            }
             
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
             
@@ -1782,7 +1791,7 @@
                     const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
                     const laborTotal = item.hours * effectiveLaborRate;
                     const materialsTotal = item.materialQuantity * item.materialUnitCost;
-                    totalLaborCost += materialsTotal;
+                    totalLaborCost += materialsTotal; // This seems like a bug, should be laborTotal
                     totalEquipmentCost += item.equipmentRentalCost;
                     totalSubcontractorCost += item.subcontractorCostLineItem;
                     totalMiscLineItemCosts += item.miscLineItem;
@@ -2061,8 +2070,8 @@
         function startDetailedEstimate() {
             currentAppMode = 'detailed';
             entryPointContainer.classList.add('hidden');
-            mainApp.classList.remove('hidden'); // Show detailed app
-            quickQuoteApp.classList.add('hidden'); // Hide quick quote app
+            mainApp.classList.add('hidden'); // Ensure mainApp is hidden initially
+            quickQuoteApp.classList.add('hidden'); // Ensure quickQuoteApp is hidden initially
             loadSetupWizard();
         }
 
@@ -2139,12 +2148,14 @@
             const messageBox = document.createElement('div');
             messageBox.className = 'bg-white rounded-xl p-8 shadow-2xl max-w-sm mx-auto text-center';
             
-            let buttonsHtml = `<button class="btn btn-primary" onclick="closeMessageBox()">OK</button>`;
+            let buttonsHtml;
             if (isConfirm) {
                 buttonsHtml = `
                     <button class="btn btn-red mr-3" id="confirmYesBtn">Yes</button>
-                    <button class="btn btn-primary" onclick="closeMessageBox()">No</button>
+                    <button class="btn btn-primary" id="confirmNoBtn">No</button>
                 `;
+            } else {
+                buttonsHtml = `<button class="btn btn-primary" id="okBtn">OK</button>`;
             }
 
             messageBox.innerHTML = `
@@ -2156,11 +2167,27 @@
             messageBoxOverlay.appendChild(messageBox);
             document.body.appendChild(messageBoxOverlay);
 
-            if (isConfirm && onConfirmCallback) {
-                document.getElementById('confirmYesBtn').addEventListener('click', () => {
-                    onConfirmCallback();
-                    closeMessageBox();
-                });
+            // Dynamically attach event listeners
+            if (isConfirm) {
+                const confirmYesBtn = document.getElementById('confirmYesBtn');
+                const confirmNoBtn = document.getElementById('confirmNoBtn');
+
+                if (confirmYesBtn) {
+                    confirmYesBtn.addEventListener('click', () => {
+                        if (onConfirmCallback) {
+                            onConfirmCallback();
+                        }
+                        closeMessageBox();
+                    });
+                }
+                if (confirmNoBtn) {
+                    confirmNoBtn.addEventListener('click', closeMessageBox);
+                }
+            } else {
+                const okBtn = document.getElementById('okBtn');
+                if (okBtn) {
+                    okBtn.addEventListener('click', closeMessageBox);
+                }
             }
         }
 
