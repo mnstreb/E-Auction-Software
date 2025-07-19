@@ -625,3 +625,51 @@ body.dark-theme .step-item.active .step-label,
 body.dark-theme .step-item.active .step-status {
     color: #4299e1; /* Blue for active */
 }
+
+/* --- NEW/UPDATED STYLES FOR SKILL LEVEL ROW LABELS --- */
+
+/* Ensure skill-name-display and skill-name-input.editable have proper width and no overlap */
+.skill-name-display,
+.skill-name-input.editable {
+    flex-basis: 160px; /* Give it a base width */
+    flex-grow: 1;      /* Allow it to grow */
+    flex-shrink: 1;    /* Allow it to shrink */
+    min-width: 0;      /* Crucial for shrinking flex items */
+    white-space: nowrap; /* Keep on one line */
+    overflow: hidden;    /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis for hidden text */
+    transition: color 0.3s;
+}
+
+/* Hide the rate-label when in advanced mode (skill-name-input is present) */
+/* This targets the label within the rate-input-group when the editable input is active */
+.skill-level-row .skill-name-input.editable + .rate-input-group .rate-label {
+    display: none; /* Hide the label when the editable input is active */
+}
+
+/* Adjust the rate-input width when the label is hidden */
+.skill-level-row .skill-name-input.editable + .rate-input-group .rate-input {
+    width: 100%; /* Allow the input to take full width if the label is hidden */
+    max-width: 150px; /* Maintain a reasonable max-width */
+}
+
+/* Ensure the rate-input-group itself behaves correctly */
+.rate-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Maintain gap for consistency */
+    flex-grow: 1; /* Allows the group to take available space */
+    justify-content: flex-end; /* Align content to the right */
+    min-width: 120px; /* Ensure a minimum width for the rate input group */
+}
+
+/* Adjust gap in skill-level-row to be more flexible */
+.skill-level-row {
+    gap: 10px; /* Slightly reduce gap if needed, or keep 15px if it looks good */
+}
+
+/* Ensure remove button doesn't cause overflow */
+.remove-skill-btn {
+    flex-shrink: 0; /* Prevent shrinking */
+    margin-left: 5px; /* Small margin to separate from input */
+}
