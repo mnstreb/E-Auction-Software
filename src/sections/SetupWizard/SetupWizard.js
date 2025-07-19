@@ -480,7 +480,7 @@ window.SetupWizard = (function() {
                 const label = document.createElement('label');
                 label.className = 'flex items-center';
                 label.innerHTML = `
-                    <input type="checkbox" id="${checkboxId}" value="${trade}" ${isChecked ? 'checked' : ''} onchange="window.SetupWizard.handleTradeSelection(this)">
+                    <input type="checkbox" id="${checkboxId}" value="${trade}" onchange="window.SetupWizard.handleTradeSelection(this)">
                     <span>${trade}</span>
                 `;
                 tradesDropdown.appendChild(label);
@@ -658,10 +658,10 @@ window.SetupWizard = (function() {
         isAdvancedDetailsActive = !isAdvancedDetailsActive;
         if (isAdvancedDetailsActive) {
             showAdvancedDetailsLink.textContent = 'Hide Advanced Details';
-            advancedDetailsSection.classList.remove('hidden');
+            advancedDetailsSection.classList.remove('hidden'); // Show the section
         } else {
-            advancedDetailsLink.textContent = 'Show Advanced Details';
-            advancedDetailsSection.classList.add('hidden');
+            showAdvancedDetailsLink.textContent = 'Show Advanced Details'; // Corrected variable name
+            advancedDetailsSection.classList.add('hidden'); // Hide the section
         }
     }
 
