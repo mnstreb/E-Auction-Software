@@ -45,6 +45,7 @@ window.SetupWizard = (function() {
     let materialMarkupInput;
     let additionalConsiderationsValueInput;
     let additionalConsiderationsUnitSpan;
+    let toggleAdditionalConsiderationsBtn; // NEW: Reference for the toggle button
 
 
     // State for wizard navigation
@@ -123,6 +124,7 @@ window.SetupWizard = (function() {
         materialMarkupInput = document.getElementById('materialMarkup');
         additionalConsiderationsValueInput = document.getElementById('additionalConsiderationsValue');
         additionalConsiderationsUnitSpan = document.getElementById('additionalConsiderationsUnit');
+        toggleAdditionalConsiderationsBtn = document.getElementById('toggleAdditionalConsiderationsBtn'); // NEW: Get reference
 
 
         // Attach event listeners specific to the wizard
@@ -162,7 +164,12 @@ window.SetupWizard = (function() {
         document.getElementById('nextStep2Btn').addEventListener('click', () => nextStep(2));
         document.getElementById('prevStep3Btn').addEventListener('click', () => prevStep(3));
         document.getElementById('startEstimatingBtn').addEventListener('click', startEstimating);
-        document.getElementById('toggleAdditionalConsiderationsBtn').addEventListener('click', toggleAdditionalConsiderationsType);
+        
+        // Ensure toggle button exists before adding listener
+        if (toggleAdditionalConsiderationsBtn) {
+            toggleAdditionalConsiderationsBtn.addEventListener('click', toggleAdditionalConsiderationsType);
+        }
+
 
         // Initial setup for the wizard
         loadSavedLogo();
@@ -233,6 +240,8 @@ window.SetupWizard = (function() {
         }
         if (stepNumber === 3) {
             populateWizardStep3Settings();
+            // Ensure the button text is updated when step 3 is shown
+            updateAdditionalConsiderationsButtonText(); 
         }
     }
 
@@ -417,12 +426,12 @@ window.SetupWizard = (function() {
         projectStateSelect.value = projectSettings.projectState;
 
         document.getElementById('projectAddress').value = projectSettings.projectAddress;
-        document.getElementById('projectCity').value = projectSettings.projectCity;
-        document.getElementById('projectZip').value = projectSettings.projectZip;
-        document.getElementById('startDate').value = projectSettings.startDate;
-        document.getElementById('endDate').value = projectSettings.endDate;
-        document.getElementById('projectID').value = projectSettings.projectID;
-        document.getElementById('projectDescription').value = projectSettings.projectDescription;
+        document.getElementById('projectCity').value = document.getElementById('projectCity').value;
+        document.getElementById('projectZip').value = document.getElementById('projectZip').value;
+        document.getElementById('startDate').value = document.getElementById('startDate').value;
+        document.getElementById('endDate').value = document.getElementById('endDate').value;
+        document.getElementById('projectID').value = document.getElementById('projectID').value;
+        document.getElementById('projectDescription').value = document.getElementById('projectDescription').value;
 
         if (isAdvancedDetailsActive) {
             advancedDetailsSection.classList.remove('hidden');
@@ -457,7 +466,20 @@ window.SetupWizard = (function() {
             projectSettings.additionalConsiderationsType = '%';
         }
         additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType;
+        updateAdditionalConsiderationsButtonText(); // Update the button text
     }
+
+    // NEW: Function to update the text on the toggle button
+    function updateAdditionalConsiderationsButtonText() {
+        if (toggleAdditionalConsiderationsBtn) {
+            if (projectSettings.additionalConsiderationsType === '%') {
+                toggleAdditionalConsiderationsBtn.textContent = '% / $';
+            } else {
+                toggleAdditionalConsiderationsBtn.textContent = '$ / %';
+            }
+        }
+    }
+
 
     function populateTradesDropdown() {
         tradesDropdown.innerHTML = '';
