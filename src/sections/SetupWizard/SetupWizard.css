@@ -5,12 +5,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.6);
+    background: #e0f2fe; /* Changed to a solid light background color */
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    backdrop-filter: blur(5px);
+    /* backdrop-filter: blur(5px); -- REMOVED this line */
     padding: 20px;
     box-sizing: border-box;
 }
@@ -512,7 +512,7 @@ body.dark-theme .clear-logo-btn {
 
 /* Dark Theme Specifics for Wizard Elements */
 body.dark-theme .setup-wizard-container {
-    background: rgba(0,0,0,0.7);
+    background: #1a202c; /* Changed to a solid dark background color */
 }
 body.dark-theme .wizard-content {
     background: #2d3748;
