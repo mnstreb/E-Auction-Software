@@ -1242,7 +1242,8 @@
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
             // Reset project info in header
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                window.AppHeader.updateProjectInfo('Project Type', 'New Project', 'Client', 'Location'); // Updated defaults
+                // Updated to match the desired format for the entry point
+                window.AppHeader.updateProjectInfo('Project Type', 'Project Name', 'Client Name', 'Location'); 
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo(''); // Clear logo
