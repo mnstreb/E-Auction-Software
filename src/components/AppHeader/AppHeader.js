@@ -3,8 +3,8 @@
 window.AppHeader = (function() {
     let mainAppLogoElem;
     let mainAppDefaultIcon;
-    let projectTypeDisplayElem; // This will now hold the smaller text (Client | Project Type | Project State)
-    let projectNameDisplayElem; // This will now hold the larger text (Project Name)
+    let projectTypeDisplayElem; // This is the H1 element in HTML, which should now be Project Name
+    let projectNameDisplayElem; // This is the P element in HTML, which should now be Client | Type | State
     // Removed themeToggleBtnElem as it's replaced by a slider in dropdown
     let reconfigureBtnElem;
     let saveProjectBtnElem;
@@ -58,8 +58,8 @@ window.AppHeader = (function() {
     function init(config) {
         mainAppLogoElem = document.getElementById(config.mainAppLogoId);
         mainAppDefaultIcon = document.getElementById('mainAppDefaultIcon'); // Static ID
-        projectTypeDisplayElem = document.getElementById('projectTypeDisplay'); // This will now hold the smaller text
-        projectNameDisplayElem = document.getElementById('projectNameDisplay'); // This will now hold the larger text
+        projectTypeDisplayElem = document.getElementById('projectTypeDisplay'); // This is the H1 element in HTML
+        projectNameDisplayElem = document.getElementById('projectNameDisplay'); // This is the P element in HTML
         // themeToggleBtnElem = document.getElementById(config.themeToggleBtnId); // Removed
         reconfigureBtnElem = document.getElementById(config.reconfigureBtnId);
         saveProjectBtnElem = document.getElementById(config.saveProjectBtnId);
@@ -199,17 +199,21 @@ window.AppHeader = (function() {
      * @param {string} projectState - The state/location of the project.
      */
     function updateProjectInfo(projectType, projectName, clientName, projectState) {
-        if (projectNameDisplayElem) { // This is the larger text (Project Name)
-            projectNameDisplayElem.textContent = projectName;
+        // Corrected: projectNameDisplayElem is the <p> tag, projectTypeDisplayElem is the <h1> tag
+        // We want Project Name in H1 (projectTypeDisplayElem)
+        // We want Client | Type | State in P (projectNameDisplayElem)
+
+        if (projectTypeDisplayElem) { // This is the H1 element in HTML
+            projectTypeDisplayElem.textContent = projectName; // Assign Project Name to H1
         }
-        if (projectTypeDisplayElem) { // This is the smaller text (Client | Project Type | Project State)
+        if (projectNameDisplayElem) { // This is the P element in HTML
             let subtitleParts = [];
             if (clientName) subtitleParts.push(clientName);
             // Only add projectType if it's not "Quick Quote" for the subtitle, as Quick Quote is a main type
             if (projectType && projectType !== "Quick Quote") subtitleParts.push(projectType);
             if (projectState) subtitleParts.push(projectState);
             
-            projectTypeDisplayElem.textContent = subtitleParts.join(' | ');
+            projectNameDisplayElem.textContent = subtitleParts.join(' | '); // Assign combined subtitle to P
         }
     }
 
