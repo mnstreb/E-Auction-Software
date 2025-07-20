@@ -3,7 +3,7 @@
 window.AppHeader = (function() {
     let mainAppLogoElem;
     let mainAppDefaultIcon;
-    let projectTypeDisplayElem; // This will now hold the smaller text (Client | Location)
+    let projectTypeDisplayElem; // This will now hold the smaller text (Client | Project Type | Project State)
     let projectNameDisplayElem; // This will now hold the larger text (Project Name)
     // Removed themeToggleBtnElem as it's replaced by a slider in dropdown
     let reconfigureBtnElem;
@@ -199,10 +199,10 @@ window.AppHeader = (function() {
      * @param {string} projectState - The state/location of the project.
      */
     function updateProjectInfo(projectType, projectName, clientName, projectState) {
-        if (projectNameDisplayElem) { // This is now the larger text
+        if (projectNameDisplayElem) { // This is the larger text (Project Name)
             projectNameDisplayElem.textContent = projectName;
         }
-        if (projectTypeDisplayElem) { // This is now the smaller text
+        if (projectTypeDisplayElem) { // This is the smaller text (Client | Project Type | Project State)
             let subtitleParts = [];
             if (clientName) subtitleParts.push(clientName);
             // Only add projectType if it's not "Quick Quote" for the subtitle, as Quick Quote is a main type
