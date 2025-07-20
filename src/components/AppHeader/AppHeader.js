@@ -3,8 +3,8 @@
 window.AppHeader = (function() {
     let mainAppLogoElem;
     let mainAppDefaultIcon;
-    let projectTypeDisplayElem;
-    let projectNameDisplayElem;
+    let projectTypeDisplayElem; // This will now hold the smaller text
+    let projectNameDisplayElem; // This will now hold the larger text
     // Removed themeToggleBtnElem as it's replaced by a slider in dropdown
     let reconfigureBtnElem;
     let saveProjectBtnElem;
@@ -58,8 +58,8 @@ window.AppHeader = (function() {
     function init(config) {
         mainAppLogoElem = document.getElementById(config.mainAppLogoId);
         mainAppDefaultIcon = document.getElementById('mainAppDefaultIcon'); // Static ID
-        projectTypeDisplayElem = document.getElementById('projectTypeDisplay');
-        projectNameDisplayElem = document.getElementById('projectNameDisplay');
+        projectTypeDisplayElem = document.getElementById('projectTypeDisplay'); // This will now hold the smaller text
+        projectNameDisplayElem = document.getElementById('projectNameDisplay'); // This will now hold the larger text
         // themeToggleBtnElem = document.getElementById(config.themeToggleBtnId); // Removed
         reconfigureBtnElem = document.getElementById(config.reconfigureBtnId);
         saveProjectBtnElem = document.getElementById(config.saveProjectBtnId);
@@ -195,14 +195,20 @@ window.AppHeader = (function() {
      * Updates the project information displayed in the header.
      * @param {string} projectType - The type of project (e.g., Commercial).
      * @param {string} projectName - The name of the project.
+     * @param {string} clientName - The client/customer name. // NEW parameter
      * @param {string} projectState - The state/location of the project.
      */
-    function updateProjectInfo(projectType, projectName, projectState) {
-        if (projectTypeDisplayElem) {
-            projectTypeDisplayElem.textContent = projectType;
+    function updateProjectInfo(projectType, projectName, clientName, projectState) { // Added clientName
+        if (projectNameDisplayElem) { // This is now the larger text
+            projectNameDisplayElem.textContent = projectName;
         }
-        if (projectNameDisplayElem) {
-            projectNameDisplayElem.textContent = `${projectName} - ${projectState}`;
+        if (projectTypeDisplayElem) { // This is now the smaller text
+            // Combine client, type, and state for the smaller text
+            let subtitleText = '';
+            if (clientName) subtitleText += clientName;
+            if (projectType && projectType !== "Quick Quote") subtitleText += (subtitleText ? ' | ' : '') + projectType;
+            if (projectState) subtitleText += (subtitleText ? ' | ' : '') + projectState;
+            projectTypeDisplayElem.textContent = subtitleText;
         }
     }
 
