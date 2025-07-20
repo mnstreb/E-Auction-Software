@@ -1242,7 +1242,7 @@
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
             // Reset project info in header
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                // Updated to match the desired format for the entry point
+                // Corrected: Project Name as large, Client | Type | Location as small
                 window.AppHeader.updateProjectInfo('Project Type', 'Project Name', 'Client Name', 'Location'); 
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
@@ -2086,7 +2086,8 @@
             loadQuickQuoteSummary();
             // Update AppHeader with default quick quote info
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); // Updated defaults
+                // Corrected: Project Name as large, Client | Type | Location as small
+                window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); 
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo(''); // Clear logo for quick quote
