@@ -1188,7 +1188,7 @@
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
             
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.projectState);
+                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo(projectSettings.contractorLogo);
@@ -1242,7 +1242,7 @@
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
             // Reset project info in header
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                window.AppHeader.updateProjectInfo('Project Type', 'Project Name - Location');
+                window.AppHeader.updateProjectInfo('Project Type', 'New Project', 'Client', 'Location'); // Updated defaults
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo(''); // Clear logo
@@ -1272,7 +1272,7 @@
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
              // Ensure header info is updated when returning to main app
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.projectState);
+                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo(projectSettings.contractorLogo);
@@ -1321,7 +1321,7 @@
 
             // Update AppHeader with potentially new project info from modal
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.projectState);
+                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
             }
 
             const totalProposalRaw = projectSettings.grandTotal || 0; // Ensures grandTotal is updated from latest calculations
@@ -2085,7 +2085,7 @@
             loadQuickQuoteSummary();
             // Update AppHeader with default quick quote info
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote - N/A');
+                window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); // Updated defaults
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo(''); // Clear logo for quick quote
