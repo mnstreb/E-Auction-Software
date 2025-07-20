@@ -1150,10 +1150,9 @@
             // Update summaries and charts in relevant sections based on new theme
             if (currentAppMode === 'detailed' && window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
                 window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
-            } else if (currentAppMode === 'quickQuote' && QuickQuoteSummary && typeof QuickQuoteSummary.updateSummary === 'function') {
-                // QuickQuoteSummary's updateSummary should internally handle theme for its chart if it has one
-                // Or you might need a specific updateTheme function for QuickQuoteSummary
-                // For now, it's passed during init, but if chart colors need dynamic update, add a function there.
+            } else if (currentAppMode === 'quickQuote' && QuickQuoteSummary && typeof QuickQuoteSummary.calculateTotals === 'function') {
+                // QuickQuoteSummary's calculateTotals will internally update its summary and potentially its chart
+                QuickQuoteSummary.calculateTotals();
             }
             if (window.SavedProjects && typeof window.SavedProjects.updateCustomerTotalsChart === 'function') {
                 window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
@@ -1251,13 +1250,14 @@
         }
         
         function reconfigureApp() {
-            renderMessageBox("This will reset the current estimate and return to the main screen. Are you sure?", () => {
-                projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
-                estimateItems = JSON.parse(JSON.stringify(initialEstimateItems));
-                
-                showEntryPoint();
-                closeMessageBox();
-            }, true);
+            // Instead of resetting, we now simply show the setup wizard again
+            // The wizard will automatically load the current projectSettings
+            loadSetupWizard();
+            // Hide the main app/quick quote app while wizard is open
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+            // No message box needed for a simple re-entry
         }
 
         function showSetupWizard() {
@@ -1882,7 +1882,7 @@
                     salesTaxAmount, additionalConsiderationAmount, grandTotal,
                     overallLaborHoursSum
                 }, estimateItems, isDarkTheme);
-            } else if (currentAppMode === 'quickQuote' && QuickQuoteSummary && typeof QuickQuoteSummary.updateSummary === 'function') {
+            } else if (currentAppMode === 'quickQuote' && QuickQuoteSummary && typeof QuickQuoteSummary.calculateTotals === 'function') {
                  // QuickQuoteSummary's updateSummary is called internally by its own calculateTotals
                  // We only need to ensure projectSettings are updated for the AppHeader and saving
             }
