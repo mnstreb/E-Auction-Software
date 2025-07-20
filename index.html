@@ -727,7 +727,8 @@
                         <th class="border-b other-total-col">Other Total</th> </tr>
                 </thead>
                 <tbody id="estimateTableBody">
-                    </tbody>
+                    <!-- Estimate line items will be dynamically inserted here -->
+                </tbody>
             </table>
         </div>
     </div>
@@ -1709,44 +1710,44 @@
                 const row = document.createElement('tr');
                 row.setAttribute('data-id', item.id);
                 row.innerHTML = `
-                    <td data-label="Task Name"><textarea rows="2" onchange="updateItem(${item.id}, 'taskName', this.value)" class="input-field">${item.taskName}</textarea></td>
-                    <td data-label="Description"><textarea rows="2" onchange="updateItem(${item.id}, 'description', this.value)" class="input-field">${item.description}</textarea></td>
+                    <td data-label="Task Name"><textarea rows="2" data-item-id="${item.id}" data-field="taskName" class="input-field">${item.taskName}</textarea></td>
+                    <td data-label="Description"><textarea rows="2" data-item-id="${item.id}" data-field="description" class="input-field">${item.description}</textarea></td>
                     <td data-label="OT/DT Multiplier" class="${collapsedState.labor ? 'column-hidden' : ''}">
-                        <select onchange="updateItem(${item.id}, 'otDtMultiplier', this.value)" class="input-field">
+                        <select data-item-id="${item.id}" data-field="otDtMultiplier" class="input-field">
                             <option value="1.0" ${item.otDtMultiplier === 1.0 ? 'selected' : ''}>1.0</option>
                             <option value="1.5" ${item.otDtMultiplier === 1.5 ? 'selected' : ''}>1.5</option>
                             <option value="2.0" ${item.otDtMultiplier === 2.0 ? 'selected' : ''}>2.0</option>
                         </select>
                     </td>
                     <td data-label="Trade" class="${collapsedState.labor ? 'column-hidden' : ''}">
-                        <select onchange="updateItem(${item.id}, 'trade', this.value)" class="input-field">
+                        <select data-item-id="${item.id}" data-field="trade" class="input-field">
                             ${activeTrades.map(tradeOption => `<option value="${tradeOption}" ${item.trade === tradeOption ? 'selected' : ''}>${tradeOption}</option>`).join('')}
                             ${activeTrades.length === 0 ? '<option value="" selected>No Trades</option>' : ''}
                         </select>
                     </td>
                     <td data-label="Skill" class="${collapsedState.labor ? 'column-hidden' : ''}">
-                        <select onchange="updateItem(${item.id}, 'rateRole', this.value)" class="input-field">
+                        <select data-item-id="${item.id}" data-field="rateRole" class="input-field">
                             ${(projectSettings.allTradeLaborRates[item.trade] ? Object.keys(projectSettings.allTradeLaborRates[item.trade]) : []).map(role => `<option value="${role}" ${item.rateRole === role ? 'selected' : ''}>${role}</option>`).join('')}
                             ${!projectSettings.allTradeLaborRates[item.trade] || Object.keys(projectSettings.allTradeLaborRates[item.trade]).length === 0 ? '<option value="" selected>No Skills</option>' : ''}
                         </select>
                     </td>
                     <td data-label="$/hr" class="${collapsedState.labor ? 'column-hidden' : ''}">${formatCurrency(laborRate)}</td>
-                    <td data-label="# hrs" class="${collapsedState.labor ? 'column-hidden' : ''}"><input type="number" value="${item.hours}" onchange="updateItem(${item.id}, 'hours', this.value)" class="input-field"></td>
+                    <td data-label="# hrs" class="${collapsedState.labor ? 'column-hidden' : ''}"><input type="number" value="${item.hours}" data-item-id="${item.id}" data-field="hours" class="input-field"></td>
                     <td data-label="Labor Total">${formatCurrency(laborTotal)}</td>
-                    <td data-label="Material Qty" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialQuantity}" onchange="updateItem(${item.id}, 'materialQuantity', this.value)" class="input-field"></td>
-                    <td data-label="Material $/Unit" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialUnitCost}" onchange="updateItem(${item.id}, 'materialUnitCost', this.value)" class="input-field"></td>
+                    <td data-label="Material Qty" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialQuantity}" data-item-id="${item.id}" data-field="materialQuantity" class="input-field"></td>
+                    <td data-label="Material $/Unit" class="${collapsedState.materials ? 'column-hidden' : ''}"><input type="number" value="${item.materialUnitCost}" data-item-id="${item.id}" data-field="materialUnitCost" class="input-field"></td>
                     <td data-label="Materials Total">${formatCurrency(materialsTotal)}</td>
-                    <td data-label="Equipment/Rental" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.equipmentRentalCost}" onchange="updateItem(${item.id}, 'equipmentRentalCost', this.value)" class="input-field"></td>
-                    <td data-label="Subcontractor" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.subcontractorCostLineItem}" onchange="updateItem(${item.id}, 'subcontractorCostLineItem', this.value)" class="input-field"></td>
-                    <td data-label="Misc. Cost" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.miscLineItem}" onchange="updateItem(${item.id}, 'miscLineItem', this.value)" class="input-field"></td>
+                    <td data-label="Equipment/Rental" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.equipmentRentalCost}" data-item-id="${item.id}" data-field="equipmentRentalCost" class="input-field"></td>
+                    <td data-label="Subcontractor" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.subcontractorCostLineItem}" data-item-id="${item.id}" data-field="subcontractorCostLineItem" class="input-field"></td>
+                    <td data-label="Misc. Cost" class="${collapsedState.other ? 'column-hidden' : ''}"><input type="number" value="${item.miscLineItem}" data-item-id="${item.id}" data-field="miscLineItem" class="input-field"></td>
                     <td data-label="Other Total">${formatCurrency(otherCategoryTotal)}</td>
                     <td data-label="Line Total" class="font-bold text-gray-900">${formatCurrency(lineTotal)}</td>
                     <td class="actions-cell"> 
                         <div class="flex items-center justify-center gap-2 h-full w-full"> 
-                            <button class="btn btn-orange btn-sm" onclick="duplicateItem(${item.id})" title="Duplicate Item">
+                            <button class="btn btn-orange btn-sm" data-item-id="${item.id}" data-action="duplicate" title="Duplicate Item">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             </button>
-                            <button class="btn btn-red btn-sm" onclick="deleteItem(${item.id})" title="Delete Item">
+                            <button class="btn btn-red btn-sm" data-item-id="${item.id}" data-action="delete" title="Delete Item">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                             </button>
                         </div>
@@ -1791,7 +1792,8 @@
                     const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
                     const laborTotal = item.hours * effectiveLaborRate;
                     const materialsTotal = item.materialQuantity * item.materialUnitCost;
-                    totalLaborCost += materialsTotal; // This seems like a bug, should be laborTotal
+                    totalLaborCost += laborTotal; // CORRECTED: Should add laborTotal, not materialsTotal
+                    totalMaterialCostRaw += materialsTotal;
                     totalEquipmentCost += item.equipmentRentalCost;
                     totalSubcontractorCost += item.subcontractorCostLineItem;
                     totalMiscLineItemCosts += item.miscLineItem;
@@ -2132,12 +2134,52 @@
             }
             
             setupAIChatListeners();
+
+            // --- NEW: Event Delegation for Estimate Table Body ---
+            if (estimateTableBody) {
+                estimateTableBody.addEventListener('change', (event) => {
+                    const target = event.target;
+                    // Use closest to find the row and then get the item ID from it
+                    const row = target.closest('tr[data-id]');
+                    if (!row) return; // Exit if not within a valid item row
+
+                    const itemId = parseInt(row.dataset.id);
+                    const field = target.dataset.field; // Assuming data-field is on the input/select/textarea
+
+                    if (itemId && field) {
+                        updateItem(itemId, field, target.value);
+                    }
+                });
+
+                estimateTableBody.addEventListener('click', (event) => {
+                    const target = event.target;
+                    // Use closest to find the button/icon and then get the item ID and action from it
+                    const button = target.closest('[data-action]');
+                    if (!button) return; // Exit if not a button with a data-action
+
+                    const itemId = parseInt(button.dataset.itemId); // data-item-id should be on the button
+                    const action = button.dataset.action;
+
+                    if (itemId && action) {
+                        if (action === 'delete') {
+                            deleteItem(itemId);
+                        } else if (action === 'duplicate') {
+                            duplicateItem(itemId);
+                        }
+                    }
+                });
+            }
+            // --- END NEW ---
         }
 
 
         document.addEventListener('DOMContentLoaded', () => {
             loadAppHeader(); 
             setupInitialEventListeners();
+            // Initial render of items if any exist (e.g., from initialEstimateItems)
+            if (currentAppMode === 'detailed') { // Only render items if starting in detailed mode
+                renderItems();
+            }
         });
 
         function renderMessageBox(message, onConfirmCallback = null, isConfirm = false) {
