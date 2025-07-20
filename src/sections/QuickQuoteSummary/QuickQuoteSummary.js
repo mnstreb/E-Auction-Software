@@ -11,6 +11,7 @@ export default (function() {
 
     // UI Elements
     let totalProposalElem; 
+    // Removed: let qqTotalHoursElem; // No longer needed
     let overheadInput, materialMarkupInput, profitMarginInput, additionalAdderInput;
     let addItemBtn, addItemMenu;
     let tableBody;
@@ -24,6 +25,7 @@ export default (function() {
 
         // Get UI Element References
         totalProposalElem = document.getElementById('qqTotalProposal');
+        // Removed: qqTotalHoursElem = document.getElementById('qqTotalHours'); // No longer needed
         overheadInput = document.getElementById('qqOverhead');
         materialMarkupInput = document.getElementById('qqMaterialMarkup');
         profitMarginInput = document.getElementById('qqProfitMargin');
@@ -218,10 +220,8 @@ export default (function() {
         const grandTotal = subtotal + profitAmount;
 
         totalProposalElem.textContent = formatCurrency(grandTotal);
-        const appHeaderTotalHoursElem = document.getElementById('summaryOverallLaborHours');
-        if (appHeaderTotalHoursElem) {
-            appHeaderTotalHoursElem.textContent = formatHours(totalHours);
-        }
+        // Removed: const appHeaderTotalHoursElem = document.getElementById('summaryOverallLaborHours');
+        // Removed: if (appHeaderTotalHoursElem) { appHeaderTotalHoursElem.textContent = formatHours(totalHours); }
 
         // Update global projectSettings for AppHeader and saving purposes
         window.projectSettings.grandTotal = grandTotal;
@@ -230,7 +230,7 @@ export default (function() {
         window.projectSettings.totalEquipmentCost = directEquipmentCost;
         window.projectSettings.totalSubcontractorCost = 0;
         window.projectSettings.totalMiscLineItemCosts = directOtherCost;
-        window.projectSettings.overallLaborHoursSum = totalHours;
+        window.projectSettings.overallLaborHoursSum = totalHours; // Still update this for potential export/summary
         window.projectSettings.materialMarkupAmount = materialMarkupAmount;
         window.projectSettings.totalOverheadCost = overheadAmount;
         window.projectSettings.totalMiscCostAmount = additionalAdderAmount;
