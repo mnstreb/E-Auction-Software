@@ -3,8 +3,8 @@
 window.AppHeader = (function() {
     let mainAppLogoElem;
     let mainAppDefaultIcon;
-    let projectTypeDisplayElem; // This will now hold the smaller text
-    let projectNameDisplayElem; // This will now hold the larger text
+    let projectTypeDisplayElem; // This will now hold the smaller text (Client | Location)
+    let projectNameDisplayElem; // This will now hold the larger text (Project Name)
     // Removed themeToggleBtnElem as it's replaced by a slider in dropdown
     let reconfigureBtnElem;
     let saveProjectBtnElem;
@@ -195,20 +195,21 @@ window.AppHeader = (function() {
      * Updates the project information displayed in the header.
      * @param {string} projectType - The type of project (e.g., Commercial).
      * @param {string} projectName - The name of the project.
-     * @param {string} clientName - The client/customer name. // NEW parameter
+     * @param {string} clientName - The client/customer name.
      * @param {string} projectState - The state/location of the project.
      */
-    function updateProjectInfo(projectType, projectName, clientName, projectState) { // Added clientName
+    function updateProjectInfo(projectType, projectName, clientName, projectState) {
         if (projectNameDisplayElem) { // This is now the larger text
             projectNameDisplayElem.textContent = projectName;
         }
         if (projectTypeDisplayElem) { // This is now the smaller text
-            // Combine client, type, and state for the smaller text
-            let subtitleText = '';
-            if (clientName) subtitleText += clientName;
-            if (projectType && projectType !== "Quick Quote") subtitleText += (subtitleText ? ' | ' : '') + projectType;
-            if (projectState) subtitleText += (subtitleText ? ' | ' : '') + projectState;
-            projectTypeDisplayElem.textContent = subtitleText;
+            let subtitleParts = [];
+            if (clientName) subtitleParts.push(clientName);
+            // Only add projectType if it's not "Quick Quote" for the subtitle, as Quick Quote is a main type
+            if (projectType && projectType !== "Quick Quote") subtitleParts.push(projectType);
+            if (projectState) subtitleParts.push(projectState);
+            
+            projectTypeDisplayElem.textContent = subtitleParts.join(' | ');
         }
     }
 
