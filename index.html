@@ -94,7 +94,7 @@
         .btn-orange { /* NEW: Style for the orange button */
             background: #f97316;
             color: white;
-            box-shadow: 0 44x 15px rgba(249, 115, 22, 0.2);
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2);
         }
         .btn-orange:hover {
             background: #ea580c;
@@ -902,7 +902,6 @@
 
 
         async function loadSetupWizard() {
-            console.log("Attempting to load SetupWizard..."); // Added for debugging
             try {
                 const htmlResponse = await fetch('src/sections/SetupWizard/SetupWizard.html');
                 if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SetupWizard.html`);
@@ -1009,7 +1008,7 @@
             endDate: "",
             projectID: "",
             projectDescription: "",
-            contractorLogo: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/w0ADgAAKAAoAAwEEAAEA/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmpucnZ6fkqOkpaanqKmqq6ytrq+wsbKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKTVFVWVhZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmpucnZ6fkqOkpaanqKmqq6ytrq+wsbKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKK
+            contractorLogo: "",
             projectType: "Commercial",
             projectState: "CA",
             profitMargin: 15,
@@ -1400,7 +1399,7 @@
             let cursorY = 40;
 
             if (projectSettings.contractorLogo) {
-                try { doc.addImage(projectSettings.contractorLogo, 'JPEG', margin, cursorY, 80, 25); } catch (e) { console.error("Error adding logo to PDF:", e); }
+                try { doc.addImage(projectSettings.contractorLogo, 'PNG', margin, cursorY, 80, 25); } catch (e) { console.error("Error adding logo to PDF:", e); }
             }
 
             doc.setFontSize(18);
@@ -1505,7 +1504,7 @@
             const doc = new jsPDF({ orientation: 'landscape' });
 
             if (projectSettings.contractorLogo) {
-                try { doc.addImage(projectSettings.contractorLogo, 'JPEG', 15, 10, 40, 15); } catch (e) { console.error("Error adding logo to PDF:", e); }
+                try { doc.addImage(projectSettings.contractorLogo, 'PNG', 15, 10, 40, 15); } catch (e) { console.error("Error adding logo to PDF:", e); }
             }
             
             doc.setFontSize(18);
@@ -1988,8 +1987,7 @@
         
         function retryLastAIChatRequest() {
             const errorBubbles = aiChatHistory.querySelectorAll('.ai');
-            // Corrected: Use .length to access the last element
-            errorBubbles[errorBubbles.length - 1].remove(); 
+            errorBubbles[errorBubbles.length - 1].remove();
             handleAIChatSend(true);
         }
 
@@ -2073,7 +2071,6 @@
 
         // CORRECTED: This function now correctly sets the currentAppMode
         function startDetailedEstimate() {
-            console.log("startDetailedEstimate called."); // Debug log
             currentAppMode = 'detailed';
             entryPointContainer.classList.add('hidden');
             mainApp.classList.add('hidden'); // Ensure mainApp is hidden initially
@@ -2082,7 +2079,6 @@
         }
 
         function startQuickQuote() {
-            console.log("startQuickQuote called."); // Debug log
             currentAppMode = 'quickQuote';
             entryPointContainer.classList.add('hidden');
             mainApp.classList.add('hidden'); // Hide detailed app
