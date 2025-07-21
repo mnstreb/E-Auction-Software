@@ -1987,7 +1987,8 @@
         
         function retryLastAIChatRequest() {
             const errorBubbles = aiChatHistory.querySelectorAll('.ai');
-            errorBubbles[errorBubbles[length - 1]].remove();
+            // Corrected: Use .length to access the last element
+            errorBubbles[errorBubbles.length - 1].remove(); 
             handleAIChatSend(true);
         }
 
