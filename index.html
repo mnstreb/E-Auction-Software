@@ -792,6 +792,8 @@
         // Import QuickQuoteSummary as a module
         import QuickQuoteSummary from './src/sections/QuickQuoteSummary/QuickQuoteSummary.js';
 
+        const DEFAULT_LOGO_PATH = './assets/default-logo.png'; // Path to your default logo
+
         // --- Core Application Functions (Defined at the top to ensure hoisting) ---
         async function loadAppHeader() {
             try {
@@ -1191,7 +1193,7 @@
                 window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                window.AppHeader.updateLogo(projectSettings.contractorLogo);
+                window.AppHeader.updateLogo(projectSettings.contractorLogo || DEFAULT_LOGO_PATH);
             }
 
             populateDefaultTradeSelector();
@@ -1246,7 +1248,7 @@
                 window.AppHeader.updateProjectInfo('Project Type', 'Project Name', 'Client Name', 'Location'); 
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                window.AppHeader.updateLogo(''); // Clear logo
+                window.AppHeader.updateLogo(DEFAULT_LOGO_PATH); // Set default logo
             }
         }
         
@@ -2090,7 +2092,7 @@
                 window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); 
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                window.AppHeader.updateLogo(''); // Clear logo for quick quote
+                window.AppHeader.updateLogo(DEFAULT_LOGO_PATH); // Set default logo for quick quote
             }
             // Ensure projectSettings are reset or set to defaults for quick quote
             projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
