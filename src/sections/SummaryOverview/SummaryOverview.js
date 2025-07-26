@@ -13,17 +13,12 @@ window.SummaryOverview = (function() {
     let summaryTotalProposalElem;
     let summaryOverallLaborHoursElem;
     let summaryProjectCostElem;
-    let summaryMiscCostElem;
-    let summaryMaterialMarkupElem;
-    let summaryMaterialMarkupAmountElem;
     let summaryEstimateSubtotalElem;
     let summaryProfitMarginElem;
-    let summaryProfitMarginAmountElem;
     let summarySalesTaxElem;
-    let summarySalesTaxAmountElem;
     let summaryMiscPercentElem;
     let summaryOverheadElem;
-    let summaryOverheadAmountElem;
+    let summaryMaterialMarkupElem;
     let summaryAdditionalConsiderationsElem;
 
     let laborPMTotalElem;
@@ -38,7 +33,7 @@ window.SummaryOverview = (function() {
     let breakdownMaterialTotalElem;
     let breakdownEquipmentTotalElem;
     let breakdownSubcontractorTotalElem;
-    let breakdownMiscCostLineItemsElem; // Corrected variable name for clarity
+    let breakdownMiscCostLineItemsElem;
     let breakdownProjectTotalElem;
 
     let laborMaterialPieChartCanvas;
@@ -60,17 +55,12 @@ window.SummaryOverview = (function() {
         summaryTotalProposalElem = document.getElementById('summaryTotalProposal');
         summaryOverallLaborHoursElem = document.getElementById('summaryOverallLaborHours');
         summaryProjectCostElem = document.getElementById('summaryProjectCost');
-        summaryMiscCostElem = document.getElementById('summaryMiscCost');
-        summaryMaterialMarkupElem = document.getElementById('summaryMaterialMarkup');
-        summaryMaterialMarkupAmountElem = document.getElementById('summaryMaterialMarkupAmount');
         summaryEstimateSubtotalElem = document.getElementById('summaryEstimateSubtotal');
         summaryProfitMarginElem = document.getElementById('summaryProfitMargin');
-        summaryProfitMarginAmountElem = document.getElementById('summaryProfitMarginAmount');
         summarySalesTaxElem = document.getElementById('summarySalesTax');
-        summarySalesTaxAmountElem = document.getElementById('summarySalesTaxAmount');
         summaryMiscPercentElem = document.getElementById('summaryMiscPercent');
         summaryOverheadElem = document.getElementById('summaryOverhead');
-        summaryOverheadAmountElem = document.getElementById('summaryOverheadAmount');
+        summaryMaterialMarkupElem = document.getElementById('summaryMaterialMarkup');
         summaryAdditionalConsiderationsElem = document.getElementById('summaryAdditionalConsiderations');
 
         laborPMTotalElem = document.getElementById('laborPMTotal');
@@ -85,7 +75,6 @@ window.SummaryOverview = (function() {
         breakdownMaterialTotalElem = document.getElementById('breakdownMaterialTotal');
         breakdownEquipmentTotalElem = document.getElementById('breakdownEquipmentTotal');
         breakdownSubcontractorTotalElem = document.getElementById('breakdownSubcontractorTotal');
-        // BUG FIX: The ID in the HTML is 'breakdownMiscCostLineItemsElem', this now correctly references it.
         breakdownMiscCostLineItemsElem = document.getElementById('breakdownMiscCostLineItemsElem');
         breakdownProjectTotalElem = document.getElementById('breakdownProjectTotal');
 
@@ -169,28 +158,24 @@ window.SummaryOverview = (function() {
         
         // Project Costs Summary
         if (summaryProjectCostElem) summaryProjectCostElem.textContent = formatCurrency(totalProjectCostDirect);
-        if (summaryMiscCostElem) summaryMiscCostElem.textContent = formatCurrency(totalMiscCostAmount);
         
-        // --- CORRECTED BLOCK: All percentage values are now correctly formatted with a '%' symbol ---
-        if (summaryOverheadElem) summaryOverheadElem.textContent = `${parseFloat(projectSettings.overhead).toFixed(2)}%`;
-        if (summaryMaterialMarkupElem) summaryMaterialMarkupElem.textContent = `${parseFloat(projectSettings.materialMarkup).toFixed(2)}%`;
-        if (summaryProfitMarginElem) summaryProfitMarginElem.textContent = `${parseFloat(projectSettings.profitMargin).toFixed(2)}%`;
-        if (summarySalesTaxElem) summarySalesTaxElem.textContent = `${parseFloat(projectSettings.salesTax).toFixed(2)}%`;
-        if (summaryMiscPercentElem) summaryMiscPercentElem.textContent = `${parseFloat(projectSettings.miscellaneous).toFixed(2)}%`;
-        // --- END CORRECTED BLOCK ---
+        // --- UPDATED BLOCK: All percentage values are now combined with their dollar amounts ---
+        if (summaryOverheadElem) summaryOverheadElem.textContent = `${parseFloat(projectSettings.overhead).toFixed(2)}% / ${formatCurrency(totalOverheadCost)}`;
+        if (summaryMaterialMarkupElem) summaryMaterialMarkupElem.textContent = `${parseFloat(projectSettings.materialMarkup).toFixed(2)}% / ${formatCurrency(materialMarkupAmount)}`;
+        if (summaryProfitMarginElem) summaryProfitMarginElem.textContent = `${parseFloat(projectSettings.profitMargin).toFixed(2)}% / ${formatCurrency(totalProfitMarginAmount)}`;
+        if (summarySalesTaxElem) summarySalesTaxElem.textContent = `${parseFloat(projectSettings.salesTax).toFixed(2)}% / ${formatCurrency(salesTaxAmount)}`;
+        if (summaryMiscPercentElem) summaryMiscPercentElem.textContent = `${parseFloat(projectSettings.miscellaneous).toFixed(2)}% / ${formatCurrency(totalMiscCostAmount)}`;
+        // --- END UPDATED BLOCK ---
 
-        if (summaryMaterialMarkupAmountElem) summaryMaterialMarkupAmountElem.textContent = formatCurrency(materialMarkupAmount);
         if (summaryEstimateSubtotalElem) summaryEstimateSubtotalElem.textContent = formatCurrency(estimateSubtotalAmount);
         
-        // --- CORRECTED: Logic for Additional Considerations to display the correct unit ---
         if (summaryAdditionalConsiderationsElem) {
              if (projectSettings.additionalConsiderationsType === '%') {
-                summaryAdditionalConsiderationsElem.textContent = `${parseFloat(projectSettings.additionalConsiderationsValue).toFixed(2)}%`;
+                summaryAdditionalConsiderationsElem.textContent = `${parseFloat(projectSettings.additionalConsiderationsValue).toFixed(2)}% / ${formatCurrency(additionalConsiderationAmount)}`;
             } else {
                 summaryAdditionalConsiderationsElem.textContent = formatCurrency(additionalConsiderationAmount);
             }
         }
-        // --- END CORRECTED ---
 
         // Labor Breakdown (Hours)
         if (laborPMTotalElem) laborPMTotalElem.textContent = formatHours(laborHoursBreakdown["Project Manager"] || 0);
