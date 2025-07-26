@@ -13,9 +13,8 @@ window.SummaryOverview = (function() {
     let summaryTotalProposalElem;
     let summaryOverallLaborHoursElem;
     let summaryProjectCostElem;
-    let summaryMiscCostElem;
+    // REMOVED: summaryMiscCostElem is no longer needed
     let summaryMaterialMarkupElem;
-    // REMOVED: summaryMaterialMarkupAmountElem is no longer needed
     let summaryEstimateSubtotalElem;
     let summaryProfitMarginElem;
     let summarySalesTaxElem;
@@ -57,9 +56,8 @@ window.SummaryOverview = (function() {
         summaryTotalProposalElem = document.getElementById('summaryTotalProposal');
         summaryOverallLaborHoursElem = document.getElementById('summaryOverallLaborHours');
         summaryProjectCostElem = document.getElementById('summaryProjectCost');
-        summaryMiscCostElem = document.getElementById('summaryMiscCost');
+        // REMOVED: Reference to summaryMiscCost element
         summaryMaterialMarkupElem = document.getElementById('summaryMaterialMarkup');
-        // REMOVED: No longer need a separate element for markup amount
         summaryEstimateSubtotalElem = document.getElementById('summaryEstimateSubtotal');
         summaryProfitMarginElem = document.getElementById('summaryProfitMargin');
         summarySalesTaxElem = document.getElementById('summarySalesTax');
@@ -160,22 +158,18 @@ window.SummaryOverview = (function() {
         if (summaryTotalProposalElem) summaryTotalProposalElem.textContent = formatCurrency(grandTotal);
         if (summaryOverallLaborHoursElem) summaryOverallLaborHoursElem.textContent = formatHours(overallLaborHoursSum);
         
-        // --- UPDATED BLOCK: Display values in a two-column format ---
         const createTwoColumnString = (percent, amount) => {
-            // For items that only have a dollar amount and no percentage
             if (percent === null) {
                 return `<span class="summary-value-col"></span> <span class="summary-value-col">${formatCurrency(amount)}</span>`;
             }
-            // For items that have both
             return `
                 <span class="summary-value-col">${parseFloat(percent).toFixed(2)}%</span>
                 <span class="summary-value-col">${formatCurrency(amount)}</span>
             `;
         };
 
-        // Update existing elements to use the new two-column format
         if (summaryProjectCostElem) summaryProjectCostElem.innerHTML = createTwoColumnString(null, totalProjectCostDirect);
-        if (summaryMiscCostElem) summaryMiscCostElem.innerHTML = createTwoColumnString(null, totalMiscCostAmount);
+        // REMOVED: The line that updated the summaryMiscCostElem
         if (summaryOverheadElem) summaryOverheadElem.innerHTML = createTwoColumnString(projectSettings.overhead, totalOverheadCost);
         if (summaryMaterialMarkupElem) summaryMaterialMarkupElem.innerHTML = createTwoColumnString(projectSettings.materialMarkup, materialMarkupAmount);
         if (summaryEstimateSubtotalElem) summaryEstimateSubtotalElem.innerHTML = createTwoColumnString(null, estimateSubtotalAmount);
@@ -183,17 +177,13 @@ window.SummaryOverview = (function() {
         if (summarySalesTaxElem) summarySalesTaxElem.innerHTML = createTwoColumnString(projectSettings.salesTax, salesTaxAmount);
         if (summaryMiscPercentElem) summaryMiscPercentElem.innerHTML = createTwoColumnString(projectSettings.miscellaneous, totalMiscCostAmount);
 
-        // Special handling for Additional Considerations, as it can be % or $
         if (summaryAdditionalConsiderationsElem) {
             if (projectSettings.additionalConsiderationsType === '%') {
-                // Show both % and the calculated $ amount if type is percentage
                 summaryAdditionalConsiderationsElem.innerHTML = createTwoColumnString(projectSettings.additionalConsiderationsValue, additionalConsiderationAmount);
             } else {
-                // Show only the $ amount if type is fixed value
                 summaryAdditionalConsiderationsElem.innerHTML = createTwoColumnString(null, additionalConsiderationAmount);
             }
         }
-        // --- END UPDATED BLOCK ---
 
         // Labor Breakdown (Hours)
         if (laborPMTotalElem) laborPMTotalElem.textContent = formatHours(laborHoursBreakdown["Project Manager"] || 0);
