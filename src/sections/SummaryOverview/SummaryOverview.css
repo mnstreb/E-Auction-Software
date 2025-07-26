@@ -89,6 +89,33 @@
     transition: color 0.3s, border-color 0.3s;
 }
 
+/* NEW: Styles for the final 2-column Executive Summary grid */
+.summary-grid-final {
+    display: grid;
+    grid-template-columns: auto auto; /* Two columns, auto-sized */
+    justify-content: space-between; /* Pushes the two columns apart */
+    row-gap: 8px; /* Space between rows */
+}
+.summary-grid-final span {
+    text-align: left;
+    color: #4b5563;
+}
+.summary-grid-final strong {
+    text-align: right;
+    font-weight: 600;
+    color: #1f2937;
+}
+.summary-grid-final .subtotal-line {
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 8px;
+    margin-top: 4px;
+    grid-column: 1 / -1; /* Make the subtotal line span both columns */
+    display: flex;
+    justify-content: space-between;
+}
+/* End of new styles */
+
+
 /* Responsive adjustments for Summary Overview */
 @media (max-width: 1024px) {
     .top-summary-row {
@@ -127,13 +154,18 @@ body.dark-theme .chart-container.card h4 {
 body.dark-theme .summary-block h4 {
     color: #e2e8f0;
 }
-body.dark-theme .summary-item strong {
+body.dark-theme .summary-item strong,
+body.dark-theme .summary-grid-final strong {
     color: #e2e8f0;
 }
-body.dark-theme .summary-item {
+body.dark-theme .summary-item,
+body.dark-theme .summary-grid-final span {
     color: #a0aec0;
 }
-body.dark-theme .summary-item.total {
-    color: #90cdf4;
+body.dark-theme .summary-item.total,
+body.dark-theme .summary-grid-final .subtotal-line {
     border-color: #4a5568;
+}
+body.dark-theme .summary-item.total strong {
+    color: #90cdf4;
 }
