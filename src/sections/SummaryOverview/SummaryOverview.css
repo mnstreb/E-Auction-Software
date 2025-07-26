@@ -1,3 +1,93 @@
+/* Styles specific to the SummaryOverview section */
+.top-summary-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+.summary-overall-metric-card {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    color: white;
+    text-align: center;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(29, 78, 216, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 150px;
+}
+.summary-overall-metric-card .label {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: rgba(255,255,255,0.9);
+}
+.summary-overall-metric-card .value {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+}
+.chart-container.card {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 150px;
+}
+.chart-canvas {
+    max-width: 100%;
+    max-height: 200px;
+    height: auto;
+    width: auto;
+}
+.chart-container.card h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 10px;
+    text-align: center;
+    transition: color 0.3s;
+}
+
+.executive-summary-grid-2col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+.executive-summary-grid-2col .card {
+    margin-bottom: 0;
+}
+.summary-block h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 15px; /* Increased margin for better spacing */
+    transition: color 0.3s;
+}
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 0.95rem;
+    color: #4b5563;
+    transition: color 0.3s;
+}
+.summary-item strong {
+    color: #1f2937;
+    transition: color 0.3s;
+}
+.summary-item.total {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #0d47a1;
+    border-top: 1px dashed #cbd5e1;
+    margin-top: 8px;
+    padding-top: 8px;
+    transition: color 0.3s, border-color 0.3s;
+}
+
 /* New styles for the 3-column summary grid */
 .summary-grid {
     display: grid;
@@ -50,5 +140,51 @@ body.dark-theme .summary-amount {
 }
 
 body.dark-theme .subtotal-line {
+    border-color: #4a5568;
+}
+
+/* Responsive adjustments for Summary Overview */
+@media (max-width: 1024px) {
+    .top-summary-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 768px) {
+    .summary-overall-metric-card {
+        padding: 20px;
+    }
+    .summary-overall-metric-card .label {
+        font-size: 1.2rem;
+    }
+    .summary-overall-metric-card .value {
+        font-size: 2.5rem;
+    }
+    .top-summary-row, .executive-summary-grid-2col {
+        grid-template-columns: 1fr;
+    }
+    .chart-container.card h4 {
+        font-size: 1rem;
+    }
+}
+
+/* Dark Theme SummaryOverview specifics */
+body.dark-theme .summary-overall-metric-card {
+    background: linear-gradient(135deg, #2a4365 0%, #2c5282 100%);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+body.dark-theme .chart-container.card h4 {
+    color: #e2e8f0;
+}
+body.dark-theme .summary-block h4 {
+    color: #e2e8f0;
+}
+body.dark-theme .summary-item strong {
+    color: #e2e8f0;
+}
+body.dark-theme .summary-item {
+    color: #a0aec0;
+}
+body.dark-theme .summary-item.total {
+    color: #90cdf4;
     border-color: #4a5568;
 }
