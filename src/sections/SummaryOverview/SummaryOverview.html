@@ -1,5 +1,5 @@
 <div>
-    <!-- Top-level summary boxes with Executive Summary -->
+    <!-- Top-level summary boxes -->
     <div class="top-summary-row mb-6">
         <div class="summary-overall-metric-card">
             <span class="label">Total Proposal</span>
@@ -9,55 +9,59 @@
             <span class="label">Total Labor Hours</span>
             <span class="value" id="summaryOverallLaborHours">0</span>
         </div>
-        <!-- Executive Summary -->
-        <div class="card summary-block">
-            <h4>Executive Summary</h4>
-            <!-- Summary Grid for Columns -->
-            <div class="summary-grid">
-                <!-- Header Row (Optional but good for clarity) -->
-                <div class="summary-label"></div>
-                <div class="summary-percent-header">%</div>
-                <div class="summary-amount-header">Amount</div>
-
-                <!-- Data Rows -->
-                <div class="summary-label">Total Direct Cost:</div>
-                <div></div> <!-- Empty cell for alignment -->
-                <strong class="summary-amount" id="summaryProjectCost">$0.00</strong>
-
-                <div class="summary-label">Overhead:</div>
-                <strong class="summary-percent" id="summaryOverheadPercent">0.00%</strong>
-                <strong class="summary-amount" id="summaryOverheadAmount">$0.00</strong>
-
-                <div class="summary-label">Material Markup:</div>
-                <strong class="summary-percent" id="summaryMaterialMarkupPercent">0.00%</strong>
-                <strong class="summary-amount" id="summaryMaterialMarkupAmount">$0.00</strong>
-
-                <div class="summary-label subtotal-line">Estimate Subtotal:</div>
-                <div class="subtotal-line"></div> <!-- Empty cell -->
-                <strong class="summary-amount subtotal-line" id="summaryEstimateSubtotal">$0.00</strong>
-
-                <div class="summary-label">Profit Margin:</div>
-                <strong class="summary-percent" id="summaryProfitMarginPercent">0.00%</strong>
-                <strong class="summary-amount" id="summaryProfitMarginAmount">$0.00</strong>
-                
-                <div class="summary-label">Sales Tax:</div>
-                <strong class="summary-percent" id="summarySalesTaxPercent">0.00%</strong>
-                <strong class="summary-amount" id="summarySalesTaxAmount">$0.00</strong>
-
-                <div class="summary-label">Miscellaneous:</div>
-                <strong class="summary-percent" id="summaryMiscPercent">0.00%</strong>
-                <strong class="summary-amount" id="summaryMiscAmount">$0.00</strong>
-
-                <div class="summary-label">Additional Considerations:</div>
-                <div></div> <!-- Empty cell -->
-                <strong class="summary-amount" id="summaryAdditionalConsiderations">$0.00</strong>
-            </div>
+         <div class="chart-container card">
+            <h4 style="margin-top:0;">Cost Distribution</h4>
+            <canvas id="laborMaterialPieChart" class="chart-canvas"></canvas>
         </div>
     </div>
 
-    <!-- Executive Summary Grid (now 3 columns, but without Executive Summary card) -->
+    <!-- Executive Summary in its own row -->
+    <div class="card summary-block mb-6">
+        <h4>Executive Summary</h4>
+        <div class="summary-grid">
+            <!-- Header Row -->
+            <div class="summary-label"></div>
+            <div class="summary-percent-header">%</div>
+            <div class="summary-amount-header">Amount</div>
+
+            <!-- Data Rows -->
+            <div class="summary-label">Total Direct Cost:</div>
+            <div></div> <!-- Empty cell for alignment -->
+            <strong class="summary-amount" id="summaryProjectCost">$0.00</strong>
+
+            <div class="summary-label">Overhead:</div>
+            <strong class="summary-percent" id="summaryOverheadPercent">0.00%</strong>
+            <strong class="summary-amount" id="summaryOverheadAmount">$0.00</strong>
+
+            <div class="summary-label">Material Markup:</div>
+            <strong class="summary-percent" id="summaryMaterialMarkupPercent">0.00%</strong>
+            <strong class="summary-amount" id="summaryMaterialMarkupAmount">$0.00</strong>
+
+            <div class="summary-label subtotal-line">Estimate Subtotal:</div>
+            <div class="subtotal-line"></div> <!-- Empty cell -->
+            <strong class="summary-amount subtotal-line" id="summaryEstimateSubtotal">$0.00</strong>
+
+            <div class="summary-label">Profit Margin:</div>
+            <strong class="summary-percent" id="summaryProfitMarginPercent">0.00%</strong>
+            <strong class="summary-amount" id="summaryProfitMarginAmount">$0.00</strong>
+            
+            <div class="summary-label">Sales Tax:</div>
+            <strong class="summary-percent" id="summarySalesTaxPercent">0.00%</strong>
+            <strong class="summary-amount" id="summarySalesTaxAmount">$0.00</strong>
+
+            <div class="summary-label">Miscellaneous:</div>
+            <strong class="summary-percent" id="summaryMiscPercent">0.00%</strong>
+            <strong class="summary-amount" id="summaryMiscAmount">$0.00</strong>
+
+            <div class="summary-label">Additional Considerations:</div>
+            <div></div> <!-- Empty cell -->
+            <strong class="summary-amount" id="summaryAdditionalConsiderations">$0.00</strong>
+        </div>
+    </div>
+
+    <!-- Labor and Cost Breakdown Section -->
     <div class="executive-summary-section mb-6">
-        <div class="executive-summary-grid-3col">
+        <div class="executive-summary-grid-2col">
             <div class="card summary-block">
                 <h4>Labor Breakdown (Hours)</h4>
                 <div class="summary-item"><span>Project Manager:</span> <strong id="laborPMTotal">0.00</strong></div>
@@ -77,12 +81,6 @@
                 <div class="summary-item"><span>Sub-contractor Total:</span> <strong id="breakdownSubcontractorTotal">$0.00</strong></div>
                 <div class="summary-item"><span>Misc. Total (Line Items):</span> <strong id="breakdownMiscCostLineItemsElem">$0.00</strong></div>
                 <div class="summary-item total"><span>Total Project Cost:</span> <strong id="breakdownProjectTotal">$0.00</strong></div>
-            </div>
-
-            <!-- Pie Chart Container -->
-            <div class="chart-container card">
-                <h4 style="margin-top:0;">Cost Distribution</h4>
-                <canvas id="laborMaterialPieChart" class="chart-canvas"></canvas>
             </div>
         </div>
     </div>
