@@ -63,7 +63,7 @@
     font-size: 1.1rem;
     font-weight: 600;
     color: #1f2937;
-    margin-bottom: 15px; /* Increased margin for better spacing */
+    margin-bottom: 15px;
     transition: color 0.3s;
 }
 .summary-item {
@@ -86,61 +86,6 @@
     margin-top: 8px;
     padding-top: 8px;
     transition: color 0.3s, border-color 0.3s;
-}
-
-/* New styles for the 3-column summary grid */
-.summary-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr; /* Label, Percent, Amount */
-    gap: 8px 16px; /* Row gap, Column gap */
-    align-items: center;
-}
-
-.summary-label {
-    text-align: left;
-    font-size: 0.95rem;
-    color: #4b5563;
-}
-
-.summary-percent,
-.summary-amount {
-    text-align: right;
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #1f2937;
-}
-
-.summary-percent-header,
-.summary-amount-header {
-    text-align: right;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: #6b7280;
-    padding-bottom: 4px;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.subtotal-line {
-    font-weight: bold;
-    border-top: 1px dashed #cbd5e1;
-    margin-top: 8px;
-    padding-top: 8px;
-}
-
-/* Dark theme adjustments for the new grid */
-body.dark-theme .summary-label,
-body.dark-theme .summary-percent-header,
-body.dark-theme .summary-amount-header {
-    color: #a0aec0;
-}
-
-body.dark-theme .summary-percent,
-body.dark-theme .summary-amount {
-    color: #e2e8f0;
-}
-
-body.dark-theme .subtotal-line {
-    border-color: #4a5568;
 }
 
 /* Responsive adjustments for Summary Overview */
