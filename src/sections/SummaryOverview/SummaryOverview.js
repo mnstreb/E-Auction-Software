@@ -15,15 +15,12 @@ window.SummaryOverview = (function() {
     let summaryProjectCostElem;
     let summaryMiscCostElem;
     let summaryMaterialMarkupElem;
-    let summaryMaterialMarkupAmountElem;
+    // REMOVED: summaryMaterialMarkupAmountElem is no longer needed
     let summaryEstimateSubtotalElem;
     let summaryProfitMarginElem;
-    let summaryProfitMarginAmountElem;
     let summarySalesTaxElem;
-    let summarySalesTaxAmountElem;
     let summaryMiscPercentElem;
     let summaryOverheadElem;
-    let summaryOverheadAmountElem;
     let summaryAdditionalConsiderationsElem;
 
     let laborPMTotalElem;
@@ -38,7 +35,7 @@ window.SummaryOverview = (function() {
     let breakdownMaterialTotalElem;
     let breakdownEquipmentTotalElem;
     let breakdownSubcontractorTotalElem;
-    let breakdownMiscCostLineItemsElem; // Corrected variable name for clarity
+    let breakdownMiscCostLineItemsElem;
     let breakdownProjectTotalElem;
 
     let laborMaterialPieChartCanvas;
@@ -62,15 +59,12 @@ window.SummaryOverview = (function() {
         summaryProjectCostElem = document.getElementById('summaryProjectCost');
         summaryMiscCostElem = document.getElementById('summaryMiscCost');
         summaryMaterialMarkupElem = document.getElementById('summaryMaterialMarkup');
-        summaryMaterialMarkupAmountElem = document.getElementById('summaryMaterialMarkupAmount');
+        // REMOVED: No longer need a separate element for markup amount
         summaryEstimateSubtotalElem = document.getElementById('summaryEstimateSubtotal');
         summaryProfitMarginElem = document.getElementById('summaryProfitMargin');
-        summaryProfitMarginAmountElem = document.getElementById('summaryProfitMarginAmount');
         summarySalesTaxElem = document.getElementById('summarySalesTax');
-        summarySalesTaxAmountElem = document.getElementById('summarySalesTaxAmount');
         summaryMiscPercentElem = document.getElementById('summaryMiscPercent');
         summaryOverheadElem = document.getElementById('summaryOverhead');
-        summaryOverheadAmountElem = document.getElementById('summaryOverheadAmount');
         summaryAdditionalConsiderationsElem = document.getElementById('summaryAdditionalConsiderations');
 
         laborPMTotalElem = document.getElementById('laborPMTotal');
@@ -85,7 +79,6 @@ window.SummaryOverview = (function() {
         breakdownMaterialTotalElem = document.getElementById('breakdownMaterialTotal');
         breakdownEquipmentTotalElem = document.getElementById('breakdownEquipmentTotal');
         breakdownSubcontractorTotalElem = document.getElementById('breakdownSubcontractorTotal');
-        // BUG FIX: The ID in the HTML is 'breakdownMiscCostLineItemsElem', this now correctly references it.
         breakdownMiscCostLineItemsElem = document.getElementById('breakdownMiscCostLineItemsElem');
         breakdownProjectTotalElem = document.getElementById('breakdownProjectTotal');
 
@@ -167,30 +160,40 @@ window.SummaryOverview = (function() {
         if (summaryTotalProposalElem) summaryTotalProposalElem.textContent = formatCurrency(grandTotal);
         if (summaryOverallLaborHoursElem) summaryOverallLaborHoursElem.textContent = formatHours(overallLaborHoursSum);
         
-        // Project Costs Summary
-        if (summaryProjectCostElem) summaryProjectCostElem.textContent = formatCurrency(totalProjectCostDirect);
-        if (summaryMiscCostElem) summaryMiscCostElem.textContent = formatCurrency(totalMiscCostAmount);
-        
-        // --- CORRECTED BLOCK: All percentage values are now correctly formatted with a '%' symbol ---
-        if (summaryOverheadElem) summaryOverheadElem.textContent = `${parseFloat(projectSettings.overhead).toFixed(2)}%`;
-        if (summaryMaterialMarkupElem) summaryMaterialMarkupElem.textContent = `${parseFloat(projectSettings.materialMarkup).toFixed(2)}%`;
-        if (summaryProfitMarginElem) summaryProfitMarginElem.textContent = `${parseFloat(projectSettings.profitMargin).toFixed(2)}%`;
-        if (summarySalesTaxElem) summarySalesTaxElem.textContent = `${parseFloat(projectSettings.salesTax).toFixed(2)}%`;
-        if (summaryMiscPercentElem) summaryMiscPercentElem.textContent = `${parseFloat(projectSettings.miscellaneous).toFixed(2)}%`;
-        // --- END CORRECTED BLOCK ---
+        // --- UPDATED BLOCK: Display values in a two-column format ---
+        const createTwoColumnString = (percent, amount) => {
+            // For items that only have a dollar amount and no percentage
+            if (percent === null) {
+                return `<span class="summary-value-col"></span> <span class="summary-value-col">${formatCurrency(amount)}</span>`;
+            }
+            // For items that have both
+            return `
+                <span class="summary-value-col">${parseFloat(percent).toFixed(2)}%</span>
+                <span class="summary-value-col">${formatCurrency(amount)}</span>
+            `;
+        };
 
-        if (summaryMaterialMarkupAmountElem) summaryMaterialMarkupAmountElem.textContent = formatCurrency(materialMarkupAmount);
-        if (summaryEstimateSubtotalElem) summaryEstimateSubtotalElem.textContent = formatCurrency(estimateSubtotalAmount);
-        
-        // --- CORRECTED: Logic for Additional Considerations to display the correct unit ---
+        // Update existing elements to use the new two-column format
+        if (summaryProjectCostElem) summaryProjectCostElem.innerHTML = createTwoColumnString(null, totalProjectCostDirect);
+        if (summaryMiscCostElem) summaryMiscCostElem.innerHTML = createTwoColumnString(null, totalMiscCostAmount);
+        if (summaryOverheadElem) summaryOverheadElem.innerHTML = createTwoColumnString(projectSettings.overhead, totalOverheadCost);
+        if (summaryMaterialMarkupElem) summaryMaterialMarkupElem.innerHTML = createTwoColumnString(projectSettings.materialMarkup, materialMarkupAmount);
+        if (summaryEstimateSubtotalElem) summaryEstimateSubtotalElem.innerHTML = createTwoColumnString(null, estimateSubtotalAmount);
+        if (summaryProfitMarginElem) summaryProfitMarginElem.innerHTML = createTwoColumnString(projectSettings.profitMargin, totalProfitMarginAmount);
+        if (summarySalesTaxElem) summarySalesTaxElem.innerHTML = createTwoColumnString(projectSettings.salesTax, salesTaxAmount);
+        if (summaryMiscPercentElem) summaryMiscPercentElem.innerHTML = createTwoColumnString(projectSettings.miscellaneous, totalMiscCostAmount);
+
+        // Special handling for Additional Considerations, as it can be % or $
         if (summaryAdditionalConsiderationsElem) {
-             if (projectSettings.additionalConsiderationsType === '%') {
-                summaryAdditionalConsiderationsElem.textContent = `${parseFloat(projectSettings.additionalConsiderationsValue).toFixed(2)}%`;
+            if (projectSettings.additionalConsiderationsType === '%') {
+                // Show both % and the calculated $ amount if type is percentage
+                summaryAdditionalConsiderationsElem.innerHTML = createTwoColumnString(projectSettings.additionalConsiderationsValue, additionalConsiderationAmount);
             } else {
-                summaryAdditionalConsiderationsElem.textContent = formatCurrency(additionalConsiderationAmount);
+                // Show only the $ amount if type is fixed value
+                summaryAdditionalConsiderationsElem.innerHTML = createTwoColumnString(null, additionalConsiderationAmount);
             }
         }
-        // --- END CORRECTED ---
+        // --- END UPDATED BLOCK ---
 
         // Labor Breakdown (Hours)
         if (laborPMTotalElem) laborPMTotalElem.textContent = formatHours(laborHoursBreakdown["Project Manager"] || 0);
