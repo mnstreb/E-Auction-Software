@@ -75,10 +75,24 @@
     color: #4b5563;
     transition: color 0.3s;
 }
+
+/* --- UPDATED: Styles for the two-column value layout --- */
 .summary-item strong {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    min-width: 220px;
+    text-align: right;
     color: #1f2937;
     transition: color 0.3s;
 }
+
+.summary-value-col {
+    flex-basis: 100px; /* Give each column a base width */
+    text-align: right;
+}
+/* --- END UPDATED BLOCK --- */
+
 .summary-item.total {
     font-weight: bold;
     font-size: 1.1rem;
