@@ -13,7 +13,6 @@ window.SummaryOverview = (function() {
     let summaryTotalProposalElem;
     let summaryOverallLaborHoursElem;
     let summaryProjectCostElem;
-    // REMOVED: summaryMiscCostElem is no longer needed
     let summaryMaterialMarkupElem;
     let summaryEstimateSubtotalElem;
     let summaryProfitMarginElem;
@@ -56,7 +55,6 @@ window.SummaryOverview = (function() {
         summaryTotalProposalElem = document.getElementById('summaryTotalProposal');
         summaryOverallLaborHoursElem = document.getElementById('summaryOverallLaborHours');
         summaryProjectCostElem = document.getElementById('summaryProjectCost');
-        // REMOVED: Reference to summaryMiscCost element
         summaryMaterialMarkupElem = document.getElementById('summaryMaterialMarkup');
         summaryEstimateSubtotalElem = document.getElementById('summaryEstimateSubtotal');
         summaryProfitMarginElem = document.getElementById('summaryProfitMargin');
@@ -169,7 +167,6 @@ window.SummaryOverview = (function() {
         };
 
         if (summaryProjectCostElem) summaryProjectCostElem.innerHTML = createTwoColumnString(null, totalProjectCostDirect);
-        // REMOVED: The line that updated the summaryMiscCostElem
         if (summaryOverheadElem) summaryOverheadElem.innerHTML = createTwoColumnString(projectSettings.overhead, totalOverheadCost);
         if (summaryMaterialMarkupElem) summaryMaterialMarkupElem.innerHTML = createTwoColumnString(projectSettings.materialMarkup, materialMarkupAmount);
         if (summaryEstimateSubtotalElem) summaryEstimateSubtotalElem.innerHTML = createTwoColumnString(null, estimateSubtotalAmount);
@@ -224,10 +221,13 @@ window.SummaryOverview = (function() {
             laborMaterialPieChart.data.datasets[0].borderColor = borderColors;
             laborMaterialPieChart.data.labels = labels;
 
-            const textColor = isDarkTheme ? '#e2e8f0' : '#4b5563';
-            laborMaterialPieChart.options.plugins.legend.labels.color = textColor;
-            laborMaterialPieChart.options.plugins.tooltip.titleColor = textColor;
-            laborMaterialPieChart.options.plugins.tooltip.bodyColor = textColor;
+            // --- UPDATED: Set tooltip colors based on theme ---
+            laborMaterialPieChart.options.plugins.legend.labels.color = isDarkTheme ? '#e2e8f0' : '#4b5563';
+            laborMaterialPieChart.options.plugins.tooltip.titleColor = isDarkTheme ? '#e2e8f0' : '#1f2937';
+            laborMaterialPieChart.options.plugins.tooltip.bodyColor = isDarkTheme ? '#e2e8f0' : '#4b5563';
+            laborMaterialPieChart.options.plugins.tooltip.backgroundColor = isDarkTheme ? '#2d3748' : '#ffffff';
+            laborMaterialPieChart.options.plugins.tooltip.borderColor = isDarkTheme ? '#4a5568' : '#e5e7eb';
+            // --- END UPDATE ---
 
             laborMaterialPieChart.update();
         } else {
@@ -273,13 +273,20 @@ window.SummaryOverview = (function() {
                                     return label;
                                 }
                             },
-                            titleColor: isDarkTheme ? '#e2e8f0' : '#4b5563',
-                            bodyColor: isDarkTheme ? '#e2e8f0' : '#4b5563',
-                            backgroundColor: isDarkTheme ? '#2d3748' : 'rgba(0,0,0,0.8)',
-                            borderColor: isDarkTheme ? '#4a5568' : '#e5e7eb',
+                            // --- UPDATED: Set tooltip colors based on theme ---
+                            titleColor: isDarkTheme ? '#e2e8f0' : '#1f2937',      // Light text for dark, dark for light
+                            bodyColor: isDarkTheme ? '#e2e8f0' : '#4b5563',       // Light text for dark, dark for light
+                            backgroundColor: isDarkTheme ? '#2d3748' : '#ffffff', // Dark bg for dark, white for light
+                            borderColor: isDarkTheme ? '#4a5568' : '#e5e7eb',     // Dark border for dark, light for light
+                            // --- END UPDATE ---
                             borderWidth: 1,
                             cornerRadius: 8,
-                            padding: 12
+                            padding: 12,
+                            // Add a subtle shadow to the light-mode tooltip
+                            bodyFont: {
+                                weight: '600'
+                            },
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                         }
                     }
                 }
