@@ -5,6 +5,7 @@ window.SetupWizard = (function() {
     let estimateItems;
     let stateSalesTax; // Passed from main script
     let onCompletionCallback; // Callback to main script when wizard is done
+    let onBackToEntryCallback; // NEW: Callback to go back to the entry screen
     let renderMessageBoxCallback; // Callback to main script for message box
     let closeMessageBoxCallback; // Callback to main script for closing message box
 
@@ -19,7 +20,7 @@ window.SetupWizard = (function() {
     let wizardLogoPreview;
     let defaultLogoIcon;
     let uploadText;
-    let clearLogoBtn; // NEW: Reference for the clear logo button
+    let clearLogoBtn; 
 
     let projectNameInput;
     let clientNameInput;
@@ -44,8 +45,7 @@ window.SetupWizard = (function() {
     let overheadInput;
     let materialMarkupInput;
     let additionalConsiderationsValueInput;
-    // Removed: let additionalConsiderationsUnitSpan; // This reference is no longer needed
-    let toggleAdditionalConsiderationsBtn; // NEW: Reference for the toggle button
+    let toggleAdditionalConsiderationsBtn; 
 
 
     // State for wizard navigation
@@ -64,18 +64,13 @@ window.SetupWizard = (function() {
     /**
      * Initializes the SetupWizard module.
      * @param {object} config - Configuration object.
-     * @param {object} config.projectSettings - The global project settings object (mutable).
-     * @param {Array<object>} config.estimateItems - The global estimate items array (mutable).
-     * @param {object} config.stateSalesTax - The map of state sales tax rates.
-     * @param {function} config.onCompletion - Callback function to execute when the wizard is completed.
-     * @param {function} config.renderMessageBox - Reference to the global renderMessageBox function.
-     * @param {function} config.closeMessageBox - Reference to the global closeMessageBox function.
      */
     function init(config) {
         projectSettings = config.projectSettings;
         estimateItems = config.estimateItems;
         stateSalesTax = config.stateSalesTax;
         onCompletionCallback = config.onCompletion;
+        onBackToEntryCallback = config.onBackToEntry; // NEW: Get the callback
         renderMessageBoxCallback = config.renderMessageBox;
         closeMessageBoxCallback = config.closeMessageBox;
 
@@ -86,20 +81,19 @@ window.SetupWizard = (function() {
             document.getElementById('wizardStep2'),
             document.getElementById('wizardStep3')
         ];
-        // Referencing the step item containers now
         stepItems = [ 
             document.getElementById('step1Container'),
             document.getElementById('step2Container'),
             document.getElementById('step3Container')
         ];
-        progressBar = document.getElementById('progressBar'); // Progress bar element
+        progressBar = document.getElementById('progressBar');
 
         logoUploadInput = document.getElementById('logoUploadInput');
         logoUploadArea = document.getElementById('logoUploadArea');
         wizardLogoPreview = document.getElementById('wizardLogoPreview');
         defaultLogoIcon = document.getElementById('defaultLogoIcon');
         uploadText = document.getElementById('uploadText');
-        clearLogoBtn = document.getElementById('clearLogoBtn'); // NEW: Get reference to the clear button
+        clearLogoBtn = document.getElementById('clearLogoBtn');
 
         projectNameInput = document.getElementById('projectName');
         clientNameInput = document.getElementById('clientName');
@@ -123,8 +117,7 @@ window.SetupWizard = (function() {
         overheadInput = document.getElementById('overhead');
         materialMarkupInput = document.getElementById('materialMarkup');
         additionalConsiderationsValueInput = document.getElementById('additionalConsiderationsValue');
-        // Removed: additionalConsiderationsUnitSpan = document.getElementById('additionalConsiderationsUnit'); // This line is no longer needed
-        toggleAdditionalConsiderationsBtn = document.getElementById('toggleAdditionalConsiderationsBtn'); // NEW: Get reference
+        toggleAdditionalConsiderationsBtn = document.getElementById('toggleAdditionalConsiderationsBtn');
 
 
         // Attach event listeners specific to the wizard
@@ -133,17 +126,14 @@ window.SetupWizard = (function() {
         logoUploadArea.addEventListener('dragleave', () => { logoUploadArea.classList.remove('drag-over'); });
         logoUploadArea.addEventListener('drop', handleLogoDrop);
         logoUploadArea.addEventListener('click', (event) => {
-            // Only trigger file input if the click is not on the clear button
             if (event.target !== clearLogoBtn) {
                 logoUploadInput.click();
             }
         });
         
-        // NEW: Event listener for the clear logo button
         if (clearLogoBtn) {
             clearLogoBtn.addEventListener('click', clearLogo);
         }
-
 
         projectStateSelect.addEventListener('change', (event) => {
             updateSalesTaxForState(event.target.value);
@@ -159,23 +149,21 @@ window.SetupWizard = (function() {
         document.getElementById('addSkillLevelBtn').addEventListener('click', addSkillLevelFromAdvanced);
 
         // Wizard navigation buttons
+        document.getElementById('backToEntryBtn').addEventListener('click', onBackToEntryCallback); // NEW: Add listener
         document.getElementById('nextStep1Btn').addEventListener('click', () => nextStep(1));
         document.getElementById('prevStep2Btn').addEventListener('click', () => prevStep(2));
         document.getElementById('nextStep2Btn').addEventListener('click', () => nextStep(2));
         document.getElementById('prevStep3Btn').addEventListener('click', () => prevStep(3));
         document.getElementById('startEstimatingBtn').addEventListener('click', startEstimating);
         
-        // Ensure toggle button exists before adding listener
         if (toggleAdditionalConsiderationsBtn) {
             toggleAdditionalConsiderationsBtn.addEventListener('click', toggleAdditionalConsiderationsType);
         }
-
 
         // Initial setup for the wizard
         loadSavedLogo();
         populateTradesDropdown();
         updateSelectedTradesDisplay();
-        // The main script will call showStep(1) after init
     }
 
 
@@ -189,38 +177,31 @@ window.SetupWizard = (function() {
             }
         });
         
-        // Update step items, circles, labels, and progress bar
         stepItems.forEach((stepItem, index) => {
             const stepNum = index + 1;
             const stepCircle = stepItem.querySelector('.step-circle');
             const stepLabel = stepItem.querySelector('.step-label');
             const stepStatus = stepItem.querySelector('.step-status');
 
-            stepItem.classList.remove('active', 'completed'); // Reset classes
+            stepItem.classList.remove('active', 'completed');
             stepCircle.classList.remove('active', 'completed');
             
-            // Set text labels and numbers
             stepLabel.textContent = stepDetails[index].label;
             stepCircle.textContent = stepNum;
 
             if (stepNum < stepNumber) {
-                // Completed step
                 stepItem.classList.add('completed');
                 stepCircle.classList.add('completed');
                 stepStatus.textContent = stepDetails[index].statusCompleted;
             } else if (stepNum === stepNumber) {
-                // Current step
                 stepItem.classList.add('active');
                 stepCircle.classList.add('active');
                 stepStatus.textContent = stepDetails[index].statusInProgress;
             } else {
-                // Pending step
                 stepStatus.textContent = stepDetails[index].statusPending;
             }
         });
 
-        // Calculate progress bar width based on active step
-        // For 3 steps, 0% for step 1, 50% for step 2, 100% for step 3
         const totalSteps = wizardSteps.length;
         let progressWidth = 0;
         if (totalSteps > 1) {
@@ -230,17 +211,15 @@ window.SetupWizard = (function() {
 
         currentStep = stepNumber;
 
-        // Re-populate data each time a step is shown to reflect latest projectSettings
         if (stepNumber === 1) {
             populateWizardInputs();
-            loadSavedLogo(); // Ensure logo preview is correct
+            loadSavedLogo();
         }
         if (stepNumber === 2) {
             populateWizardStep2LaborRates();
         }
         if (stepNumber === 3) {
             populateWizardStep3Settings();
-            // Ensure the button text is updated when step 3 is shown
             updateAdditionalConsiderationsButtonText(); 
         }
     }
@@ -258,7 +237,6 @@ window.SetupWizard = (function() {
             if (!projectState) { renderMessageBoxCallback("Please select a State/Location."); return; }
             if (projectSettings.activeTrades.length === 0) { renderMessageBoxCallback("Please select at least one Trade Involved."); return; }
 
-            // Save values to projectSettings, ensuring correct types
             projectSettings.projectName = projectName;
             projectSettings.clientName = clientName;
             projectSettings.projectAddress = document.getElementById('projectAddress').value;
@@ -270,13 +248,12 @@ window.SetupWizard = (function() {
             projectSettings.projectDescription = document.getElementById('projectDescription').value;
             projectSettings.projectType = projectType;
             projectSettings.projectState = projectState;
-            // Sales tax is updated on state change already, so no need to explicitly save here.
             
         } else if (stepNumber === 2) {
             for (const trade of projectSettings.activeTrades) {
-                if (projectSettings.allTradeLaborRates[trade]) { // Only validate if the trade actually exists in the rates data
+                if (projectSettings.allTradeLaborRates[trade]) {
                     for (const role in projectSettings.allTradeLaborRates[trade]) {
-                        const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]); // Ensure it's a number here too
+                        const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]);
                         if (isNaN(rate) || rate < 0) {
                             renderMessageBoxCallback(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
                             return;
@@ -293,7 +270,6 @@ window.SetupWizard = (function() {
     }
 
     function startEstimating() {
-        // Re-run final validation before completing
         const projectName = projectNameInput.value.trim();
         const clientName = clientNameInput.value.trim();
         const projectType = projectTypeSelect.value.trim();
@@ -314,7 +290,7 @@ window.SetupWizard = (function() {
                 return;
             }
             for (const role in projectSettings.allTradeLaborRates[trade]) {
-                const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]); // Ensure it's a number here too
+                const rate = parseFloat(projectSettings.allTradeLaborRates[trade][role]);
                 if (isNaN(rate) || rate < 0) {
                     renderMessageBoxCallback(`Labor rate for "${role}" in "${trade}" is not valid (${rate}). Please ensure all rates are non-negative numbers.`);
                     return;
@@ -322,7 +298,6 @@ window.SetupWizard = (function() {
             }
         }
 
-        // Save final settings to projectSettings, ensuring ALL numerical values are parsed
         projectSettings.projectName = projectNameInput.value;
         projectSettings.clientName = clientNameInput.value;
         projectSettings.projectAddress = document.getElementById('projectAddress').value;
@@ -335,17 +310,13 @@ window.SetupWizard = (function() {
         projectSettings.projectType = projectTypeSelect.value;
         projectSettings.projectState = projectStateSelect.value;
         
-        // --- IMPORTANT: Ensure parseFloat for ALL numeric settings here ---
         projectSettings.profitMargin = parseFloat(profitMarginInput.value) || 0;
         projectSettings.salesTax = parseFloat(salesTaxInput.value) || 0;
         projectSettings.miscellaneous = parseFloat(miscellaneousInput.value) || 0;
         projectSettings.overhead = parseFloat(overheadInput.value) || 0;
         projectSettings.materialMarkup = parseFloat(materialMarkupInput.value) || 0;
         projectSettings.additionalConsiderationsValue = parseFloat(additionalConsiderationsValueInput.value) || 0;
-        // --- END IMPORTANT ---
 
-
-        // Callback to main script indicating completion
         onCompletionCallback(projectSettings);
     }
 
@@ -394,28 +365,26 @@ window.SetupWizard = (function() {
             wizardLogoPreview.classList.remove('hidden');
             defaultLogoIcon.classList.add('hidden');
             uploadText.classList.add('hidden');
-            clearLogoBtn.classList.remove('hidden'); // Show clear button if logo is present
+            clearLogoBtn.classList.remove('hidden');
         } else {
-            wizardLogoPreview.src = ''; // Clear the image source
+            wizardLogoPreview.src = '';
             wizardLogoPreview.classList.add('hidden');
             defaultLogoIcon.classList.remove('hidden');
             uploadText.classList.remove('hidden');
-            clearLogoBtn.classList.add('hidden'); // Hide clear button if no logo
+            clearLogoBtn.classList.add('hidden');
         }
     }
 
-    // NEW: Function to clear the logo
     function clearLogo(event) {
-        event.stopPropagation(); // Prevent click from bubbling to logoUploadArea and opening file input
+        event.stopPropagation();
         renderMessageBoxCallback('Are you sure you want to clear the logo?', () => {
-            projectSettings.contractorLogo = ''; // Clear the logo data
-            loadSavedLogo(); // Update the UI to show default state
-            // Also update the logo in the AppHeader if it's currently displayed
+            projectSettings.contractorLogo = '';
+            loadSavedLogo();
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo('');
             }
             closeMessageBoxCallback();
-        }, true); // Pass true for isConfirm
+        }, true);
     }
 
 
@@ -440,7 +409,6 @@ window.SetupWizard = (function() {
             advancedDetailsSection.classList.add('hidden');
             showAdvancedDetailsLink.textContent = 'Show Advanced Details';
         }
-        // No need to call populateWizardStep3Settings here, as showStep() handles it.
     }
 
     function populateWizardStep3Settings() {
@@ -450,14 +418,13 @@ window.SetupWizard = (function() {
         overheadInput.value = projectSettings.overhead;
         materialMarkupInput.value = projectSettings.materialMarkup; 
         additionalConsiderationsValueInput.value = projectSettings.additionalConsiderationsValue;
-        // Removed: additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType; // This line is no longer needed
-        updateAdditionalConsiderationsButtonText(); // Ensure button text is correct on load of step 3
+        updateAdditionalConsiderationsButtonText();
     }
 
     function updateSalesTaxForState(stateCode) {
         const taxRate = stateSalesTax[stateCode] || 0;
         salesTaxInput.value = taxRate;
-        projectSettings.salesTax = taxRate; // Update global settings directly
+        projectSettings.salesTax = taxRate;
     }
 
     function toggleAdditionalConsiderationsType() {
@@ -466,11 +433,9 @@ window.SetupWizard = (function() {
         } else {
             projectSettings.additionalConsiderationsType = '%';
         }
-        // Removed: additionalConsiderationsUnitSpan.textContent = projectSettings.additionalConsiderationsType; // This line is no longer needed
-        updateAdditionalConsiderationsButtonText(); // Update the button text
+        updateAdditionalConsiderationsButtonText();
     }
 
-    // NEW: Function to update the text on the toggle button
     function updateAdditionalConsiderationsButtonText() {
         if (toggleAdditionalConsiderationsBtn) {
             toggleAdditionalConsiderationsBtn.textContent = projectSettings.additionalConsiderationsType;
@@ -529,11 +494,10 @@ window.SetupWizard = (function() {
             }
         } else {
             projectSettings.activeTrades = projectSettings.activeTrades.filter(t => t !== trade);
-            // Also remove line items associated with this trade
             estimateItems = estimateItems.filter(item => item.trade !== trade);
         }
         updateSelectedTradesDisplay();
-        populateWizardStep2LaborRates(); // Re-render labor rates based on new active trades
+        populateWizardStep2LaborRates();
     }
 
     function toggleTradeDropdown() {
@@ -615,12 +579,9 @@ window.SetupWizard = (function() {
         const parsedValue = parseFloat(value);
         if (!isNaN(parsedValue) && parsedValue >= 0) {
             projectSettings.allTradeLaborRates[trade][role] = parsedValue;
-            // No need to re-render populateWizardStep2LaborRates() here, as it causes focus issues.
-            // The value is correctly updated in projectSettings, and main app will recalculate on wizard completion.
         } else {
             console.error(`Invalid input for ${trade} ${role} rate: ${value}`);
             const inputId = `rate-${trade.replace(/\s/g, '')}-${role.replace(/\s/g, '')}`;
-            // Revert to old value if input is invalid
             document.getElementById(inputId).value = parseFloat(projectSettings.allTradeLaborRates[trade][role]) || 0; 
         }
     }
@@ -647,13 +608,12 @@ window.SetupWizard = (function() {
             delete projectSettings.allTradeLaborRates[trade][oldRole];
             projectSettings.allTradeLaborRates[trade][trimmedNewRole] = rate;
             
-            // Update any estimate items that use this role
             estimateItems.forEach(item => {
                 if (item.trade === trade && item.rateRole === oldRole) {
                     item.rateRole = trimmedNewRole;
                 }
             });
-            populateWizardStep2LaborRates(); // Re-render to show updated roles/rates
+            populateWizardStep2LaborRates();
         } else {
             console.warn(`Could not find skill "${oldRole}" in trade "${trade}" for update.`);
         }
@@ -669,7 +629,7 @@ window.SetupWizard = (function() {
             advancedLink.textContent = 'Show Advanced Options';
             advancedSkillLevelControls.classList.add('hidden');
         }
-        populateWizardStep2LaborRates(); // Re-render to show/hide advanced controls for rates
+        populateWizardStep2LaborRates();
     }
 
     function toggleAdvancedDetails(event) {
@@ -677,10 +637,10 @@ window.SetupWizard = (function() {
         isAdvancedDetailsActive = !isAdvancedDetailsActive;
         if (isAdvancedDetailsActive) {
             showAdvancedDetailsLink.textContent = 'Hide Advanced Details';
-            advancedDetailsSection.classList.remove('hidden'); // Show the section
+            advancedDetailsSection.classList.remove('hidden');
         } else {
-            showAdvancedDetailsLink.textContent = 'Show Advanced Details'; // Corrected variable name
-            advancedDetailsSection.classList.add('hidden'); // Hide the section
+            showAdvancedDetailsLink.textContent = 'Show Advanced Details';
+            advancedDetailsSection.classList.add('hidden');
         }
     }
 
@@ -749,14 +709,13 @@ window.SetupWizard = (function() {
         if (projectSettings.allTradeLaborRates[trade] && projectSettings.allTradeLaborRates[trade][role] !== undefined) {
             delete projectSettings.allTradeLaborRates[trade][role];
             
-            // Update any estimate items that use this role, assign a fallback
             estimateItems.forEach(item => {
                 if (item.trade === trade && item.rateRole === role) {
                     const availableRoles = Object.keys(projectSettings.allTradeLaborRates[item.trade] || {});
-                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman"; // Fallback to Journeyman if no other roles
+                    item.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
                 }
             });
-            populateWizardStep2LaborRates(); // Re-render the rates section
+            populateWizardStep2LaborRates();
         }
     }
 
@@ -764,14 +723,14 @@ window.SetupWizard = (function() {
     // Expose public methods for index.html to call
     return {
         init: init,
-        showStep: showStep, // Allows index.html to control wizard steps
-        populateTradesDropdown: populateTradesDropdown, // Needed for initial load
-        updateSelectedTradesDisplay: updateSelectedTradesDisplay, // Needed for initial load
-        updateSalesTaxForState: updateSalesTaxForState, // Needed for initial load
-        loadSavedLogo: loadSavedLogo, // Needed for initial load
-        handleTradeSelection: handleTradeSelection, // Needed for onchange event in HTML
-        updateLaborRate: updateLaborRate, // Needed for onchange event in HTML
-        updateSkillTitle: updateSkillTitle, // Needed for onchange event in HTML
-        confirmRemoveSkillLevel: confirmRemoveSkillLevel // Needed for onclick event in HTML
+        showStep: showStep,
+        populateTradesDropdown: populateTradesDropdown,
+        updateSelectedTradesDisplay: updateSelectedTradesDisplay,
+        updateSalesTaxForState: updateSalesTaxForState,
+        loadSavedLogo: loadSavedLogo,
+        handleTradeSelection: handleTradeSelection,
+        updateLaborRate: updateLaborRate,
+        updateSkillTitle: updateSkillTitle,
+        confirmRemoveSkillLevel: confirmRemoveSkillLevel
     };
 })();
