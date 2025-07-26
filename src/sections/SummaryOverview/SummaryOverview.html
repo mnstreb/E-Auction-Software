@@ -15,48 +15,17 @@
         </div>
     </div>
 
-    <!-- Executive Summary in its own row -->
+    <!-- Executive Summary in its own full-width row -->
     <div class="card summary-block mb-6">
         <h4>Executive Summary</h4>
-        <div class="summary-grid">
-            <!-- Header Row -->
-            <div class="summary-label"></div>
-            <div class="summary-percent-header">%</div>
-            <div class="summary-amount-header">Amount</div>
-
-            <!-- Data Rows -->
-            <div class="summary-label">Total Direct Cost:</div>
-            <div></div> <!-- Empty cell for alignment -->
-            <strong class="summary-amount" id="summaryProjectCost">$0.00</strong>
-
-            <div class="summary-label">Overhead:</div>
-            <strong class="summary-percent" id="summaryOverheadPercent">0.00%</strong>
-            <strong class="summary-amount" id="summaryOverheadAmount">$0.00</strong>
-
-            <div class="summary-label">Material Markup:</div>
-            <strong class="summary-percent" id="summaryMaterialMarkupPercent">0.00%</strong>
-            <strong class="summary-amount" id="summaryMaterialMarkupAmount">$0.00</strong>
-
-            <div class="summary-label subtotal-line">Estimate Subtotal:</div>
-            <div class="subtotal-line"></div> <!-- Empty cell -->
-            <strong class="summary-amount subtotal-line" id="summaryEstimateSubtotal">$0.00</strong>
-
-            <div class="summary-label">Profit Margin:</div>
-            <strong class="summary-percent" id="summaryProfitMarginPercent">0.00%</strong>
-            <strong class="summary-amount" id="summaryProfitMarginAmount">$0.00</strong>
-            
-            <div class="summary-label">Sales Tax:</div>
-            <strong class="summary-percent" id="summarySalesTaxPercent">0.00%</strong>
-            <strong class="summary-amount" id="summarySalesTaxAmount">$0.00</strong>
-
-            <div class="summary-label">Miscellaneous:</div>
-            <strong class="summary-percent" id="summaryMiscPercent">0.00%</strong>
-            <strong class="summary-amount" id="summaryMiscAmount">$0.00</strong>
-
-            <div class="summary-label">Additional Considerations:</div>
-            <div></div> <!-- Empty cell -->
-            <strong class="summary-amount" id="summaryAdditionalConsiderations">$0.00</strong>
-        </div>
+        <div class="summary-item"><span>Total Direct Cost:</span> <strong id="summaryProjectCost">$0.00</strong></div>
+        <div class="summary-item"><span>Overhead:</span> <strong id="summaryOverhead">0.00% / $0.00</strong></div>
+        <div class="summary-item"><span>Material Markup:</span> <strong id="summaryMaterialMarkup">0.00% / $0.00</strong></div>
+        <div class="summary-item pb-2 mb-2 border-b border-dashed border-gray-300"><span>Estimate Subtotal:</span> <strong id="summaryEstimateSubtotal">$0.00</strong></div>
+        <div class="summary-item"><span>Profit Margin:</span> <strong id="summaryProfitMargin">0.00% / $0.00</strong></div>
+        <div class="summary-item"><span>Sales Tax:</span> <strong id="summarySalesTax">0.00% / $0.00</strong></div>
+        <div class="summary-item"><span>Miscellaneous:</span> <strong id="summaryMiscPercent">0.00% / $0.00</strong></div>
+        <div class="summary-item"><span>Additional Considerations:</span> <strong id="summaryAdditionalConsiderations">$0.00</strong></div>
     </div>
 
     <!-- Labor and Cost Breakdown Section -->
