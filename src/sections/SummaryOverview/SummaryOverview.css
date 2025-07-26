@@ -76,14 +76,13 @@
     transition: color 0.3s;
 }
 
-/* --- UPDATED: Default style for values in Labor/Cost breakdown cards --- */
 .summary-item strong {
     text-align: right;
     color: #1f2937;
     transition: color 0.3s;
 }
 
-/* --- UPDATED: Specific two-column styles for the Executive Summary card ONLY --- */
+/* --- CORRECTED: Specific two-column styles for the Executive Summary card ONLY --- */
 #executiveSummaryCard .summary-item strong {
     display: flex;
     justify-content: space-between;
@@ -91,11 +90,19 @@
     min-width: 220px;
 }
 
+/* --- CORRECTED: Override for the other cards to restore their original layout --- */
+.executive-summary-grid-3col .summary-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    justify-content: initial; /* This resets the justify-content property */
+}
+
 .summary-value-col {
     flex-basis: 100px; /* Give each column a base width */
     text-align: right;
 }
-/* --- END UPDATED BLOCK --- */
+/* --- END CORRECTION --- */
 
 
 .summary-item.total {
