@@ -12,20 +12,44 @@
         <!-- Executive Summary -->
         <div class="card summary-block">
             <h4>Executive Summary</h4>
-            <div class="summary-item"><span>Total Project Cost:</span> <strong id="summaryProjectCost">$0.00</strong></div>
-            <div class="summary-item"><span>Total Misc Cost:</span> <strong id="summaryMiscCost">$0.00</strong></div>
-            <div class="summary-item"><span>Overhead (%):</span> <strong id="summaryOverhead">0.00%</strong></div>
-            <div class="summary-item"><span>Material Markup (%):</span> <strong id="summaryMaterialMarkup">0.00%</strong></div>
-            <div class="summary-item"><span>Material Markup Amount:</span> <strong id="summaryMaterialMarkupAmount">$0.00</strong></div>
-            <div class="summary-item pb-2 mb-2 border-b border-dashed border-gray-300"><span>Estimate Subtotal:</span> <strong id="summaryEstimateSubtotal">$0.00</strong></div>
-            <div class="summary-item"><span>Profit Margin (%):</span> <strong id="summaryProfitMargin">0.00%</strong></div>
-            <div class="summary-item"><span>Sales Tax (%):</span> <strong id="summarySalesTax">0.00%</strong></div>
-            <div class="summary-item"><span>Misc. (%):</span> <strong id="summaryMiscPercent">0.00%</strong></div>
-            <div class="summary-item"><span>Additional Considerations:</span> <strong id="summaryAdditionalConsiderations">$0.00</strong></div>
+            <div class="summary-grid-final">
+                <!-- Data Rows -->
+                <span>Total Project Cost:</span>
+                <strong id="summaryProjectCost">$0.00</strong>
+
+                <span>Total Misc Cost:</span>
+                <strong id="summaryMiscCost">$0.00</strong>
+
+                <span>Overhead (%):</span>
+                <strong id="summaryOverhead">10.00%</strong>
+
+                <span>Material Markup (%):</span>
+                <strong id="summaryMaterialMarkup">10.00%</strong>
+
+                <span>Material Markup Amount:</span>
+                <strong id="summaryMaterialMarkupAmount">$0.00</strong>
+
+                <div class="subtotal-line">
+                    <span>Estimate Subtotal:</span>
+                    <strong id="summaryEstimateSubtotal">$0.00</strong>
+                </div>
+
+                <span>Profit Margin (%):</span>
+                <strong id="summaryProfitMargin">15.00%</strong>
+
+                <span>Sales Tax (%):</span>
+                <strong id="summarySalesTax">8.25%</strong>
+
+                <span>Misc. (%):</span>
+                <strong id="summaryMiscPercent">5.00%</strong>
+
+                <span>Additional Considerations:</span>
+                <strong id="summaryAdditionalConsiderations">0.00%</strong>
+            </div>
         </div>
     </div>
 
-    <!-- Executive Summary Grid (now 3 columns, but without Executive Summary card) -->
+    <!-- Labor, Cost, and Chart Section -->
     <div class="executive-summary-section mb-6">
         <div class="executive-summary-grid-3col">
             <div class="card summary-block">
