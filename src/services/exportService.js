@@ -21,8 +21,13 @@ export function exportClientQuoteToPdf(projectSettings, estimateItems, currentAp
     const margin = 40;
     let cursorY = 40;
 
+    // MODIFIED: Set a max width and calculate height automatically to prevent distortion
     if (projectSettings.contractorLogo) {
-        try { doc.addImage(projectSettings.contractorLogo, 'PNG', margin, cursorY, 80, 25); } catch (e) { console.error("Error adding logo to PDF:", e); }
+        try { 
+            doc.addImage(projectSettings.contractorLogo, 'PNG', margin, cursorY, 80, 0); 
+        } catch (e) { 
+            console.error("Error adding logo to PDF:", e); 
+        }
     }
 
     doc.setFontSize(18);
@@ -75,7 +80,8 @@ export function exportClientQuoteToPdf(projectSettings, estimateItems, currentAp
         head: [['DESCRIPTION', 'DETAILS', 'AMOUNT']],
         body: quoteBody,
         theme: 'striped',
-        headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+        // MODIFIED: Changed header color to dashboard blue
+        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
         columnStyles: { 2: { halign: 'right' } },
         didDrawPage: (data) => {
             const pageCount = doc.internal.getNumberOfPages();
@@ -126,8 +132,13 @@ export function exportDetailedReportToPdf(projectSettings, estimateItems, format
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'landscape' });
 
+    // MODIFIED: Set a max width (60) and calculate height automatically (0) to prevent distortion
     if (projectSettings.contractorLogo) {
-        try { doc.addImage(projectSettings.contractorLogo, 'PNG', 15, 10, 40, 15); } catch (e) { console.error("Error adding logo to PDF:", e); }
+        try { 
+            doc.addImage(projectSettings.contractorLogo, 'PNG', 15, 10, 60, 0); 
+        } catch (e) { 
+            console.error("Error adding logo to PDF:", e); 
+        }
     }
     
     doc.setFontSize(18);
@@ -189,7 +200,9 @@ export function exportDetailedReportToPdf(projectSettings, estimateItems, format
 
     doc.autoTable({
         head: lineItemsHead, body: lineItemsBody, startY: doc.autoTable.previous.finalY + 10,
-        theme: 'grid', headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+        theme: 'grid', 
+        // MODIFIED: Changed header color to dashboard blue
+        headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
         styles: { fontSize: 7, cellPadding: 1.5 },
         columnStyles: { 5: { halign: 'right' }, 6: { halign: 'right' }, 8: { halign: 'right' }, 9: { halign: 'right' }, 10: { halign: 'right' }, 11: { halign: 'right' }, 12: { halign: 'right' }, 13: { halign: 'right' }, 14: { halign: 'right' } }
     });
