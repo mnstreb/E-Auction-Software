@@ -205,6 +205,11 @@
         .feature-item .check { color: #10b981; }
         .feature-item .cross { color: #ef4444; }
 
+        /* ✨ NEW: Styles for smooth screen transitions */
+        .screen-container {
+            transition: opacity 0.3s ease-in-out;
+        }
+
 
         table {
             width: 100%;
@@ -722,7 +727,7 @@
 <body class="bg-gray-100 p-4">
 
     <!-- ✨ UPDATED Entry Point Screen -->
-    <div id="entryPointContainer" class="entry-point-container">
+    <div id="entryPointContainer" class="entry-point-container screen-container">
         <div class="entry-point-content">
             <div class="entry-point-header">
                 <img src="Assets/Proquotelyasset-25.png" alt="Proquotely Logo" class="entry-point-logo">
@@ -833,7 +838,7 @@
     </div>
 
     <!-- The mainApp container no longer has its own header placeholder -->
-    <div id="mainApp" class="container hidden">
+    <div id="mainApp" class="container hidden screen-container">
         <div id="summaryOverviewPlaceholder"></div>
 
         <div class="card overflow-x-auto" id="estimateLineItemsTableContainer">
@@ -895,7 +900,7 @@
     </div>
 
     <!-- The quickQuoteApp container no longer has its own header placeholder -->
-    <div id="quickQuoteApp" class="container hidden">
+    <div id="quickQuoteApp" class="container hidden screen-container">
         <div id="quickQuoteSummaryPlaceholder"></div>
     </div>
 
@@ -1102,9 +1107,16 @@
                 const htmlResponse = await fetch('src/sections/SetupWizard/SetupWizard.html');
                 if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SetupWizard.html`);
                 const html = await htmlResponse.text();
-                document.getElementById('setupWizardPlaceholder').innerHTML = html;
+                const placeholder = document.getElementById('setupWizardPlaceholder');
+                placeholder.innerHTML = html;
                 
-                document.getElementById('setupWizardPlaceholder').classList.remove('hidden');
+                const wizardContainer = placeholder.querySelector('.setup-wizard-container');
+                if (wizardContainer) {
+                    wizardContainer.classList.add('screen-container');
+                    wizardContainer.style.opacity = '0';
+                }
+                
+                placeholder.classList.remove('hidden');
 
                 const script = document.createElement('script');
                 script.src = 'src/sections/SetupWizard/SetupWizard.js';
@@ -1125,6 +1137,10 @@
                         window.SetupWizard.updateSelectedTradesDisplay();
                         window.SetupWizard.updateSalesTaxForState(projectSettings.projectState);
                         window.SetupWizard.loadSavedLogo();
+                        
+                        setTimeout(() => {
+                            if(wizardContainer) wizardContainer.style.opacity = '1';
+                        }, 50);
                     } else {
                         console.error('SetupWizard module not available after loading.');
                     }
@@ -1392,97 +1408,125 @@
             }
             
             const setupWizardPlaceholder = document.getElementById('setupWizardPlaceholder');
-            if (setupWizardPlaceholder) {
-                setupWizardPlaceholder.classList.add('hidden');
-                setupWizardPlaceholder.innerHTML = ''; 
-            }
+            const wizardContainer = setupWizardPlaceholder.querySelector('.setup-wizard-container');
             
-            entryPointContainer.classList.add('hidden');
-            mainApp.classList.add('hidden');
-            quickQuoteApp.classList.add('hidden');
-
-            if (projectSettings.projectType === "Quick Quote") {
-                 quickQuoteApp.classList.remove('hidden');
-                 loadQuickQuoteSummary();
-            } else {
-                 mainApp.classList.remove('hidden');
-                 loadSummaryOverview();
-            }
-            
-            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
-            
-            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
-            }
-            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                window.AppHeader.updateLogo(projectSettings.contractorLogo);
+            if (wizardContainer) {
+                wizardContainer.style.opacity = '0';
             }
 
-            populateDefaultTradeSelector();
-            
-            if (estimateItems.length > 0) {
-                const firstItem = estimateItems[0];
-                const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
-                firstItem.trade = defaultTrade;
-                const availableRoles = Object.keys(projectSettings.allTradeLaborRates[firstItem.trade] || {});
-                firstItem.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
-            }
-            
-            renderItems(); 
-            
-            if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
-                window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
-            }
+            setTimeout(() => {
+                if (setupWizardPlaceholder) {
+                    setupWizardPlaceholder.classList.add('hidden');
+                    setupWizardPlaceholder.innerHTML = ''; 
+                }
+                
+                entryPointContainer.classList.add('hidden');
+                mainApp.classList.add('hidden');
+                quickQuoteApp.classList.add('hidden');
 
-            for (const group in collapsedState) {
-                if (collapsedState.hasOwnProperty(group)) {
-                    const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
-                    const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
-                    if (headerElement && mainThElement) {
-                        if (collapsedState[group]) {
-                            headerElement.classList.add('collapsed');
-                            mainThElement.colSpan = 1;
-                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                th.classList.add('column-hidden');
-                            });
-                        } else {
-                            mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
-                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                th.classList.remove('column-hidden');
-                            });
+                let nextScreen;
+                if (projectSettings.projectType === "Quick Quote") {
+                     nextScreen = quickQuoteApp;
+                     loadQuickQuoteSummary();
+                } else {
+                     nextScreen = mainApp;
+                     loadSummaryOverview();
+                }
+
+                nextScreen.style.opacity = '0';
+                nextScreen.classList.remove('hidden');
+                setTimeout(() => nextScreen.style.opacity = '1', 50);
+                
+                document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+                
+                if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                    window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
+                }
+                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                    window.AppHeader.updateLogo(projectSettings.contractorLogo);
+                }
+
+                populateDefaultTradeSelector();
+                
+                if (estimateItems.length > 0) {
+                    const firstItem = estimateItems[0];
+                    const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
+                    firstItem.trade = defaultTrade;
+                    const availableRoles = Object.keys(projectSettings.allTradeLaborRates[firstItem.trade] || {});
+                    firstItem.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+                }
+                
+                renderItems(); 
+                
+                if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                    window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
+                }
+
+                for (const group in collapsedState) {
+                    if (collapsedState.hasOwnProperty(group)) {
+                        const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
+                        const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
+                        if (headerElement && mainThElement) {
+                            if (collapsedState[group]) {
+                                headerElement.classList.add('collapsed');
+                                mainThElement.colSpan = 1;
+                                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                    th.classList.add('column-hidden');
+                                });
+                            } else {
+                                mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
+                                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                    th.classList.remove('column-hidden');
+                                });
+                            }
                         }
                     }
                 }
-            }
-            adjustTableMinWidth();
+                adjustTableMinWidth();
+            }, 300);
         }
 
         function showEntryPoint() {
-            currentAppMode = 'entry'; // Set mode when showing entry point
-            entryPointContainer.classList.remove('hidden');
-            mainApp.classList.add('hidden');
-            quickQuoteApp.classList.add('hidden');
-            document.getElementById('setupWizardPlaceholder').classList.add('hidden');
-            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
-            // Reset project info in header
-            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                // Corrected: Project Name as large, Client | Type | Location as small
-                window.AppHeader.updateProjectInfo('Project Type', 'Project Name', 'Client Name', 'Location'); 
+            currentAppMode = 'entry';
+            
+            // Fade out any visible screen
+            const visibleScreen = document.querySelector('.screen-container:not(.hidden):not(#entryPointContainer)');
+            if (visibleScreen) {
+                visibleScreen.style.opacity = '0';
             }
-            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                window.AppHeader.updateLogo(''); // Clear logo
+            const wizardPlaceholder = document.getElementById('setupWizardPlaceholder');
+            const wizardContainer = wizardPlaceholder.querySelector('.setup-wizard-container');
+             if (wizardContainer) {
+                wizardContainer.style.opacity = '0';
             }
+
+            setTimeout(() => {
+                mainApp.classList.add('hidden');
+                quickQuoteApp.classList.add('hidden');
+                wizardPlaceholder.classList.add('hidden');
+                wizardPlaceholder.innerHTML = '';
+                document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+                
+                // Fade in entry point
+                entryPointContainer.classList.remove('hidden');
+                setTimeout(() => entryPointContainer.style.opacity = '1', 50);
+
+                if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                    window.AppHeader.updateProjectInfo('Project Type', 'Project Name', 'Client Name', 'Location'); 
+                }
+                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                    window.AppHeader.updateLogo('');
+                }
+            }, 300);
         }
         
         function reconfigureApp() {
-            // Instead of resetting, we now simply show the setup wizard again
-            // The wizard will automatically load the current projectSettings
-            loadSetupWizard();
-            // Hide the main app/quick quote app while wizard is open
-            mainApp.classList.add('hidden');
-            quickQuoteApp.classList.add('hidden');
-            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
-            // No message box needed for a simple re-entry
+            const currentScreen = currentAppMode === 'detailed' ? mainApp : quickQuoteApp;
+            currentScreen.style.opacity = '0';
+            setTimeout(() => {
+                currentScreen.classList.add('hidden');
+                loadSetupWizard();
+            }, 300);
         }
 
         function showSetupWizard() {
@@ -1490,35 +1534,41 @@
         }
 
         function showMainApp() {
-            currentAppMode = 'detailed'; // Set mode when showing main app
-            mainApp.classList.remove('hidden');
-            quickQuoteApp.classList.add('hidden');
-            document.getElementById('setupWizardPlaceholder').classList.add('hidden');
-            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
-             // Ensure header info is updated when returning to main app
-            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
+            currentAppMode = 'detailed';
+            
+            const savedProjectsContainer = document.getElementById('savedProjectsPlaceholder').querySelector('.saved-projects-container');
+            if (savedProjectsContainer) {
+                savedProjectsContainer.style.opacity = '0';
             }
-            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                window.AppHeader.updateLogo(projectSettings.contractorLogo);
-            }
-            calculateTotals(); // Recalculate and update summaries
+
+            setTimeout(() => {
+                document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+                mainApp.style.opacity = '0';
+                mainApp.classList.remove('hidden');
+                quickQuoteApp.classList.add('hidden');
+                setTimeout(() => mainApp.style.opacity = '1', 50);
+
+                if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                    window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
+                }
+                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                    window.AppHeader.updateLogo(projectSettings.contractorLogo);
+                }
+                calculateTotals();
+            }, 300);
         }
 
         function handleSaveProject() {
-            // Ensure totals are calculated based on the current active view
             if (currentAppMode === 'detailed') {
                 calculateTotals(); 
             } else if (currentAppMode === 'quickQuote') {
                 if (QuickQuoteSummary && typeof QuickQuoteSummary.calculateTotals === 'function') {
-                    QuickQuoteSummary.calculateTotals(); // Ensure quick quote totals are fresh
+                    QuickQuoteSummary.calculateTotals();
                 }
             }
             
-            // Populate modal fields based on current projectSettings
             saveProjectNameInput.value = projectSettings.projectName || '';
             saveCustomerNameInput.value = projectSettings.clientName || '';
-            // For quick quote, projectState might not be set, allow user to input
             saveLocationInput.value = projectSettings.projectState || ''; 
             saveProjectCostInput.value = formatCurrency(projectSettings.grandTotal || 0);
             saveProjectModal.classList.add('show');
@@ -1531,38 +1581,34 @@
         function confirmSaveProject() {
             const projectName = saveProjectNameInput.value.trim();
             const customerName = saveCustomerNameInput.value.trim();
-            const projectState = saveLocationInput.value.trim(); // Now editable
+            const projectState = saveLocationInput.value.trim();
 
             if (!projectName || !customerName || !projectState) {
                 renderMessageBox('Project Name, Customer Name, and Location (State) are required.');
                 return;
             }
 
-            // Update projectSettings with values from modal, especially important for quick quote
-            // This ensures the saved project has the name, client, and state entered in the modal
             projectSettings.projectName = projectName;
             projectSettings.clientName = customerName;
             projectSettings.projectState = projectState;
 
-            // Update AppHeader with potentially new project info from modal
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
                 window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
             }
 
-            const totalProposalRaw = projectSettings.grandTotal || 0; // Ensures grandTotal is updated from latest calculations
+            const totalProposalRaw = projectSettings.grandTotal || 0;
 
             const newSavedProject = {
                 id: `proj_${Date.now()}`,
                 projectName: projectName,
                 customerName: customerName,
-                projectType: projectSettings.projectType, // Use current type (from wizard or default)
+                projectType: projectSettings.projectType,
                 projectState: projectState,
                 totalProposal: totalProposalRaw,
                 lastSavedDate: new Date().toISOString().split('T')[0],
                 status: 'Draft',
                 projectDetails: JSON.stringify({
-                    settings: { ...projectSettings }, // Save current project settings
-                    // Save either detailed estimate items or quick quote items
+                    settings: { ...projectSettings },
                     items: currentAppMode === 'detailed' ? [...estimateItems] : (QuickQuoteSummary ? QuickQuoteSummary.getQuickQuoteItems() : []) 
                 })
             };
@@ -1578,19 +1624,28 @@
         }
 
         function showSavedProjects() {
-            mainApp.classList.add('hidden');
-            quickQuoteApp.classList.add('hidden');
-            document.getElementById('setupWizardPlaceholder').classList.add('hidden');
-            const savedProjectsPlaceholder = document.getElementById('savedProjectsPlaceholder');
-            if (savedProjectsPlaceholder.innerHTML === '') {
-                loadSavedProjects();
-            } else {
-                savedProjectsPlaceholder.classList.remove('hidden');
-                if (window.SavedProjects && typeof window.SavedProjects.renderProjects === 'function') {
-                     window.SavedProjects.renderProjects(window.SavedProjects.getSavedProjectsData());
-                     window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
+            const currentScreen = document.querySelector('.screen-container:not(.hidden):not(#entryPointContainer)') || document.getElementById('mainApp');
+            currentScreen.style.opacity = '0';
+
+            setTimeout(() => {
+                currentScreen.classList.add('hidden');
+                const savedProjectsPlaceholder = document.getElementById('savedProjectsPlaceholder');
+                if (savedProjectsPlaceholder.innerHTML === '') {
+                    loadSavedProjects();
+                } else {
+                    const savedProjectsContainer = savedProjectsPlaceholder.querySelector('.saved-projects-container');
+                    savedProjectsPlaceholder.classList.remove('hidden');
+                    if (savedProjectsContainer) savedProjectsContainer.style.opacity = '0';
+                    
+                    if (window.SavedProjects && typeof window.SavedProjects.renderProjects === 'function') {
+                         window.SavedProjects.renderProjects(window.SavedProjects.getSavedProjectsData());
+                         window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
+                    }
+                    setTimeout(() => {
+                         if (savedProjectsContainer) savedProjectsContainer.style.opacity = '1';
+                    }, 50);
                 }
-            }
+            }, 300);
             closeMessageBox(); 
         }
 
@@ -2060,34 +2115,42 @@
             projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
             projectSettings.contractorLogo = PERMANENT_DEFAULT_LOGO;
 
-            entryPointContainer.classList.add('hidden');
-            mainApp.classList.add('hidden');
-            quickQuoteApp.classList.add('hidden');
-            loadSetupWizard();
+            entryPointContainer.style.opacity = '0';
+            setTimeout(() => {
+                entryPointContainer.classList.add('hidden');
+                mainApp.classList.add('hidden');
+                quickQuoteApp.classList.add('hidden');
+                loadSetupWizard();
+            }, 300);
         }
 
         function startQuickQuote() {
             currentAppMode = 'quickQuote';
             projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
-            // ✨ SET THE PERMANENT LOGO FOR QUICK QUOTE
             projectSettings.contractorLogo = PERMANENT_DEFAULT_LOGO;
             projectSettings.projectName = "New Quick Quote";
             projectSettings.projectType = "Quick Quote";
             projectSettings.clientName = "";
             projectSettings.projectState = "";
             
-            entryPointContainer.classList.add('hidden');
-            mainApp.classList.add('hidden');
-            quickQuoteApp.classList.remove('hidden');
-            loadQuickQuoteSummary();
-            
-            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); 
-            }
-            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                // ✨ UPDATE THE HEADER TO SHOW THE LOGO
-                window.AppHeader.updateLogo(PERMANENT_DEFAULT_LOGO); 
-            }
+            entryPointContainer.style.opacity = '0';
+            setTimeout(() => {
+                entryPointContainer.classList.add('hidden');
+                mainApp.classList.add('hidden');
+                
+                quickQuoteApp.style.opacity = '0';
+                quickQuoteApp.classList.remove('hidden');
+                loadQuickQuoteSummary();
+                
+                if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                    window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); 
+                }
+                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                    window.AppHeader.updateLogo(PERMANENT_DEFAULT_LOGO); 
+                }
+                
+                setTimeout(() => quickQuoteApp.style.opacity = '1', 50);
+            }, 300);
             
             estimateItems = [];
         }
