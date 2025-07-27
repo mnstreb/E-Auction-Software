@@ -205,12 +205,6 @@
         .feature-item .check { color: #10b981; }
         .feature-item .cross { color: #ef4444; }
 
-        /* ✨ NEW: Styles for smooth screen transitions */
-        .screen-container {
-            transition: opacity 0.3s ease-in-out;
-        }
-
-
         table {
             width: 100%;
             border-collapse: separate;
@@ -832,8 +826,8 @@
     </div>
 
 
-    <!-- THIS IS THE NEW SHARED HEADER CONTAINER -->
-    <div class="container" id="appHeaderContainer">
+    <!-- ✨ THIS CONTAINER IS NOW HIDDEN BY DEFAULT -->
+    <div class="container hidden" id="appHeaderContainer">
         <div id="appHeaderPlaceholder"></div>
     </div>
 
@@ -1110,12 +1104,6 @@
                 const placeholder = document.getElementById('setupWizardPlaceholder');
                 placeholder.innerHTML = html;
                 
-                const wizardContainer = placeholder.querySelector('.setup-wizard-container');
-                if (wizardContainer) {
-                    wizardContainer.classList.add('screen-container');
-                    wizardContainer.style.opacity = '0';
-                }
-                
                 placeholder.classList.remove('hidden');
 
                 const script = document.createElement('script');
@@ -1138,9 +1126,6 @@
                         window.SetupWizard.updateSalesTaxForState(projectSettings.projectState);
                         window.SetupWizard.loadSavedLogo();
                         
-                        setTimeout(() => {
-                            if(wizardContainer) wizardContainer.style.opacity = '1';
-                        }, 50);
                     } else {
                         console.error('SetupWizard module not available after loading.');
                     }
@@ -1300,6 +1285,7 @@
         const entryPointContainer = document.getElementById('entryPointContainer');
         const mainApp = document.getElementById('mainApp');
         const quickQuoteApp = document.getElementById('quickQuoteApp'); // New container for quick quote view
+        const appHeaderContainer = document.getElementById('appHeaderContainer'); // ✨ Get the header container
         const estimateTableBody = document.getElementById('estimateTableBody');
         const saveProjectModal = document.getElementById('saveProjectModal');
         const saveProjectNameInput = document.getElementById('saveProjectName');
@@ -1402,131 +1388,103 @@
         function handleWizardCompletion(updatedSettings) {
             projectSettings = { ...updatedSettings }; 
             
-            // MODIFIED: Enforce permanent default logo for detailed estimate mode
             if (currentAppMode === 'detailed' && !projectSettings.contractorLogo) {
                 projectSettings.contractorLogo = PERMANENT_DEFAULT_LOGO;
             }
             
             const setupWizardPlaceholder = document.getElementById('setupWizardPlaceholder');
-            const wizardContainer = setupWizardPlaceholder.querySelector('.setup-wizard-container');
+            setupWizardPlaceholder.classList.add('hidden');
+            setupWizardPlaceholder.innerHTML = ''; 
             
-            if (wizardContainer) {
-                wizardContainer.style.opacity = '0';
+            entryPointContainer.classList.add('hidden');
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
+
+            let nextScreen;
+            if (projectSettings.projectType === "Quick Quote") {
+                 nextScreen = quickQuoteApp;
+                 loadQuickQuoteSummary();
+            } else {
+                 nextScreen = mainApp;
+                 loadSummaryOverview();
+            }
+            
+            appHeaderContainer.classList.remove('hidden'); // ✨ Show the header now
+            nextScreen.classList.remove('hidden');
+            
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+            
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
+            }
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo(projectSettings.contractorLogo);
             }
 
-            setTimeout(() => {
-                if (setupWizardPlaceholder) {
-                    setupWizardPlaceholder.classList.add('hidden');
-                    setupWizardPlaceholder.innerHTML = ''; 
-                }
-                
-                entryPointContainer.classList.add('hidden');
-                mainApp.classList.add('hidden');
-                quickQuoteApp.classList.add('hidden');
+            populateDefaultTradeSelector();
+            
+            if (estimateItems.length > 0) {
+                const firstItem = estimateItems[0];
+                const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
+                firstItem.trade = defaultTrade;
+                const availableRoles = Object.keys(projectSettings.allTradeLaborRates[firstItem.trade] || {});
+                firstItem.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
+            }
+            
+            renderItems(); 
+            
+            if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
+                window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
+            }
 
-                let nextScreen;
-                if (projectSettings.projectType === "Quick Quote") {
-                     nextScreen = quickQuoteApp;
-                     loadQuickQuoteSummary();
-                } else {
-                     nextScreen = mainApp;
-                     loadSummaryOverview();
-                }
-
-                nextScreen.style.opacity = '0';
-                nextScreen.classList.remove('hidden');
-                setTimeout(() => nextScreen.style.opacity = '1', 50);
-                
-                document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
-                
-                if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                    window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
-                }
-                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                    window.AppHeader.updateLogo(projectSettings.contractorLogo);
-                }
-
-                populateDefaultTradeSelector();
-                
-                if (estimateItems.length > 0) {
-                    const firstItem = estimateItems[0];
-                    const defaultTrade = projectSettings.activeTrades.length > 0 ? projectSettings.activeTrades[0] : "General";
-                    firstItem.trade = defaultTrade;
-                    const availableRoles = Object.keys(projectSettings.allTradeLaborRates[firstItem.trade] || {});
-                    firstItem.rateRole = availableRoles.length > 0 ? availableRoles[0] : "Journeyman";
-                }
-                
-                renderItems(); 
-                
-                if (window.SummaryOverview && typeof window.SummaryOverview.updateSummaries === 'function') {
-                    window.SummaryOverview.updateSummaries(projectSettings, estimateItems, isDarkTheme);
-                }
-
-                for (const group in collapsedState) {
-                    if (collapsedState.hasOwnProperty(group)) {
-                        const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
-                        const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
-                        if (headerElement && mainThElement) {
-                            if (collapsedState[group]) {
-                                headerElement.classList.add('collapsed');
-                                mainThElement.colSpan = 1;
-                                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                    th.classList.add('column-hidden');
-                                });
-                            } else {
-                                mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
-                                document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
-                                    th.classList.remove('column-hidden');
-                                });
-                            }
+            for (const group in collapsedState) {
+                if (collapsedState.hasOwnProperty(group)) {
+                    const headerElement = document.querySelector(`.collapsible-header[data-group="${group}"]`);
+                    const mainThElement = document.getElementById(`th${group.charAt(0).toUpperCase() + group.slice(1)}Header`);
+                    if (headerElement && mainThElement) {
+                        if (collapsedState[group]) {
+                            headerElement.classList.add('collapsed');
+                            mainThElement.colSpan = 1;
+                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                th.classList.add('column-hidden');
+                            });
+                        } else {
+                            mainThElement.colSpan = (group === 'labor' ? 5 : group === 'materials' ? 3 : 4); 
+                            document.querySelectorAll(`th[data-col-group="${group}-details"]`).forEach(th => {
+                                th.classList.remove('column-hidden');
+                            });
                         }
                     }
                 }
-                adjustTableMinWidth();
-            }, 300);
+            }
+            adjustTableMinWidth();
         }
 
         function showEntryPoint() {
             currentAppMode = 'entry';
             
-            // Fade out any visible screen
-            const visibleScreen = document.querySelector('.screen-container:not(.hidden):not(#entryPointContainer)');
-            if (visibleScreen) {
-                visibleScreen.style.opacity = '0';
-            }
-            const wizardPlaceholder = document.getElementById('setupWizardPlaceholder');
-            const wizardContainer = wizardPlaceholder.querySelector('.setup-wizard-container');
-             if (wizardContainer) {
-                wizardContainer.style.opacity = '0';
-            }
+            appHeaderContainer.classList.add('hidden'); // ✨ Hide header when going to entry point
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
+            document.getElementById('setupWizardPlaceholder').classList.add('hidden');
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+            
+            entryPointContainer.classList.remove('hidden');
 
-            setTimeout(() => {
-                mainApp.classList.add('hidden');
-                quickQuoteApp.classList.add('hidden');
-                wizardPlaceholder.classList.add('hidden');
-                wizardPlaceholder.innerHTML = '';
-                document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
-                
-                // Fade in entry point
-                entryPointContainer.classList.remove('hidden');
-                setTimeout(() => entryPointContainer.style.opacity = '1', 50);
-
-                if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                    window.AppHeader.updateProjectInfo('Project Type', 'Project Name', 'Client Name', 'Location'); 
-                }
-                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                    window.AppHeader.updateLogo('');
-                }
-            }, 300);
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo('Project Type', 'Project Name', 'Client Name', 'Location'); 
+            }
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo('');
+            }
         }
         
         function reconfigureApp() {
-            const currentScreen = currentAppMode === 'detailed' ? mainApp : quickQuoteApp;
-            currentScreen.style.opacity = '0';
-            setTimeout(() => {
-                currentScreen.classList.add('hidden');
-                loadSetupWizard();
-            }, 300);
+            appHeaderContainer.classList.add('hidden'); // ✨ Hide header before showing wizard
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+            loadSetupWizard();
         }
 
         function showSetupWizard() {
@@ -1536,26 +1494,18 @@
         function showMainApp() {
             currentAppMode = 'detailed';
             
-            const savedProjectsContainer = document.getElementById('savedProjectsPlaceholder').querySelector('.saved-projects-container');
-            if (savedProjectsContainer) {
-                savedProjectsContainer.style.opacity = '0';
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+            appHeaderContainer.classList.remove('hidden'); // ✨ Show header
+            mainApp.classList.remove('hidden');
+            quickQuoteApp.classList.add('hidden');
+
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
             }
-
-            setTimeout(() => {
-                document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
-                mainApp.style.opacity = '0';
-                mainApp.classList.remove('hidden');
-                quickQuoteApp.classList.add('hidden');
-                setTimeout(() => mainApp.style.opacity = '1', 50);
-
-                if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                    window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
-                }
-                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                    window.AppHeader.updateLogo(projectSettings.contractorLogo);
-                }
-                calculateTotals();
-            }, 300);
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo(projectSettings.contractorLogo);
+            }
+            calculateTotals();
         }
 
         function handleSaveProject() {
@@ -1624,28 +1574,20 @@
         }
 
         function showSavedProjects() {
-            const currentScreen = document.querySelector('.screen-container:not(.hidden):not(#entryPointContainer)') || document.getElementById('mainApp');
-            currentScreen.style.opacity = '0';
-
-            setTimeout(() => {
-                currentScreen.classList.add('hidden');
-                const savedProjectsPlaceholder = document.getElementById('savedProjectsPlaceholder');
-                if (savedProjectsPlaceholder.innerHTML === '') {
-                    loadSavedProjects();
-                } else {
-                    const savedProjectsContainer = savedProjectsPlaceholder.querySelector('.saved-projects-container');
-                    savedProjectsPlaceholder.classList.remove('hidden');
-                    if (savedProjectsContainer) savedProjectsContainer.style.opacity = '0';
-                    
-                    if (window.SavedProjects && typeof window.SavedProjects.renderProjects === 'function') {
-                         window.SavedProjects.renderProjects(window.SavedProjects.getSavedProjectsData());
-                         window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
-                    }
-                    setTimeout(() => {
-                         if (savedProjectsContainer) savedProjectsContainer.style.opacity = '1';
-                    }, 50);
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
+            document.getElementById('setupWizardPlaceholder').classList.add('hidden');
+            appHeaderContainer.classList.remove('hidden'); // ✨ Show header for saved projects view
+            const savedProjectsPlaceholder = document.getElementById('savedProjectsPlaceholder');
+            if (savedProjectsPlaceholder.innerHTML === '') {
+                loadSavedProjects();
+            } else {
+                savedProjectsPlaceholder.classList.remove('hidden');
+                if (window.SavedProjects && typeof window.SavedProjects.renderProjects === 'function') {
+                     window.SavedProjects.renderProjects(window.SavedProjects.getSavedProjectsData());
+                     window.SavedProjects.updateCustomerTotalsChart(window.SavedProjects.getSavedProjectsData(), isDarkTheme);
                 }
-            }, 300);
+            }
             closeMessageBox(); 
         }
 
@@ -2115,13 +2057,10 @@
             projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
             projectSettings.contractorLogo = PERMANENT_DEFAULT_LOGO;
 
-            entryPointContainer.style.opacity = '0';
-            setTimeout(() => {
-                entryPointContainer.classList.add('hidden');
-                mainApp.classList.add('hidden');
-                quickQuoteApp.classList.add('hidden');
-                loadSetupWizard();
-            }, 300);
+            entryPointContainer.classList.add('hidden');
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
+            loadSetupWizard();
         }
 
         function startQuickQuote() {
@@ -2133,24 +2072,19 @@
             projectSettings.clientName = "";
             projectSettings.projectState = "";
             
-            entryPointContainer.style.opacity = '0';
-            setTimeout(() => {
-                entryPointContainer.classList.add('hidden');
-                mainApp.classList.add('hidden');
-                
-                quickQuoteApp.style.opacity = '0';
-                quickQuoteApp.classList.remove('hidden');
-                loadQuickQuoteSummary();
-                
-                if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                    window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); 
-                }
-                if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                    window.AppHeader.updateLogo(PERMANENT_DEFAULT_LOGO); 
-                }
-                
-                setTimeout(() => quickQuoteApp.style.opacity = '1', 50);
-            }, 300);
+            entryPointContainer.classList.add('hidden');
+            mainApp.classList.add('hidden');
+            
+            appHeaderContainer.classList.remove('hidden'); // ✨ Show header
+            quickQuoteApp.classList.remove('hidden');
+            loadQuickQuoteSummary();
+            
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); 
+            }
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo(PERMANENT_DEFAULT_LOGO); 
+            }
             
             estimateItems = [];
         }
