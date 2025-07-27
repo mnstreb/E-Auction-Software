@@ -21,7 +21,6 @@ export function exportClientQuoteToPdf(projectSettings, estimateItems, currentAp
     const margin = 40;
     let cursorY = 40;
 
-    // MODIFIED: Set a max width and calculate height automatically to prevent distortion
     if (projectSettings.contractorLogo) {
         try { 
             doc.addImage(projectSettings.contractorLogo, 'PNG', margin, cursorY, 80, 0); 
@@ -80,7 +79,6 @@ export function exportClientQuoteToPdf(projectSettings, estimateItems, currentAp
         head: [['DESCRIPTION', 'DETAILS', 'AMOUNT']],
         body: quoteBody,
         theme: 'striped',
-        // MODIFIED: Changed header color to dashboard blue
         headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
         columnStyles: { 2: { halign: 'right' } },
         didDrawPage: (data) => {
@@ -131,25 +129,32 @@ export function exportDetailedReportToPdf(projectSettings, estimateItems, format
     
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'landscape' });
+    let cursorY = 20; // Start the cursor lower
 
-    // MODIFIED: Set a max width (60) and calculate height automatically (0) to prevent distortion
+    // MODIFIED: Draw logo first, then advance cursor
     if (projectSettings.contractorLogo) {
         try { 
-            doc.addImage(projectSettings.contractorLogo, 'PNG', 15, 10, 60, 0); 
+            doc.addImage(projectSettings.contractorLogo, 'PNG', 15, cursorY, 60, 0); 
         } catch (e) { 
             console.error("Error adding logo to PDF:", e); 
         }
     }
     
+    // MODIFIED: Move title down to be vertically centered with the logo
+    cursorY += 15;
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text('Detailed Project Estimate', 148, 15, { align: 'center' });
+    doc.text('Detailed Project Estimate', 148, cursorY, { align: 'center' });
     
+    cursorY += 7;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Project: ${projectSettings.projectName}`, 148, 22, { align: 'center' });
-    doc.text(`Client: ${projectSettings.clientName}`, 148, 27, { align: 'center' });
+    doc.text(`Project: ${projectSettings.projectName}`, 148, cursorY, { align: 'center' });
+    cursorY += 5;
+    doc.text(`Client: ${projectSettings.clientName}`, 148, cursorY, { align: 'center' });
     
+    // MODIFIED: Start the summary table lower down
+    cursorY += 15;
     const summaryBody = [
         ['Total Proposal:', formatCurrency(projectSettings.grandTotal)],
         ['Total Labor Hours:', formatHours(projectSettings.overallLaborHoursSum)],
@@ -165,8 +170,8 @@ export function exportDetailedReportToPdf(projectSettings, estimateItems, format
         ['Addt\'l Considerations:', formatCurrency(projectSettings.additionalConsiderationAmount)],
     ];
 
-    doc.autoTable({ startY: 40, body: summaryBody, theme: 'striped', styles: { fontSize: 9 }, columnStyles: { 1: { halign: 'right' } }, margin: { left: 15 } });
-    doc.autoTable({ startY: 40, body: summaryBody2, theme: 'striped', styles: { fontSize: 9 }, columnStyles: { 1: { halign: 'right' } }, margin: { left: 157 } });
+    doc.autoTable({ startY: cursorY, body: summaryBody, theme: 'striped', styles: { fontSize: 9 }, columnStyles: { 1: { halign: 'right' } }, margin: { left: 15 } });
+    doc.autoTable({ startY: cursorY, body: summaryBody2, theme: 'striped', styles: { fontSize: 9 }, columnStyles: { 1: { halign: 'right' } }, margin: { left: 157 } });
     
     const lineItemsHead = [
         [
@@ -201,7 +206,6 @@ export function exportDetailedReportToPdf(projectSettings, estimateItems, format
     doc.autoTable({
         head: lineItemsHead, body: lineItemsBody, startY: doc.autoTable.previous.finalY + 10,
         theme: 'grid', 
-        // MODIFIED: Changed header color to dashboard blue
         headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
         styles: { fontSize: 7, cellPadding: 1.5 },
         columnStyles: { 5: { halign: 'right' }, 6: { halign: 'right' }, 8: { halign: 'right' }, 9: { halign: 'right' }, 10: { halign: 'right' }, 11: { halign: 'right' }, 12: { halign: 'right' }, 13: { halign: 'right' }, 14: { halign: 'right' } }
