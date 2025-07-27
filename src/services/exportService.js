@@ -129,9 +129,8 @@ export function exportDetailedReportToPdf(projectSettings, estimateItems, format
     
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'landscape' });
-    let cursorY = 20; // Start the cursor lower
+    let cursorY = 20;
 
-    // MODIFIED: Draw logo first, then advance cursor
     if (projectSettings.contractorLogo) {
         try { 
             doc.addImage(projectSettings.contractorLogo, 'PNG', 15, cursorY, 60, 0); 
@@ -140,7 +139,7 @@ export function exportDetailedReportToPdf(projectSettings, estimateItems, format
         }
     }
     
-    // MODIFIED: Move title down to be vertically centered with the logo
+    // MODIFIED: Adjusted vertical positioning for better layout
     cursorY += 15;
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
@@ -153,25 +152,43 @@ export function exportDetailedReportToPdf(projectSettings, estimateItems, format
     cursorY += 5;
     doc.text(`Client: ${projectSettings.clientName}`, 148, cursorY, { align: 'center' });
     
-    // MODIFIED: Start the summary table lower down
+    // MODIFIED: Restructured summary data into a single table
     cursorY += 15;
-    const summaryBody = [
-        ['Total Proposal:', formatCurrency(projectSettings.grandTotal)],
-        ['Total Labor Hours:', formatHours(projectSettings.overallLaborHoursSum)],
-        ['Total Direct Cost:', formatCurrency(projectSettings.totalProjectCostDirect)],
-        ['Material Markup:', `${projectSettings.materialMarkup.toFixed(2)}% (${formatCurrency(projectSettings.materialMarkupAmount)})`],
-        ['Overhead:', `${projectSettings.overhead.toFixed(2)}% (${formatCurrency(projectSettings.totalOverheadCost)})`],
-    ];
-    const summaryBody2 = [
-        ['Miscellaneous:', `${projectSettings.miscellaneous.toFixed(2)}% (${formatCurrency(projectSettings.totalMiscCostAmount)})`],
-        ['Subtotal:', formatCurrency(projectSettings.estimateSubtotalAmount)],
-        ['Profit Margin:', `${projectSettings.profitMargin.toFixed(2)}% (${formatCurrency(projectSettings.totalProfitMarginAmount)})`],
-        ['Sales Tax:', `${projectSettings.salesTax.toFixed(2)}% (${formatCurrency(projectSettings.salesTaxAmount)})`],
-        ['Addt\'l Considerations:', formatCurrency(projectSettings.additionalConsiderationAmount)],
+    const summaryData = [
+        [
+            'Total Proposal:', formatCurrency(projectSettings.grandTotal),
+            'Miscellaneous:', `${projectSettings.miscellaneous.toFixed(2)}% (${formatCurrency(projectSettings.totalMiscCostAmount)})`
+        ],
+        [
+            'Total Labor Hours:', formatHours(projectSettings.overallLaborHoursSum),
+            'Subtotal:', formatCurrency(projectSettings.estimateSubtotalAmount)
+        ],
+        [
+            'Total Direct Cost:', formatCurrency(projectSettings.totalProjectCostDirect),
+            'Profit Margin:', `${projectSettings.profitMargin.toFixed(2)}% (${formatCurrency(projectSettings.totalProfitMarginAmount)})`
+        ],
+        [
+            'Material Markup:', `${projectSettings.materialMarkup.toFixed(2)}% (${formatCurrency(projectSettings.materialMarkupAmount)})`,
+            'Sales Tax:', `${projectSettings.salesTax.toFixed(2)}% (${formatCurrency(projectSettings.salesTaxAmount)})`
+        ],
+        [
+            'Overhead:', `${projectSettings.overhead.toFixed(2)}% (${formatCurrency(projectSettings.totalOverheadCost)})`,
+            'Addt\'l Considerations:', formatCurrency(projectSettings.additionalConsiderationAmount)
+        ]
     ];
 
-    doc.autoTable({ startY: cursorY, body: summaryBody, theme: 'striped', styles: { fontSize: 9 }, columnStyles: { 1: { halign: 'right' } }, margin: { left: 15 } });
-    doc.autoTable({ startY: cursorY, body: summaryBody2, theme: 'striped', styles: { fontSize: 9 }, columnStyles: { 1: { halign: 'right' } }, margin: { left: 157 } });
+    doc.autoTable({
+        startY: cursorY,
+        body: summaryData,
+        theme: 'striped',
+        styles: { fontSize: 9 },
+        columnStyles: {
+            0: { fontStyle: 'bold' },
+            1: { halign: 'right' },
+            2: { fontStyle: 'bold' },
+            3: { halign: 'right' }
+        }
+    });
     
     const lineItemsHead = [
         [
