@@ -802,6 +802,9 @@
         import QuickQuoteSummary from './src/sections/QuickQuoteSummary/QuickQuoteSummary.js';
         // Import services
         import { exportClientQuoteToPdf, exportDetailedReportToPdf, exportEstimateToCsv } from './src/services/exportService.js';
+        
+        // MODIFIED: Define permanent logo path
+        const PERMANENT_DEFAULT_LOGO = "Assets/Proquotelyasset-25.png";
 
         // --- Core Application Functions (Defined at the top to ensure hoisting) ---
         async function loadAppHeader() {
@@ -833,7 +836,6 @@
                             onThemeToggle: toggleTheme,
                             onReconfigure: reconfigureApp, 
                             onSaveProject: handleSaveProject,
-                            // MODIFIED: Use imported functions from exportService
                             onExportPdfReport: () => exportDetailedReportToPdf(projectSettings, estimateItems, formatCurrency, formatHours, renderMessageBox),
                             onExportCsv: () => exportEstimateToCsv(projectSettings, estimateItems, renderMessageBox),
                             onExportPdfQuote: () => exportClientQuoteToPdf(projectSettings, estimateItems, currentAppMode, formatCurrency, renderMessageBox),
@@ -841,8 +843,7 @@
                             onUserProfileClick: showSavedProjects 
                         });
                         
-                        // MODIFIED: Immediately update the logo with the default from project settings
-                        window.AppHeader.updateLogo(initialProjectSettings.contractorLogo);
+                        // MODIFIED: Removed logo update from here. It's now handled in startup functions.
 
                         // Initialize theme toggle state in header
                         if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
@@ -1021,8 +1022,8 @@
             endDate: "",
             projectID: "",
             projectDescription: "",
-            // MODIFIED: Set default logo with correct path
-            contractorLogo: "Assets/Proquotelyasset-25.png",
+            // MODIFIED: Set to blank by default
+            contractorLogo: "",
             projectType: "Commercial",
             projectState: "CA",
             profitMargin: 15,
@@ -1843,36 +1844,39 @@
             }
         }
 
-        // CORRECTED: This function now correctly sets the currentAppMode
+        // MODIFIED: Updated startup functions for permanent logo logic
         function startDetailedEstimate() {
             currentAppMode = 'detailed';
+            projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
+            projectSettings.contractorLogo = PERMANENT_DEFAULT_LOGO;
+
             entryPointContainer.classList.add('hidden');
-            mainApp.classList.add('hidden'); // Ensure mainApp is hidden initially
-            quickQuoteApp.classList.add('hidden'); // Ensure quickQuoteApp is hidden initially
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.add('hidden');
             loadSetupWizard();
         }
 
         function startQuickQuote() {
             currentAppMode = 'quickQuote';
-            entryPointContainer.classList.add('hidden');
-            mainApp.classList.add('hidden'); // Hide detailed app
-            quickQuoteApp.classList.remove('hidden'); // Show quick quote app
-            loadQuickQuoteSummary();
-            // Update AppHeader with default quick quote info
-            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                // Corrected: Project Name as large, Client | Type | Location as small
-                window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); 
-            }
-            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                window.AppHeader.updateLogo(''); // Clear logo for quick quote
-            }
-            // Ensure projectSettings are reset or set to defaults for quick quote
             projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
             projectSettings.projectName = "New Quick Quote";
             projectSettings.projectType = "Quick Quote";
-            projectSettings.clientName = ""; // Clear client name
-            projectSettings.projectState = ""; // Clear project state
-            estimateItems = []; // Clear detailed estimate items
+            projectSettings.clientName = "";
+            projectSettings.projectState = "";
+            
+            entryPointContainer.classList.add('hidden');
+            mainApp.classList.add('hidden');
+            quickQuoteApp.classList.remove('hidden');
+            loadQuickQuoteSummary();
+            
+            if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
+                window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); 
+            }
+            if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
+                window.AppHeader.updateLogo(''); 
+            }
+            
+            estimateItems = [];
         }
 
 
