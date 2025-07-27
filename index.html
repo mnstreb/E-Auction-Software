@@ -1179,22 +1179,24 @@
         function handleWizardCompletion(updatedSettings) {
             projectSettings = { ...updatedSettings }; 
             
+            // MODIFIED: Enforce permanent default logo for detailed estimate mode
+            if (currentAppMode === 'detailed' && !projectSettings.contractorLogo) {
+                projectSettings.contractorLogo = PERMANENT_DEFAULT_LOGO;
+            }
+            
             const setupWizardPlaceholder = document.getElementById('setupWizardPlaceholder');
             if (setupWizardPlaceholder) {
                 setupWizardPlaceholder.classList.add('hidden');
                 setupWizardPlaceholder.innerHTML = ''; 
             }
             
-            // After wizard, always show the detailed app view
             entryPointContainer.classList.add('hidden');
-            // Ensure mainApp and quickQuoteApp are hidden before deciding which to show
             mainApp.classList.add('hidden');
             quickQuoteApp.classList.add('hidden');
 
-            // Now, based on the mode, show the correct app
-            if (projectSettings.projectType === "Quick Quote") { // Assuming Quick Quote is set in projectSettings from startQuickQuote
+            if (projectSettings.projectType === "Quick Quote") {
                  quickQuoteApp.classList.remove('hidden');
-                 loadQuickQuoteSummary(); // Ensure quick quote summary is loaded/reloaded
+                 loadQuickQuoteSummary();
             } else {
                  mainApp.classList.remove('hidden');
                  loadSummaryOverview();
