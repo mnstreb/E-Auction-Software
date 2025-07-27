@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Construction Estimate Calculator</title>
+    <!-- MODIFIED: Updated application title -->
+    <title>Proquotely - Construction Estimator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
@@ -100,6 +101,12 @@
             background: #ea580c;
             box-shadow: 0 6px 20px rgba(234, 88, 12, 0.3);
             transform: translateY(-1px);
+        }
+
+        /* MODIFIED: Style for the entry point logo */
+        .entry-point-logo {
+            max-width: 300px;
+            margin: 0 auto 20px;
         }
 
         /* ✨ NEW: Styles for the Entry Point Screen */
@@ -657,6 +664,8 @@
     <!-- ✨ NEW: Entry Point Screen -->
     <div id="entryPointContainer" class="entry-point-container">
         <div class="entry-point-content">
+            <!-- MODIFIED: Added logo with correct path -->
+            <img src="Assets/Proquotelyasset-25.png" alt="Proquotely Logo" class="entry-point-logo">
             <h1>Construction Estimator Pro</h1>
             <p>Choose how you'd like to begin.</p>
             <div class="entry-point-buttons">
@@ -788,9 +797,11 @@
         </div>
     </div>
 
-    <script type="module"> // Changed to type="module" for the main script block
-        // Import QuickQuoteSummary as a module
+    <script type="module"> 
+        // Import component modules
         import QuickQuoteSummary from './src/sections/QuickQuoteSummary/QuickQuoteSummary.js';
+        // Import services
+        import { exportClientQuoteToPdf, exportDetailedReportToPdf, exportEstimateToCsv } from './src/services/exportService.js';
 
         // --- Core Application Functions (Defined at the top to ensure hoisting) ---
         async function loadAppHeader() {
@@ -799,7 +810,6 @@
                 if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for AppHeader.html`);
                 const html = await htmlResponse.text();
 
-                // THIS IS THE CHANGE: Only populate the single, shared placeholder
                 document.getElementById('appHeaderPlaceholder').innerHTML = html;
 
                 const script = document.createElement('script');
@@ -823,12 +833,17 @@
                             onThemeToggle: toggleTheme,
                             onReconfigure: reconfigureApp, 
                             onSaveProject: handleSaveProject,
-                            onExportPdfReport: exportDetailedReportToPdf,
-                            onExportCsv: exportEstimateToCsv,
-                            onExportPdfQuote: exportClientQuoteToPdf,
+                            // MODIFIED: Use imported functions from exportService
+                            onExportPdfReport: () => exportDetailedReportToPdf(projectSettings, estimateItems, formatCurrency, formatHours, renderMessageBox),
+                            onExportCsv: () => exportEstimateToCsv(projectSettings, estimateItems, renderMessageBox),
+                            onExportPdfQuote: () => exportClientQuoteToPdf(projectSettings, estimateItems, currentAppMode, formatCurrency, renderMessageBox),
                             onEmailClient: sendEstimateEmailToClient,
                             onUserProfileClick: showSavedProjects 
                         });
+                        
+                        // MODIFIED: Immediately update the logo with the default from project settings
+                        window.AppHeader.updateLogo(initialProjectSettings.contractorLogo);
+
                         // Initialize theme toggle state in header
                         if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
                             window.AppHeader.updateThemeToggleSlider(isDarkTheme);
@@ -882,8 +897,6 @@
                 const html = await htmlResponse.text();
                 document.getElementById('quickQuoteSummaryPlaceholder').innerHTML = html;
 
-                // Directly use the imported QuickQuoteSummary module
-                // No need for dynamic script element or setTimeout here, as the import is handled by the module loader
                 if (QuickQuoteSummary) {
                     QuickQuoteSummary.init({
                         projectSettings: projectSettings,
@@ -1008,7 +1021,8 @@
             endDate: "",
             projectID: "",
             projectDescription: "",
-            contractorLogo: "",
+            // MODIFIED: Set default logo with correct path
+            contractorLogo: "Assets/Proquotelyasset-25.png",
             projectType: "Commercial",
             projectState: "CA",
             profitMargin: 15,
@@ -1383,247 +1397,7 @@
             'WI': 5.0, 'WY': 4.0
         };
 
-        // --- Estimate Item Management & Exporting ---
-
-        function exportClientQuoteToPdf() {
-            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF.API.autoTable === 'undefined') {
-                renderMessageBox('Error: PDF generation library not loaded correctly.');
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'letter' });
-
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const margin = 40;
-            let cursorY = 40;
-
-            if (projectSettings.contractorLogo) {
-                try { doc.addImage(projectSettings.contractorLogo, 'PNG', margin, cursorY, 80, 25); } catch (e) { console.error("Error adding logo to PDF:", e); }
-            }
-
-            doc.setFontSize(18);
-            doc.setFont('helvetica', 'bold');
-            doc.text('QUOTE', pageWidth - margin, cursorY + 15, { align: 'right' });
-            cursorY += 40;
-
-            doc.setLineWidth(0.5);
-            doc.line(margin, cursorY, pageWidth - margin, cursorY);
-            cursorY += 15;
-
-            doc.setFontSize(9);
-            doc.setFont('helvetica', 'bold');
-            doc.text('FROM:', margin, cursorY);
-            doc.text('TO:', pageWidth / 2, cursorY);
-
-            doc.setFont('helvetica', 'normal');
-            cursorY += 12;
-            doc.text(projectSettings.ownerName || "Your Company Name", margin, cursorY);
-            doc.text(projectSettings.clientName, pageWidth / 2, cursorY);
-            cursorY += 12;
-            doc.text(projectSettings.ownerAddress || "123 Main St", margin, cursorY);
-            doc.text(projectSettings.projectAddress, pageWidth / 2, cursorY);
-            cursorY += 12;
-            doc.text(`${projectSettings.ownerCity || "Anytown, USA"} ${projectSettings.ownerZip || "12345"}`, margin, cursorY);
-            doc.text(`${projectSettings.projectCity}, ${projectSettings.projectState} ${projectSettings.projectZip}`, pageWidth / 2, cursorY);
-            cursorY += 25;
-
-            doc.setFont('helvetica', 'bold');
-            doc.text('QUOTE #', margin, cursorY);
-            doc.text('DATE', pageWidth / 2, cursorY);
-            doc.setFont('helvetica', 'normal');
-            cursorY += 12;
-            doc.text(projectSettings.projectID || 'N/A', margin, cursorY);
-            doc.text(new Date().toLocaleDateString(), pageWidth / 2, cursorY);
-            cursorY += 25;
-
-            const quoteBody = (currentAppMode === 'detailed') ? estimateItems.map(item => {
-                const laborTotal = item.hours * (projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0) * (item.otDtMultiplier || 1.0);
-                const materialsTotal = item.materialQuantity * item.materialUnitCost;
-                const otherTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
-                const lineTotal = laborTotal + materialsTotal + otherTotal;
-                return [item.taskName, item.description, formatCurrency(lineTotal)];
-            }) : [
-                // For quick quote, provide a simplified line item
-                ["Quick Quote Estimate", `A high-level estimate for ${projectSettings.projectName || 'your project'} in ${projectSettings.projectState || 'N/A'}.`, formatCurrency(projectSettings.grandTotal)]
-            ];
-
-
-            doc.autoTable({
-                startY: cursorY,
-                head: [['DESCRIPTION', 'DETAILS', 'AMOUNT']],
-                body: quoteBody,
-                theme: 'striped',
-                headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
-                columnStyles: { 2: { halign: 'right' } },
-                didDrawPage: (data) => {
-                    const pageCount = doc.internal.getNumberOfPages();
-                    doc.setFontSize(8);
-                    doc.text(`Page ${data.pageNumber} of ${pageCount}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
-                }
-            });
-            
-            cursorY = doc.autoTable.previous.finalY + 20;
-
-            // Ensure totals are based on the correct projectSettings for the current mode
-            const subtotalValue = projectSettings.grandTotal + projectSettings.discountAmount - projectSettings.salesTaxAmount;
-            const totalsBody = [
-                ['Subtotal', formatCurrency(subtotalValue)],
-                ['Sales Tax', formatCurrency(projectSettings.salesTaxAmount)],
-                ['Discount', `-${formatCurrency(projectSettings.discountAmount)}`],
-                ['Total', formatCurrency(projectSettings.grandTotal)]
-            ];
-
-            doc.autoTable({
-                startY: cursorY,
-                body: totalsBody,
-                theme: 'plain',
-                styles: { fontSize: 10 },
-                columnStyles: { 0: { halign: 'right', fontStyle: 'bold' }, 1: { halign: 'right' } },
-                margin: { left: pageWidth / 2 }
-            });
-
-            const exportFileName = `${(projectSettings.projectName || 'quote').replace(/ /g, '_')}-client-quote.pdf`;
-            doc.save(exportFileName);
-            renderMessageBox('Client quote has been exported to PDF.');
-        }
-
-
-        function exportDetailedReportToPdf() {
-            if (currentAppMode !== 'detailed') {
-                renderMessageBox("Detailed reports are only available for Detailed Estimates.");
-                return;
-            }
-
-            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF.API.autoTable === 'undefined') {
-                renderMessageBox('Error: PDF generation library not loaded correctly.');
-                return;
-            }
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ orientation: 'landscape' });
-
-            if (projectSettings.contractorLogo) {
-                try { doc.addImage(projectSettings.contractorLogo, 'PNG', 15, 10, 40, 15); } catch (e) { console.error("Error adding logo to PDF:", e); }
-            }
-            
-            doc.setFontSize(18);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Detailed Project Estimate', 148, 15, { align: 'center' });
-            
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`Project: ${projectSettings.projectName}`, 148, 22, { align: 'center' });
-            doc.text(`Client: ${projectSettings.clientName}`, 148, 27, { align: 'center' });
-            
-            const summaryBody = [
-                ['Total Proposal:', formatCurrency(projectSettings.grandTotal)],
-                ['Total Labor Hours:', formatHours(projectSettings.overallLaborHoursSum)],
-                ['Total Direct Cost:', formatCurrency(projectSettings.totalProjectCostDirect)],
-                ['Material Markup:', `${projectSettings.materialMarkup.toFixed(2)}% (${formatCurrency(projectSettings.materialMarkupAmount)})`],
-                ['Overhead:', `${projectSettings.overhead.toFixed(2)}% (${formatCurrency(projectSettings.totalOverheadCost)})`],
-            ];
-            const summaryBody2 = [
-                ['Miscellaneous:', `${projectSettings.miscellaneous.toFixed(2)}% (${formatCurrency(projectSettings.totalMiscCostAmount)})`],
-                ['Subtotal:', formatCurrency(projectSettings.estimateSubtotalAmount)],
-                ['Profit Margin:', `${projectSettings.profitMargin.toFixed(2)}% (${formatCurrency(projectSettings.totalProfitMarginAmount)})`],
-                ['Sales Tax:', `${projectSettings.salesTax.toFixed(2)}% (${formatCurrency(projectSettings.salesTaxAmount)})`],
-                ['Addt\'l Considerations:', formatCurrency(projectSettings.additionalConsiderationAmount)],
-            ];
-
-            doc.autoTable({ startY: 40, body: summaryBody, theme: 'striped', styles: { fontSize: 9 }, columnStyles: { 1: { halign: 'right' } }, margin: { left: 15 } });
-            doc.autoTable({ startY: 40, body: summaryBody2, theme: 'striped', styles: { fontSize: 9 }, columnStyles: { 1: { halign: 'right' } }, margin: { left: 157 } });
-            
-            const lineItemsHead = [
-                [
-                    { content: 'Task', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'Description', rowSpan: 2, styles: { valign: 'middle' } },
-                    { content: 'Labor', colSpan: 5, styles: { halign: 'center' } },
-                    { content: 'Materials', colSpan: 3, styles: { halign: 'center' } },
-                    { content: 'Other Costs', colSpan: 4, styles: { halign: 'center' } },
-                    { content: 'Line Total', rowSpan: 2, styles: { valign: 'middle', halign: 'center' } },
-                ],
-                ['OT/DT', 'Trade', 'Skill', '$/hr', 'Labor Total', 'Qty/Unit', '$/Unit', 'Mat. Total', 'Equip.', 'Sub', 'Misc.', 'Other Total']
-            ];
-
-            const lineItemsBody = estimateItems.map(item => {
-                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
-                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
-                const laborTotal = item.hours * effectiveLaborRate;
-                const materialsTotal = item.materialQuantity * item.materialUnitCost;
-                const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
-                const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
-
-                return [
-                    item.taskName, item.description, item.otDtMultiplier.toFixed(1), item.trade,
-                    item.rateRole, formatCurrency(laborRate), formatCurrency(laborTotal),
-                    `${item.materialQuantity} / unit`, formatCurrency(item.materialUnitCost),
-                    formatCurrency(materialsTotal), formatCurrency(item.equipmentRentalCost),
-                    formatCurrency(item.subcontractorCostLineItem), formatCurrency(item.miscLineItem),
-                    formatCurrency(otherCategoryTotal), formatCurrency(lineTotal)
-                ];
-            });
-
-            doc.autoTable({
-                head: lineItemsHead, body: lineItemsBody, startY: doc.autoTable.previous.finalY + 10,
-                theme: 'grid', headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
-                styles: { fontSize: 7, cellPadding: 1.5 },
-                columnStyles: { 5: { halign: 'right' }, 6: { halign: 'right' }, 8: { halign: 'right' }, 9: { halign: 'right' }, 10: { halign: 'right' }, 11: { halign: 'right' }, 12: { halign: 'right' }, 13: { halign: 'right' }, 14: { halign: 'right' } }
-            });
-
-            const pageCount = doc.internal.getNumberOfPages();
-            for(let i = 1; i <= pageCount; i++) {
-                doc.setPage(i);
-                doc.setFontSize(8);
-                doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width / 2, 200, { align: 'center' });
-            }
-
-            const exportFileName = `${(projectSettings.projectName || 'estimate').replace(/ /g, '_')}-detailed-report.pdf`;
-            doc.save(exportFileName);
-            renderMessageBox('Detailed report has been exported to PDF.');
-        }
-
-        function exportEstimateToCsv() {
-            if (currentAppMode !== 'detailed') {
-                renderMessageBox("CSV export is only available for Detailed Estimates.");
-                return;
-            }
-            if (estimateItems.length === 0) {
-                renderMessageBox('There are no line items to export.');
-                return;
-            }
-
-            const dataForExport = estimateItems.map(item => {
-                const laborRate = projectSettings.allTradeLaborRates[item.trade]?.[item.rateRole] || 0;
-                const effectiveLaborRate = laborRate * (item.otDtMultiplier || 1.0);
-                const laborTotal = item.hours * effectiveLaborRate;
-                const materialsTotal = item.materialQuantity * item.materialUnitCost;
-                const otherCategoryTotal = item.equipmentRentalCost + item.subcontractorCostLineItem + item.miscLineItem;
-                const lineTotal = laborTotal + materialsTotal + otherCategoryTotal;
-
-                return {
-                    "Task Name": item.taskName, "Description": item.description, "Trade": item.trade,
-                    "Skill": item.rateRole, "OT/DT Multiplier": item.otDtMultiplier, "Hours": item.hours,
-                    "Labor Rate ($)": laborRate.toFixed(2), "Labor Total ($)": laborTotal.toFixed(2),
-                    "Material Quantity": item.materialQuantity, "Material Unit Cost ($)": item.materialUnitCost.toFixed(2),
-                    "Materials Total ($)": materialsTotal.toFixed(2), "Equipment/Rental ($)": item.equipmentRentalCost.toFixed(2),
-                    "Subcontractor ($)": item.subcontractorCostLineItem.toFixed(2), "Misc Line Item ($)": item.miscLineItem.toFixed(2),
-                    "Other Total ($)": otherCategoryTotal.toFixed(2), "Line Total ($)": lineTotal.toFixed(2)
-                };
-            });
-
-            const csv = Papa.unparse(dataForExport);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            const exportFileName = `${(projectSettings.projectName || 'estimate').replace(/ /g, '_')}-export.csv`;
-            link.setAttribute('download', exportFileName);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            renderMessageBox('Estimate has been exported to CSV.');
-        }
+        // --- Estimate Item Management ---
 
         function addItem() {
             const defaultTradeForNewItem = currentlySelectedTradeForLineItems;
