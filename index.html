@@ -2069,6 +2069,8 @@
         function startQuickQuote() {
             currentAppMode = 'quickQuote';
             projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
+            // ✨ SET THE PERMANENT LOGO FOR QUICK QUOTE
+            projectSettings.contractorLogo = PERMANENT_DEFAULT_LOGO;
             projectSettings.projectName = "New Quick Quote";
             projectSettings.projectType = "Quick Quote";
             projectSettings.clientName = "";
@@ -2083,7 +2085,8 @@
                 window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); 
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                window.AppHeader.updateLogo(''); 
+                // ✨ UPDATE THE HEADER TO SHOW THE LOGO
+                window.AppHeader.updateLogo(PERMANENT_DEFAULT_LOGO); 
             }
             
             estimateItems = [];
