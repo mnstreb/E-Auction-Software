@@ -32,6 +32,10 @@ window.AppHeader = (function() {
     // NEW: Add callback for the new menu item
     let onCompanyProfileClickCallback; 
 
+    /**
+     * Initializes the AppHeader component.
+     * @param {object} config - Configuration object.
+     */
     function init(config) {
         mainAppLogoElem = document.getElementById(config.mainAppLogoId);
         mainAppDefaultIcon = document.getElementById('mainAppDefaultIcon');
