@@ -3,19 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- MODIFIED: Updated application title -->
     <title>Proquotely - Construction Estimator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- ✨ ADDED FIREBASE LIBRARIES -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+    </script>
+    
     <link rel="stylesheet" href="src/components/AppHeader/AppHeader.css">
     <link rel="stylesheet" href="src/sections/SummaryOverview/SummaryOverview.css">
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
     <link rel="stylesheet" href="src/sections/SavedProjects/SavedProjects.css">
     <link rel="stylesheet" href="src/components/SaveProjectModal/SaveProjectModal.css"> 
-    <!-- ✨ ADDED CSS LINK FOR COMPANY PROFILE -->
     <link rel="stylesheet" href="src/components/CompanyProfile/CompanyProfile.css">
     <link rel="stylesheet" href="src/sections/QuickQuoteSummary/QuickQuoteSummary.css">
     <style>
@@ -204,6 +211,12 @@
         }
         .feature-item .check { color: #10b981; }
         .feature-item .cross { color: #ef4444; }
+
+        /* ✨ NEW: Styles for smooth screen transitions */
+        .screen-container {
+            transition: opacity 0.3s ease-in-out;
+        }
+
 
         table {
             width: 100%;
@@ -959,6 +972,28 @@
         
         // MODIFIED: Define permanent logo path
         const PERMANENT_DEFAULT_LOGO = "Assets/Proquotelyasset-25.png";
+
+        // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyB_PnefX-oItBYlaCwNSOfpBlXQ0Of3Ujk",
+  authDomain: "proquotely.firebaseapp.com",
+  projectId: "proquotely",
+  storageBucket: "proquotely.firebasestorage.app",
+  messagingSenderId: "497163316792",
+  appId: "1:497163316792:web:a3ae3094ed1b64ff78c0cd",
+  measurementId: "G-1VB36ZQFQB"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
         // --- Core Application Functions (Defined at the top to ensure hoisting) ---
         async function loadAppHeader() {
@@ -2058,6 +2093,7 @@
             projectSettings.contractorLogo = PERMANENT_DEFAULT_LOGO;
 
             entryPointContainer.classList.add('hidden');
+            appHeaderContainer.classList.add('hidden'); // ✨ Keep header hidden initially
             mainApp.classList.add('hidden');
             quickQuoteApp.classList.add('hidden');
             loadSetupWizard();
@@ -2075,7 +2111,7 @@
             entryPointContainer.classList.add('hidden');
             mainApp.classList.add('hidden');
             
-            appHeaderContainer.classList.remove('hidden'); // ✨ Show header
+            appHeaderContainer.classList.remove('hidden'); // ✨ Show header for quick quote
             quickQuoteApp.classList.remove('hidden');
             loadQuickQuoteSummary();
             
