@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="src/sections/SetupWizard/SetupWizard.css">
     <link rel="stylesheet" href="src/sections/SavedProjects/SavedProjects.css">
     <link rel="stylesheet" href="src/components/SaveProjectModal/SaveProjectModal.css"> 
+    <!-- ✨ ADDED CSS LINK FOR COMPANY PROFILE -->
+    <link rel="stylesheet" href="src/components/CompanyProfile/CompanyProfile.css">
     <link rel="stylesheet" href="src/sections/QuickQuoteSummary/QuickQuoteSummary.css">
     <style>
         /* Base styles and UI improvements (General styles remain here) */
@@ -105,11 +107,11 @@
 
         /* MODIFIED: Style for the entry point logo */
         .entry-point-logo {
-            max-width: 300px;
+            max-width: 200px;
             margin: 0 auto 20px;
         }
 
-        /* ✨ NEW: Styles for the Entry Point Screen */
+        /* ✨ UPDATED STYLES FOR NEW ENTRY POINT SCREEN */
         .entry-point-container {
             position: fixed;
             top: 0;
@@ -123,31 +125,85 @@
             text-align: center;
             z-index: 2000;
             background: linear-gradient(135deg, #e0f2fe 0%, #c1e0fa 100%);
+            padding: 20px;
         }
         .entry-point-content {
-            background: white;
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            background: transparent;
+            box-shadow: none;
+            width: 100%;
+            max-width: 900px;
         }
-        .entry-point-content h1 {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-        }
-        .entry-point-content p {
-            font-size: 1.1rem;
-            color: #4b5563;
+        .entry-point-header {
             margin-bottom: 40px;
         }
-        .entry-point-buttons {
-            display: flex;
-            gap: 20px;
+        .entry-point-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e3a8a;
         }
-        .entry-point-buttons .btn {
-            padding: 15px 30px;
+        .entry-point-header p {
             font-size: 1.1rem;
+            color: #4b5563;
         }
-
+        .entry-point-choices {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .choice-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            border-top: 4px solid;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .choice-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        }
+        .choice-card.detailed { border-color: #2563eb; }
+        .choice-card.quick { border-color: #10b981; }
+        .choice-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .choice-card p {
+            color: #6b7280;
+            margin-bottom: 25px;
+            flex-grow: 1;
+        }
+        .features-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 30px 0;
+        }
+        .features-list h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+        .feature-item svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+        .feature-item .check { color: #10b981; }
+        .feature-item .cross { color: #ef4444; }
 
         table {
             width: 100%;
@@ -407,6 +463,9 @@
             .header-subtitle { /* Kept here as it's a general subheading style now */
                 font-size: 15px;
             }
+            .entry-point-choices {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Hide spinner arrows for number input fields within the table */
@@ -661,27 +720,119 @@
 </head>
 <body class="bg-gray-100 p-4">
 
-    <!-- ✨ NEW: Entry Point Screen -->
-    <div id="entryPointContainer" class="entry-point-container">
+    <!-- ✨ UPDATED Entry Point Screen -->
+    <div id="entryPointContainer" class="entry-point-container screen-container">
         <div class="entry-point-content">
-            <!-- MODIFIED: Added logo with correct path -->
-            <img src="Assets/Proquotelyasset-25.png" alt="Proquotely Logo" class="entry-point-logo">
-            <h1>Construction Estimator Pro</h1>
-            <p>Choose how you'd like to begin.</p>
-            <div class="entry-point-buttons">
-                <button id="startDetailedBtn" class="btn btn-primary">Start Detailed Estimate</button>
-                <button id="startQuickQuoteBtn" class="btn btn-green">Generate Quick Quote</button>
+            <div class="entry-point-header">
+                <img src="Assets/Proquotelyasset-25.png" alt="Proquotely Logo" class="entry-point-logo">
+                <h1>Welcome to Proquotely</h1>
+                <p>Choose the right tool for your job. Start with a quick, high-level quote or dive into a comprehensive, line-by-line estimate.</p>
+            </div>
+            <div class="entry-point-choices">
+                <!-- Detailed Estimate Card -->
+                <div class="choice-card detailed">
+                    <h3>Detailed Estimate</h3>
+                    <p>The complete toolkit. Control every line item, trade, and rate for maximum precision on complex projects.</p>
+                    <ul class="features-list">
+                        <h4>Core Features</h4>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Professional PDF Exports</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Save Projects</span>
+                        </li>
+                         <h4>Advanced Features</h4>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Project Set Up Walkthrough</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Company Info & Logo Setup</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Line-item Granularity</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Multiple Trades & Skills</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Customizable Labor Rates</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>"At-a-Glance" Financial Summary</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Cost Distribution Charts</span>
+                        </li>
+                    </ul>
+                    <button id="startDetailedBtn" class="btn btn-primary w-full">Choose Detailed</button>
+                </div>
+                <!-- Quick Quote Card -->
+                <div class="choice-card quick">
+                    <h3>Quick Quote</h3>
+                    <p>The fast track. Generate high-level estimates in seconds when you need a number, not a novel.</p>
+                     <ul class="features-list">
+                        <h4>Core Features</h4>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Professional PDF Exports</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Save Projects</span>
+                        </li>
+                         <h4>Advanced Features</h4>
+                        <li class="feature-item">
+                            <svg class="cross" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            <span>Project Set Up Walkthrough</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="cross" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            <span>Company Info & Logo Setup</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="cross" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            <span>Line-item Granularity</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="cross" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            <span>Multiple Trades & Skills</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="cross" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            <span>Customizable Labor Rates</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="cross" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            <span>"At-a-Glance" Financial Summary</span>
+                        </li>
+                        <li class="feature-item">
+                            <svg class="cross" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            <span>Cost Distribution Charts</span>
+                        </li>
+                    </ul>
+                    <button id="startQuickQuoteBtn" class="btn btn-green w-full">Choose Quick Quote</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- THIS IS THE NEW SHARED HEADER CONTAINER -->
-    <div class="container" id="appHeaderContainer">
+
+    <!-- ✨ THIS CONTAINER IS NOW HIDDEN BY DEFAULT -->
+    <div class="container hidden" id="appHeaderContainer">
         <div id="appHeaderPlaceholder"></div>
     </div>
 
     <!-- The mainApp container no longer has its own header placeholder -->
-    <div id="mainApp" class="container hidden">
+    <div id="mainApp" class="container hidden screen-container">
         <div id="summaryOverviewPlaceholder"></div>
 
         <div class="card overflow-x-auto" id="estimateLineItemsTableContainer">
@@ -743,7 +894,7 @@
     </div>
 
     <!-- The quickQuoteApp container no longer has its own header placeholder -->
-    <div id="quickQuoteApp" class="container hidden">
+    <div id="quickQuoteApp" class="container hidden screen-container">
         <div id="quickQuoteSummaryPlaceholder"></div>
     </div>
 
@@ -751,6 +902,9 @@
     <div id="setupWizardPlaceholder"></div>
 
     <div id="savedProjectsPlaceholder"></div>
+    
+    <!-- ✨ ADDED HTML PLACEHOLDER FOR COMPANY PROFILE -->
+    <div id="companyProfilePlaceholder"></div>
 
     <div id="saveProjectModal" class="save-project-modal">
         <div class="save-project-modal-content">
@@ -828,7 +982,9 @@
                             userProfileBtnId: 'userProfileBtn',
                             userProfileDropdownMenuId: 'userProfileDropdownMenu', 
                             profileDropdownThemeToggleId: 'profileDropdownThemeToggle', 
-                            savedProjectsMenuItemId: 'savedProjectsMenuItem', 
+                            savedProjectsMenuItemId: 'savedProjectsMenuItem',
+                            // ✨ ADDED ID AND CALLBACK FOR COMPANY PROFILE
+                            companyProfileMenuItemId: 'companyProfileMenuItem', 
                             exportPdfReportBtnId: 'exportPdfReportBtn',
                             exportCsvBtnId: 'exportCsvBtn',
                             exportPdfQuoteBtnId: 'exportPdfQuoteBtn',
@@ -836,17 +992,14 @@
                             onThemeToggle: toggleTheme,
                             onReconfigure: reconfigureApp, 
                             onSaveProject: handleSaveProject,
-                            // MODIFIED: Ensure totals are calculated before any export
                             onExportPdfReport: () => { calculateTotals(); exportDetailedReportToPdf(projectSettings, estimateItems, formatCurrency, formatHours, renderMessageBox); },
                             onExportCsv: () => { calculateTotals(); exportEstimateToCsv(projectSettings, estimateItems, renderMessageBox); },
                             onExportPdfQuote: () => { calculateTotals(); exportClientQuoteToPdf(projectSettings, estimateItems, currentAppMode, formatCurrency, renderMessageBox); },
                             onEmailClient: sendEstimateEmailToClient,
-                            onUserProfileClick: showSavedProjects 
+                            onUserProfileClick: showSavedProjects,
+                            onCompanyProfileClick: showCompanyProfile 
                         });
                         
-                        // MODIFIED: Removed logo update from here. It's now handled in startup functions.
-
-                        // Initialize theme toggle state in header
                         if (window.AppHeader && typeof window.AppHeader.updateThemeToggleSlider === 'function') {
                             window.AppHeader.updateThemeToggleSlider(isDarkTheme);
                         }
@@ -859,6 +1012,33 @@
 
             } catch (error) {
                 console.error("Error loading AppHeader component:", error);
+            }
+        }
+        
+        // ✨ NEW FUNCTION TO LOAD COMPANY PROFILE COMPONENT
+        async function loadCompanyProfile() {
+            try {
+                const htmlResponse = await fetch('src/components/CompanyProfile/CompanyProfile.html');
+                if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for CompanyProfile.html`);
+                const html = await htmlResponse.text();
+                document.getElementById('companyProfilePlaceholder').innerHTML = html;
+
+                const script = document.createElement('script');
+                script.src = 'src/components/CompanyProfile/CompanyProfile.js';
+                script.onload = () => {
+                    if (window.CompanyProfile) {
+                        window.CompanyProfile.init({
+                            onSave: handleCompanyProfileSave
+                        });
+                    } else {
+                        console.error('CompanyProfile module not available after loading.');
+                    }
+                };
+                script.onerror = (e) => console.error("Failed to load CompanyProfile.js", e);
+                document.body.appendChild(script);
+
+            } catch (error) {
+                console.error("Error loading CompanyProfile component:", error);
             }
         }
 
@@ -921,9 +1101,10 @@
                 const htmlResponse = await fetch('src/sections/SetupWizard/SetupWizard.html');
                 if (!htmlResponse.ok) throw new Error(`HTTP error! status: ${htmlResponse.status} for SetupWizard.html`);
                 const html = await htmlResponse.text();
-                document.getElementById('setupWizardPlaceholder').innerHTML = html;
+                const placeholder = document.getElementById('setupWizardPlaceholder');
+                placeholder.innerHTML = html;
                 
-                document.getElementById('setupWizardPlaceholder').classList.remove('hidden');
+                placeholder.classList.remove('hidden');
 
                 const script = document.createElement('script');
                 script.src = 'src/sections/SetupWizard/SetupWizard.js';
@@ -934,6 +1115,7 @@
                             estimateItems: estimateItems,
                             stateSalesTax: stateSalesTax,
                             onCompletion: handleWizardCompletion,
+                            onBackToEntry: showEntryPoint, // ✨ Pass the function to go back
                             renderMessageBox: renderMessageBox,
                             closeMessageBox: closeMessageBox,
                             mode: currentAppMode 
@@ -943,6 +1125,7 @@
                         window.SetupWizard.updateSelectedTradesDisplay();
                         window.SetupWizard.updateSalesTaxForState(projectSettings.projectState);
                         window.SetupWizard.loadSavedLogo();
+                        
                     } else {
                         console.error('SetupWizard module not available after loading.');
                     }
@@ -989,6 +1172,30 @@
             } catch (error) {
                 console.error("Error loading SavedProjects component:", error);
             }
+        }
+
+        // ✨ NEW FUNCTION TO SHOW COMPANY PROFILE MODAL
+        function showCompanyProfile() {
+            if (window.CompanyProfile) {
+                const companyData = {
+                    ownerName: projectSettings.ownerName,
+                    ownerAddress: projectSettings.ownerAddress,
+                    ownerCity: projectSettings.ownerCity,
+                    ownerZip: projectSettings.ownerZip,
+                    ownerEmail: projectSettings.ownerEmail
+                };
+                window.CompanyProfile.show(companyData);
+            }
+        }
+
+        // ✨ NEW FUNCTION TO HANDLE SAVING COMPANY DATA
+        function handleCompanyProfileSave(companyData) {
+            projectSettings.ownerName = companyData.ownerName;
+            projectSettings.ownerAddress = companyData.ownerAddress;
+            projectSettings.ownerCity = companyData.ownerCity;
+            projectSettings.ownerZip = companyData.ownerZip;
+            projectSettings.ownerEmail = companyData.ownerEmail;
+            renderMessageBox('Company information has been updated.');
         }
 
 
@@ -1078,6 +1285,7 @@
         const entryPointContainer = document.getElementById('entryPointContainer');
         const mainApp = document.getElementById('mainApp');
         const quickQuoteApp = document.getElementById('quickQuoteApp'); // New container for quick quote view
+        const appHeaderContainer = document.getElementById('appHeaderContainer'); // ✨ Get the header container
         const estimateTableBody = document.getElementById('estimateTableBody');
         const saveProjectModal = document.getElementById('saveProjectModal');
         const saveProjectNameInput = document.getElementById('saveProjectName');
@@ -1180,28 +1388,29 @@
         function handleWizardCompletion(updatedSettings) {
             projectSettings = { ...updatedSettings }; 
             
-            // MODIFIED: Enforce permanent default logo for detailed estimate mode
             if (currentAppMode === 'detailed' && !projectSettings.contractorLogo) {
                 projectSettings.contractorLogo = PERMANENT_DEFAULT_LOGO;
             }
             
             const setupWizardPlaceholder = document.getElementById('setupWizardPlaceholder');
-            if (setupWizardPlaceholder) {
-                setupWizardPlaceholder.classList.add('hidden');
-                setupWizardPlaceholder.innerHTML = ''; 
-            }
+            setupWizardPlaceholder.classList.add('hidden');
+            setupWizardPlaceholder.innerHTML = ''; 
             
             entryPointContainer.classList.add('hidden');
             mainApp.classList.add('hidden');
             quickQuoteApp.classList.add('hidden');
 
+            let nextScreen;
             if (projectSettings.projectType === "Quick Quote") {
-                 quickQuoteApp.classList.remove('hidden');
+                 nextScreen = quickQuoteApp;
                  loadQuickQuoteSummary();
             } else {
-                 mainApp.classList.remove('hidden');
+                 nextScreen = mainApp;
                  loadSummaryOverview();
             }
+            
+            appHeaderContainer.classList.remove('hidden'); // ✨ Show the header now
+            nextScreen.classList.remove('hidden');
             
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
             
@@ -1252,31 +1461,30 @@
         }
 
         function showEntryPoint() {
-            currentAppMode = 'entry'; // Set mode when showing entry point
-            entryPointContainer.classList.remove('hidden');
+            currentAppMode = 'entry';
+            
+            appHeaderContainer.classList.add('hidden'); // ✨ Hide header when going to entry point
             mainApp.classList.add('hidden');
             quickQuoteApp.classList.add('hidden');
             document.getElementById('setupWizardPlaceholder').classList.add('hidden');
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
-            // Reset project info in header
+            
+            entryPointContainer.classList.remove('hidden');
+
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
-                // Corrected: Project Name as large, Client | Type | Location as small
                 window.AppHeader.updateProjectInfo('Project Type', 'Project Name', 'Client Name', 'Location'); 
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                window.AppHeader.updateLogo(''); // Clear logo
+                window.AppHeader.updateLogo('');
             }
         }
         
         function reconfigureApp() {
-            // Instead of resetting, we now simply show the setup wizard again
-            // The wizard will automatically load the current projectSettings
-            loadSetupWizard();
-            // Hide the main app/quick quote app while wizard is open
+            appHeaderContainer.classList.add('hidden'); // ✨ Hide header before showing wizard
             mainApp.classList.add('hidden');
             quickQuoteApp.classList.add('hidden');
             document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
-            // No message box needed for a simple re-entry
+            loadSetupWizard();
         }
 
         function showSetupWizard() {
@@ -1284,35 +1492,33 @@
         }
 
         function showMainApp() {
-            currentAppMode = 'detailed'; // Set mode when showing main app
+            currentAppMode = 'detailed';
+            
+            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
+            appHeaderContainer.classList.remove('hidden'); // ✨ Show header
             mainApp.classList.remove('hidden');
             quickQuoteApp.classList.add('hidden');
-            document.getElementById('setupWizardPlaceholder').classList.add('hidden');
-            document.getElementById('savedProjectsPlaceholder').classList.add('hidden');
-             // Ensure header info is updated when returning to main app
+
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
                 window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
                 window.AppHeader.updateLogo(projectSettings.contractorLogo);
             }
-            calculateTotals(); // Recalculate and update summaries
+            calculateTotals();
         }
 
         function handleSaveProject() {
-            // Ensure totals are calculated based on the current active view
             if (currentAppMode === 'detailed') {
                 calculateTotals(); 
             } else if (currentAppMode === 'quickQuote') {
                 if (QuickQuoteSummary && typeof QuickQuoteSummary.calculateTotals === 'function') {
-                    QuickQuoteSummary.calculateTotals(); // Ensure quick quote totals are fresh
+                    QuickQuoteSummary.calculateTotals();
                 }
             }
             
-            // Populate modal fields based on current projectSettings
             saveProjectNameInput.value = projectSettings.projectName || '';
             saveCustomerNameInput.value = projectSettings.clientName || '';
-            // For quick quote, projectState might not be set, allow user to input
             saveLocationInput.value = projectSettings.projectState || ''; 
             saveProjectCostInput.value = formatCurrency(projectSettings.grandTotal || 0);
             saveProjectModal.classList.add('show');
@@ -1325,38 +1531,34 @@
         function confirmSaveProject() {
             const projectName = saveProjectNameInput.value.trim();
             const customerName = saveCustomerNameInput.value.trim();
-            const projectState = saveLocationInput.value.trim(); // Now editable
+            const projectState = saveLocationInput.value.trim();
 
             if (!projectName || !customerName || !projectState) {
                 renderMessageBox('Project Name, Customer Name, and Location (State) are required.');
                 return;
             }
 
-            // Update projectSettings with values from modal, especially important for quick quote
-            // This ensures the saved project has the name, client, and state entered in the modal
             projectSettings.projectName = projectName;
             projectSettings.clientName = customerName;
             projectSettings.projectState = projectState;
 
-            // Update AppHeader with potentially new project info from modal
             if (window.AppHeader && typeof window.AppHeader.updateProjectInfo === 'function') {
                 window.AppHeader.updateProjectInfo(projectSettings.projectType, projectSettings.projectName, projectSettings.clientName, projectSettings.projectState);
             }
 
-            const totalProposalRaw = projectSettings.grandTotal || 0; // Ensures grandTotal is updated from latest calculations
+            const totalProposalRaw = projectSettings.grandTotal || 0;
 
             const newSavedProject = {
                 id: `proj_${Date.now()}`,
                 projectName: projectName,
                 customerName: customerName,
-                projectType: projectSettings.projectType, // Use current type (from wizard or default)
+                projectType: projectSettings.projectType,
                 projectState: projectState,
                 totalProposal: totalProposalRaw,
                 lastSavedDate: new Date().toISOString().split('T')[0],
                 status: 'Draft',
                 projectDetails: JSON.stringify({
-                    settings: { ...projectSettings }, // Save current project settings
-                    // Save either detailed estimate items or quick quote items
+                    settings: { ...projectSettings },
                     items: currentAppMode === 'detailed' ? [...estimateItems] : (QuickQuoteSummary ? QuickQuoteSummary.getQuickQuoteItems() : []) 
                 })
             };
@@ -1375,6 +1577,7 @@
             mainApp.classList.add('hidden');
             quickQuoteApp.classList.add('hidden');
             document.getElementById('setupWizardPlaceholder').classList.add('hidden');
+            appHeaderContainer.classList.remove('hidden'); // ✨ Show header for saved projects view
             const savedProjectsPlaceholder = document.getElementById('savedProjectsPlaceholder');
             if (savedProjectsPlaceholder.innerHTML === '') {
                 loadSavedProjects();
@@ -1410,6 +1613,7 @@
             const newItem = {
                 id: Date.now(), taskName: 'New Task', description: 'Detail your first project task here.',
                 trade: defaultTradeForNewItem, rateRole: defaultRoleForNewItem, hours: 0,
+                otDtMultiplier: 1.0,
                 materialQuantity: 0, materialUnitCost: 0, equipmentRentalCost: 0,
                 subcontractorCostLineItem: 0, miscLineItem: 0
             };
@@ -1862,6 +2066,7 @@
         function startQuickQuote() {
             currentAppMode = 'quickQuote';
             projectSettings = JSON.parse(JSON.stringify(initialProjectSettings));
+            projectSettings.contractorLogo = PERMANENT_DEFAULT_LOGO;
             projectSettings.projectName = "New Quick Quote";
             projectSettings.projectType = "Quick Quote";
             projectSettings.clientName = "";
@@ -1869,6 +2074,8 @@
             
             entryPointContainer.classList.add('hidden');
             mainApp.classList.add('hidden');
+            
+            appHeaderContainer.classList.remove('hidden'); // ✨ Show header
             quickQuoteApp.classList.remove('hidden');
             loadQuickQuoteSummary();
             
@@ -1876,7 +2083,7 @@
                 window.AppHeader.updateProjectInfo('Quick Quote', 'New Quick Quote', '', 'N/A'); 
             }
             if (window.AppHeader && typeof window.AppHeader.updateLogo === 'function') {
-                window.AppHeader.updateLogo(''); 
+                window.AppHeader.updateLogo(PERMANENT_DEFAULT_LOGO); 
             }
             
             estimateItems = [];
@@ -1958,6 +2165,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadAppHeader(); 
+            // ✨ ADDED CALL TO LOAD COMPANY PROFILE
+            loadCompanyProfile();
             setupInitialEventListeners();
             // Initial render of items if any exist (e.g., from initialEstimateItems)
             if (currentAppMode === 'detailed') { // Only render items if starting in detailed mode
