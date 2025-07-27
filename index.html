@@ -836,9 +836,10 @@
                             onThemeToggle: toggleTheme,
                             onReconfigure: reconfigureApp, 
                             onSaveProject: handleSaveProject,
-                            onExportPdfReport: () => exportDetailedReportToPdf(projectSettings, estimateItems, formatCurrency, formatHours, renderMessageBox),
-                            onExportCsv: () => exportEstimateToCsv(projectSettings, estimateItems, renderMessageBox),
-                            onExportPdfQuote: () => exportClientQuoteToPdf(projectSettings, estimateItems, currentAppMode, formatCurrency, renderMessageBox),
+                            // MODIFIED: Ensure totals are calculated before any export
+                            onExportPdfReport: () => { calculateTotals(); exportDetailedReportToPdf(projectSettings, estimateItems, formatCurrency, formatHours, renderMessageBox); },
+                            onExportCsv: () => { calculateTotals(); exportEstimateToCsv(projectSettings, estimateItems, renderMessageBox); },
+                            onExportPdfQuote: () => { calculateTotals(); exportClientQuoteToPdf(projectSettings, estimateItems, currentAppMode, formatCurrency, renderMessageBox); },
                             onEmailClient: sendEstimateEmailToClient,
                             onUserProfileClick: showSavedProjects 
                         });
